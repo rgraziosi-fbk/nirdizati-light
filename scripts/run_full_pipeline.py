@@ -2,7 +2,8 @@ import itertools
 import logging
 import numpy as np
 
-from src.encoding.common import get_encoded_df, EncodingType, EncodingTypeAttribute
+from src.encoding.common import get_encoded_df, EncodingType
+from src.encoding.constants import EncodingTypeAttribute
 from src.evaluation.common import evaluate
 from src.explanation.common import explain, ExplainerType
 from src.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback
@@ -56,11 +57,24 @@ def run_full_pipeline(CONF=None):
     test_log = get_log(filepath=CONF['data']['TEST_DATA'])
 
     logger.debug('ENCODE DATA')
-    encoder, train_df, validate_df, feedback_df, test_df = get_encoded_df(
-        train_log=train_log,
-        validate_log=validate_log,
-        test_log=feedback_log,
-        retrain_test_log=test_log,
+
+    encoder, train_df = get_encoded_df(
+        log=train_log,
+        CONF=CONF
+    )
+    encoder, validate_df = get_encoded_df(
+        log=validate_log,
+        encoder=encoder,
+        CONF=CONF
+    )
+    encoder, feedback_df = get_encoded_df(
+        log=feedback_log,
+        encoder=encoder,
+        CONF=CONF
+    )
+    encoder, test_df = get_encoded_df(
+        log=test_log,
+        encoder=encoder,
         CONF=CONF
     )
 

@@ -4,20 +4,27 @@ from datetime import timedelta
 from pandas import DataFrame
 from pm4py.objects.log.log import EventLog, Trace, Event
 
+from src.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType
 from src.labeling.common import add_label_column
 
 PREFIX_ = 'prefix_'
 
 
-def frequency_features(log: EventLog, prefix_length, padding, labeling_type, columns: list = None) -> DataFrame:
+def frequency_features(log: EventLog, prefix_length, padding, labeling_type, generation_type, columns: list = None) -> DataFrame:
     if columns is None:
-        columns = _compute_columns(log, prefix_length)
+        max_prefix_length = get_max_prefix_length(log, prefix_length)
+        columns = _compute_columns(log, max_prefix_length)
     encoded_data = []
     for trace in log:
+        trace_prefix_length = get_prefix_length(len(trace), prefix_length)
         if len(trace) <= prefix_length - 1 and not padding:
             # trace too short and no zero padding
             continue
-        encoded_data.append(_trace_to_row(trace, prefix_length, columns, padding, labeling_type))
+        if generation_type == TaskGenerationType.ALL_IN_ONE.value:
+            for event_index in range(1, min(trace_prefix_length + 1, len(trace) + 1)):
+                encoded_data.append(_trace_to_row(trace, event_index, columns, padding, labeling_type))
+        else:
+            encoded_data.append(_trace_to_row(trace, prefix_length, columns, padding, labeling_type))
 
     return DataFrame(columns=columns, data=encoded_data)
 
