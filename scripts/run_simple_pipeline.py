@@ -2,8 +2,7 @@ import itertools
 import logging
 import numpy as np
 
-from src.encoding.common import get_encoded_df, EncodingType
-from src.encoding.constants import EncodingTypeAttribute, TaskGenerationType, PrefixLengthStrategy
+from src.encoding.common import get_encoded_df, EncodingType, EncodingTypeAttribute
 from src.evaluation.common import evaluate
 from src.explanation.common import explain, ExplainerType
 from src.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback
@@ -34,17 +33,15 @@ def run_simple_pipeline(CONF=None):
                     'VALIDATE_DATA': '../input_data/' + 'd1_validation_explainability_38-40.xes',
                     'FEEDBACK_DATA': '../input_data/' + 'd1_test_explainability_40-50.xes',
                     'TEST_DATA': '../input_data/' + 'd1_test2_explainability_50-60.xes',
-                    'OUTPUT_DATA': '../output_data/',
+                    'OUTPUT_DATA': '../output_data',
                 },
-            'prefix_length_strategy': PrefixLengthStrategy.PERCENTAGE.value,
-            'prefix_length': 0.3,
+            'prefix_length': 5,
             'padding': True,  # TODO: why use of padding?
             'feature_selection': EncodingType.SIMPLE.value,
-            'task_generation_type': TaskGenerationType.ALL_IN_ONE.value,
-            'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
-            'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-            'predictive_model': PredictionMethods.RANDOM_FOREST.value,  # RANDOM_FOREST, LSTM
-            'explanator': ExplainerType.SHAP.value,  # SHAP, LRP
+            'attribute_encoding': EncodingTypeAttribute.ONEHOT.value,  # LABEL, ONEHOT
+            'labeling_type': LabelTypes.NEXT_ACTIVITY.value,
+            'predictive_model': PredictionMethods.LSTM.value,  # RANDOM_FOREST, LSTM
+            'explanator': ExplainerType.LRP.value,  # SHAP, LRP
             'threshold': 13,
             'top_k': 10,
             'hyperparameter_optimisation': False,  # TODO: this parameter is not used
@@ -55,24 +52,16 @@ def run_simple_pipeline(CONF=None):
     logger.debug('LOAD DATA')
     train_log = get_log(filepath=CONF['data']['TRAIN_DATA'])
     validate_log = get_log(filepath=CONF['data']['VALIDATE_DATA'])
+    feedback_log = get_log(filepath=CONF['data']['FEEDBACK_DATA'])
     test_log = get_log(filepath=CONF['data']['TEST_DATA'])
 
     logger.debug('ENCODE DATA')
-    encoder, train_df = get_encoded_df(
-        log=train_log,
+    encoder, train_df, validate_df, feedback_df, test_df = get_encoded_df(
+        train_log=train_log,
+        validate_log=validate_log,
+        test_log=feedback_log,
+        retrain_test_log=test_log,
         CONF=CONF
-    )
-    encoder, validate_df = get_encoded_df(
-        log=validate_log,
-        train_cols=train_df.columns,
-        CONF=CONF,
-        encoder=encoder
-    )
-    encoder, test_df = get_encoded_df(
-        log=test_log,
-        CONF=CONF,
-        encoder=encoder,
-        train_cols=train_df.columns
     )
 
     logger.debug('TRAIN PREDICTIVE MODEL')
@@ -109,7 +98,6 @@ def run_simple_pipeline(CONF=None):
 
 
 if __name__ == '__main__':
-    dic = run_simple_pipeline()
-    print(str(dic))
+    run_simple_pipeline()
 
 

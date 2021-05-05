@@ -2,8 +2,7 @@ import itertools
 import logging
 import numpy as np
 
-from src.encoding.common import get_encoded_df, EncodingType
-from src.encoding.constants import EncodingTypeAttribute
+from src.encoding.common import get_encoded_df, EncodingType, EncodingTypeAttribute
 from src.evaluation.common import evaluate
 from src.explanation.common import explain, ExplainerType
 from src.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback

@@ -10,7 +10,7 @@ setup(
               'src.evaluation',
               'src.explanation',
               'src.explanation.wrappers',
-              'src.confusion_matrix_feedback',
+              'src.explanation.confusion_matrix_feedback',
               'src.predictive_model',
               'src.hyperparameter_optimisation'],
     install_requires=[
