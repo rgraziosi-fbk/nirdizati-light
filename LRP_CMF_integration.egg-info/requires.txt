@@ -1,0 +1,12 @@
+pymining
+logging
+pandas
+pm4py
+functools
+sklearn
+shap
+numpy
+enum
+hyperopt
+pathlib
+tensorflow

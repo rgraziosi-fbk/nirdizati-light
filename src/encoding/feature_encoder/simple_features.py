@@ -2,19 +2,26 @@ from pandas import DataFrame
 from pm4py.objects.log.log import EventLog, Trace
 
 from src.labeling.common import add_label_column
+from src.encoding.constants import TaskGenerationType, get_prefix_length, get_max_prefix_length
 
 ATTRIBUTE_CLASSIFIER = None
 PREFIX_ = 'prefix_'
 
 
-def simple_features(log: EventLog, prefix_length, padding, labeling_type, feature_list: list = None) -> DataFrame:
-    columns = _compute_columns(prefix_length)
+def simple_features(log: EventLog, prefix_length, padding, labeling_type, generation_type, feature_list: list = None) -> DataFrame:
+    max_prefix_length = get_max_prefix_length(log, prefix_length)
+    columns = _compute_columns(max_prefix_length)
     encoded_data = []
     for trace in log:
+        trace_prefix_length = get_prefix_length(len(trace), prefix_length)
         if len(trace) <= prefix_length - 1 and not padding:
             # trace too short and no zero padding
             continue
-        encoded_data.append(_trace_to_row(trace, prefix_length, padding, labeling_type))
+        if generation_type == TaskGenerationType.ALL_IN_ONE.value:
+            for event_index in range(1, min(trace_prefix_length + 1, len(trace) + 1)):
+                encoded_data.append(_trace_to_row(trace, event_index, padding, labeling_type))
+        else:
+            encoded_data.append(_trace_to_row(trace, prefix_length, padding, labeling_type))
 
     return DataFrame(columns=columns, data=encoded_data)
 
