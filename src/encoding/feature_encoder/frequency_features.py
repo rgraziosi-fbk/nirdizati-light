@@ -24,7 +24,7 @@ def frequency_features(log: EventLog, prefix_length, padding, labeling_type, gen
             for event_index in range(1, min(trace_prefix_length + 1, len(trace) + 1)):
                 encoded_data.append(_trace_to_row(trace, event_index, columns, padding, labeling_type))
         else:
-            encoded_data.append(_trace_to_row(trace, prefix_length, columns, padding, labeling_type))
+            encoded_data.append(_trace_to_row(trace, trace_prefix_length, columns, padding, labeling_type))
 
     return DataFrame(columns=columns, data=encoded_data)
 

@@ -27,6 +27,7 @@ def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_
         log,
         prefix_length=CONF['prefix_length'],
         padding=CONF['padding'],
+        prefix_length_strategy=CONF['prefix_length_strategy'],
         labeling_type=CONF['labeling_type'],
         generation_type=CONF['task_generation_type'],
         feature_list=train_cols
