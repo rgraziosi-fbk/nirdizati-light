@@ -42,7 +42,7 @@ def run_simple_pipeline(CONF=None):
             'feature_selection': EncodingType.SIMPLE.value,
             'task_generation_type': TaskGenerationType.ALL_IN_ONE.value,
             'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
-            'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
+            'labeling_type': LabelTypes.NEXT_ACTIVITY.value,
             'predictive_model': PredictionMethods.RANDOM_FOREST.value,  # RANDOM_FOREST, LSTM
             'explanator': ExplainerType.SHAP.value,  # SHAP, LRP
             'threshold': 13,

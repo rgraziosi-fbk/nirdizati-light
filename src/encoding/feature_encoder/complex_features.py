@@ -3,7 +3,7 @@ from functools import reduce
 from pandas import DataFrame
 from pm4py.objects.log.log import Trace, EventLog
 
-from src.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType
+from src.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType, PrefixLengthStrategy
 from src.labeling.common import add_label_column
 
 ATTRIBUTE_CLASSIFIER = None
@@ -11,9 +11,10 @@ ATTRIBUTE_CLASSIFIER = None
 PREFIX_ = 'prefix_'
 
 
-def complex_features(log: EventLog, prefix_length, padding, labeling_type, generation_type, feature_list: list = None) -> DataFrame:
+def complex_features(log: EventLog, prefix_length, padding, prefix_length_strategy: str, labeling_type, generation_type, feature_list: list = None) -> DataFrame:
     max_prefix_length = get_max_prefix_length(log, prefix_length)
     columns, additional_columns = _columns_complex(log, max_prefix_length, feature_list)
+    columns_number = len(columns)
     encoded_data = []
     for trace in log:
         trace_prefix_length = get_prefix_length(len(trace), prefix_length)
@@ -22,9 +23,9 @@ def complex_features(log: EventLog, prefix_length, padding, labeling_type, gener
             continue
         if generation_type == TaskGenerationType.ALL_IN_ONE.value:
             for event_index in range(1, min(trace_prefix_length + 1, len(trace) + 1)):
-                encoded_data.append(_trace_to_row(trace, event_index, additional_columns, padding, columns, labeling_type))
+                encoded_data.append(_trace_to_row(trace, event_index, additional_columns, prefix_length_strategy, padding, columns, labeling_type))
         else:
-            encoded_data.append(_trace_to_row(trace, prefix_length, additional_columns, padding, columns, labeling_type))
+            encoded_data.append(_trace_to_row(trace, trace_prefix_length, additional_columns, prefix_length_strategy, padding, columns, labeling_type))
 
     return DataFrame(columns=columns, data=encoded_data)
 
@@ -82,10 +83,10 @@ def _data_complex(trace: Trace, prefix_length: int, additional_columns: dict) ->
     return data
 
 
-def _trace_to_row(trace: Trace, prefix_length: int, additional_columns, padding, columns: list, labeling_type) -> list:
+def _trace_to_row(trace: Trace, prefix_length: int, additional_columns, prefix_length_strategy: str, padding, columns: list, labeling_type) -> list:
     trace_row = [trace.attributes["concept:name"]]
     trace_row += _data_complex(trace, prefix_length, additional_columns)
-    if padding:
+    if padding or prefix_length_strategy == PrefixLengthStrategy.PERCENTAGE.value:
         trace_row += [0 for _ in range(len(trace_row), len(columns) - 1)]
-    trace_row += [ add_label_column(trace, labeling_type, prefix_length) ]
+    trace_row += [add_label_column(trace, labeling_type, prefix_length)]
     return trace_row

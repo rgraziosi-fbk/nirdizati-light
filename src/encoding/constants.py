@@ -34,7 +34,7 @@ def get_prefix_length(trace_len: int, prefix_length: float) -> int:
 
 def get_max_prefix_length(log: EventLog, prefix_length: float) -> int:
 	if prefix_length > 1:
-		return round(prefix_length)
+		return int(prefix_length)
 	prefix_lengths = [get_prefix_length(len(trace), prefix_length) for trace in log]
 	prefix_lengths.append(int(prefix_length))
 	max_prefix_length = max(prefix_lengths)
