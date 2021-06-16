@@ -5,6 +5,9 @@ from pandas import DataFrame
 from sklearn.ensemble import RandomForestClassifier
 import tensorflow as tf
 import numpy as np
+from sklearn.linear_model import SGDClassifier, Perceptron
+from sklearn.neighbors import KNeighborsClassifier
+from xgboost import XGBClassifier
 
 from src.evaluation.common import evaluate
 from src.predictive_model.common import PredictionMethods, get_tensor, shape_label_df
@@ -68,6 +71,14 @@ class PredictiveModel:
     def _instantiate_model(self, config):
         if self.model_type is PredictionMethods.RANDOM_FOREST.value:
             model = RandomForestClassifier(**config)
+        elif self.model_type == PredictionMethods.KNN.value:
+            model = KNeighborsClassifier(**config)
+        elif self.model_type == PredictionMethods.XGBOOST.value:
+            model = XGBClassifier(**config)
+        elif self.model_type == PredictionMethods.SGDCLASSIFIER.value:
+            model = SGDClassifier(**config)
+        elif self.model_type == PredictionMethods.PERCEPTRON.value:
+            model = Perceptron(**config)
 
         elif self.model_type is PredictionMethods.LSTM.value:
             # input layer
@@ -99,7 +110,7 @@ class PredictiveModel:
 
     def _fit_model(self, model):
 
-        if self.model_type is PredictionMethods.RANDOM_FOREST.value:
+        if self.model_type is not PredictionMethods.LSTM.value:
             model.fit(self.train_df, self.full_train_df['label'])
 
         elif self.model_type is PredictionMethods.LSTM.value:
@@ -117,7 +128,7 @@ class PredictiveModel:
 
     def _output_model(self, model):
 
-        if self.model_type is PredictionMethods.RANDOM_FOREST.value:
+        if self.model_type is not PredictionMethods.LSTM.value:
             predicted = model.predict(self.validate_df)
             scores = model.predict_proba(self.validate_df)[:, 1]
         elif self.model_type is PredictionMethods.LSTM.value:

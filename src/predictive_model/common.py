@@ -5,6 +5,10 @@ import numpy as np
 
 class PredictionMethods(Enum):
     RANDOM_FOREST = 'randomForest'
+    KNN = 'knn'
+    XGBOOST = 'xgboost'
+    SGDCLASSIFIER = 'SGDClassifier'
+    PERCEPTRON = 'perceptron'
     LSTM = 'lstm'
 
 
