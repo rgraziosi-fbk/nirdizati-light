@@ -8,13 +8,13 @@ ATTRIBUTE_CLASSIFIER = None
 PREFIX_ = 'prefix_'
 
 
-def simple_features(log: EventLog, prefix_length, padding, prefix_length_strategy: str, labeling_type, generation_type, feature_list: list = None) -> DataFrame:
-    max_prefix_length = get_max_prefix_length(log, prefix_length)
+def simple_features(log: EventLog, prefix_length, padding, prefix_length_strategy: str, labeling_type, generation_type, feature_list: list = None, target_event: str = None) -> DataFrame:
+    max_prefix_length = get_max_prefix_length(log, prefix_length, prefix_length_strategy, target_event)
     columns = _compute_columns(max_prefix_length)
     columns_number = len(columns)
     encoded_data = []
     for trace in log:
-        trace_prefix_length = get_prefix_length(len(trace), prefix_length)
+        trace_prefix_length = get_prefix_length(trace, prefix_length, prefix_length_strategy, target_event)
         if len(trace) <= prefix_length - 1 and not padding:
             # trace too short and no zero padding
             continue

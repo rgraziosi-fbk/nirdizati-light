@@ -4,7 +4,7 @@ from pandas import DataFrame
 from pm4py.objects.log.log import EventLog
 
 from src.encoding.data_encoder import Encoder
-# from src.encoding.feature_encoder.frequency_features import frequency_features
+from src.encoding.feature_encoder.frequency_features import frequency_features
 from src.encoding.feature_encoder.simple_features import simple_features
 from src.encoding.feature_encoder.complex_features import complex_features
 from src.encoding.constants import EncodingType
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 TRACE_TO_DF = {
     EncodingType.SIMPLE.value : simple_features,
-    # EncodingType.FREQUENCY.value : frequency_features,
+    EncodingType.FREQUENCY.value : frequency_features,
     EncodingType.COMPLEX.value : complex_features,
     # EncodingType.DECLARE.value : declare_features
 }

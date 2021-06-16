@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pm4py.objects.log.log import EventLog
+from pm4py.objects.log.log import EventLog, Trace
 
 
 class EncodingType(Enum):
@@ -25,17 +25,13 @@ class PrefixLengthStrategy(Enum):
 	PERCENTAGE = 'percentage'
 
 
-def get_prefix_length(trace_len: int, prefix_length: float) -> int:
-	if prefix_length >= 1:
+def get_prefix_length(trace: Trace, prefix_length: float, prefix_length_strategy, target_event=None) -> int:
+	if prefix_length_strategy == PrefixLengthStrategy.FIXED.value:
 		return int(prefix_length)
 	else:
 		return int(prefix_length*trace_len)
 
 
-def get_max_prefix_length(log: EventLog, prefix_length: float) -> int:
-	if prefix_length > 1:
-		return int(prefix_length)
-	prefix_lengths = [get_prefix_length(len(trace), prefix_length) for trace in log]
-	prefix_lengths.append(int(prefix_length))
-	max_prefix_length = max(prefix_lengths)
-	return max_prefix_length
+def get_max_prefix_length(log: EventLog, prefix_length: float, prefix_length_strategy, target_event) -> int:
+	prefix_lengths = [get_prefix_length(trace, prefix_length, prefix_length_strategy, target_event) for trace in log]
+	return max(prefix_lengths)
