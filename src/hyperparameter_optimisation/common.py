@@ -21,6 +21,51 @@ def _get_space(model_type) -> dict:
             'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
             'warm_start': True
         }
+
+    elif model_type is PredictionMethods.KNN.value:
+        return {
+            'n_neighbors': hp.choice('n_neighbors', np.arange(1, 20, dtype=int)),
+            'weights': hp.choice('weights', ['uniform', 'distance']),
+        }
+
+    elif model_type is PredictionMethods.XGBOOST.value:
+        return {
+            'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
+            'max_depth': scope.int(hp.quniform('max_depth', 3, 30, 1)),
+        }
+
+    elif model_type is PredictionMethods.SGDCLASSIFIER.value:
+        return {
+            'loss': hp.choice('loss', ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_loss',
+                                       'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive']),
+            'penalty': hp.choice('penalty', [None, 'l1', 'l2', 'elasticnet']),
+            'alpha': hp.uniform('alpha', 0.0001, 0.5),
+            'l1_ratio': hp.uniform('l1_ratio', 0.15, 1.0),
+            'fit_intercept': hp.choice('fit_intercept', [True, False]),
+            'tol': hp.uniform('tol', 1e-3, 0.5),
+            'epsilon': hp.uniform('epsilon', 1e-3, 0.5),
+            'learning_rate': hp.choice('learning_rate', ['constant', 'optimal', 'invscaling', 'adaptive']),
+            'eta0': scope.int(hp.quniform('eta0', 4, 30, 1)),
+            'power_t': hp.uniform('power_t', 0.3, 0.7),
+            # 'early_stopping': hp.choice('early_stopping', [True, False]), #needs to be false with partial_fit
+            'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5)),
+            'validation_fraction': 0.1,
+            'average': hp.choice('average', [True, False])
+        }
+
+    elif model_type is PredictionMethods.PERCEPTRON.value:
+        return {
+            'penalty': hp.choice('penalty', [None, 'l1', 'l2', 'elasticnet']),
+            'alpha': hp.uniform('alpha', 0.0001, 0.5),
+            'fit_intercept': hp.choice('fit_intercept', [True, False]),
+            'tol': hp.uniform('tol', 1e-3, 0.5),
+            'shuffle': hp.choice('shuffle', [True, False]),
+            'eta0': scope.int(hp.quniform('eta0', 4, 30, 1)),
+            # 'early_stopping': hp.choice('early_stopping', [True, False]), #needs to be false with partial_fit
+            'validation_fraction': 0.1,
+            'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5))
+        }
+
     elif model_type is PredictionMethods.LSTM.value:
         return {
             'activation': hp.choice('activation', ['linear', 'tanh', 'relu']),

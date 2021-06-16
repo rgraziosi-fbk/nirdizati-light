@@ -84,7 +84,7 @@ def run_simple_pipeline(CONF=None):
     )
 
     logger.debug('EVALUATE PREDICTIVE MODEL')
-    if predictive_model.model_type is PredictionMethods.RANDOM_FOREST.value:
+    if predictive_model.model_type is not PredictionMethods.LSTM.value:
         predicted = predictive_model.model.predict(drop_columns(test_df))
         scores = predictive_model.model.predict_proba(drop_columns(test_df))[:, 1]
     elif predictive_model.model_type is PredictionMethods.LSTM.value:
