@@ -28,6 +28,8 @@ class PrefixLengthStrategy(Enum):
 def get_prefix_length(trace: Trace, prefix_length: float, prefix_length_strategy, target_event=None) -> int:
 	if prefix_length_strategy == PrefixLengthStrategy.FIXED.value:
 		return int(prefix_length)
+	elif prefix_length_strategy == PrefixLengthStrategy.PERCENTAGE.value:
+		return int(prefix_length * len(trace))
 	else:
 		return int(prefix_length*trace_len)
 
