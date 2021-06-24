@@ -21,7 +21,7 @@ TRACE_TO_DF = {
 }
 
 
-def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_cols: DataFrame=None) -> (Encoder, DataFrame):
+def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_cols: DataFrame=None, train_df=None) -> (Encoder, DataFrame):
     logger.debug('SELECT FEATURES')
     df = TRACE_TO_DF[CONF['feature_selection']](
         log,
