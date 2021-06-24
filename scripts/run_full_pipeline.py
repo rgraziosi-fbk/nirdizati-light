@@ -40,14 +40,14 @@ def run_full_pipeline(CONF=None):
             'padding': True,  # TODO: why use of padding?
             'feature_selection': EncodingType.SIMPLE.value,
             'attribute_encoding': EncodingTypeAttribute.ONEHOT.value,  # LABEL, ONEHOT
-            'labeling_type': LabelTypes.NEXT_ACTIVITY.value,
-            'predictive_model': PredictionMethods.LSTM.value,  # RANDOM_FOREST, LSTM
-            'explanator': ExplainerType.LRP.value,  # SHAP, LRP
+            'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
+            'predictive_model': PredictionMethods.RANDOM_FOREST.value,  # RANDOM_FOREST, LSTM
+            'explanator': ExplainerType.SHAP.value,  # SHAP, LRP
             'threshold': 13,
             'top_k': 10,
             'hyperparameter_optimisation': False,  # TODO: this parameter is not used
-            'hyperparameter_optimisation_target': HyperoptTarget.F1.value,
-            'hyperparameter_optimisation_epochs': 10,  # 100 TODO set a higher value
+            'hyperparameter_optimisation_target': HyperoptTarget.AUC.value,
+            'hyperparameter_optimisation_epochs': 20,  # 100 TODO set a higher value
         }
 
     logger.debug('LOAD DATA')

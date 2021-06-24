@@ -16,26 +16,41 @@ class TimeType(Enum):
     NONE = 'none'
 
 
-def time_encoding(df: DataFrame) -> DataFrame:
+class TimeEncodingType(Enum):
+    DATE = 'date'
+    DURATION = 'duration'
+    DATE_AND_DURATION = 'date_and_duration'
+    NONE = 'none'
+
+
+def time_encoding(df: DataFrame, encoding_type) -> DataFrame:
     """Entry point for time encoding
     Encodes the columns of string of the given DataFrame if they are date or duration
 
     :param df:
     :return:
     """
+    last_time = [None] * len(df)
     df_output = DataFrame()
-    for column_name in df.keys():
-        column_value = df[column_name]
-        column_type = is_time_or_duration(column_value)
 
-        if column_type == TimeType.DURATION.value:
-            df_output.append(parse_duration(column_value, column_name))
-        elif column_type == TimeType.DATE.value:
-            result_df, duration = parse_date(column_value, column_name)
+    for column_name in df.keys():
+        current_time = df[column_name]
+        column_type = is_time_or_duration(current_time)
+
+        if column_type == TimeType.DATE.value and encoding_type in [TimeEncodingType.DATE.value, TimeEncodingType.DATE_AND_DURATION.value]:
+            result_df = parse_date(current_time, column_name)
             df_output.append(result_df)
-            df_output.append(parse_duration(duration, column_name))
-        else:
-            df_output[column_name] = column_value
+
+        if column_type == TimeType.NONE.value or encoding_type == TimeEncodingType.DURATION.value:
+            df_output[column_name] = current_time
+
+        if column_type == TimeType.DURATION.value and encoding_type in [TimeEncodingType.DURATION.value, TimeEncodingType.DATE_AND_DURATION.value]:
+            if not all(val is None for val in last_time) and not all(val is None for val in current_time):
+                df_output.append(parse_duration(current_time, column_name, last_time))
+            last_time = [
+                old_time if new_time is None else new_time
+                for new_time, old_time in zip(current_time, last_time)
+            ]
 
     return df_output
 
@@ -157,19 +172,7 @@ def encode_date(value):
     else:
         date = dateparser.parse(value)  # Returns a datetime type
     return [date.isoweekday(), date.day, date.month, date.year, date.hour, date.minute, date.second,
-            is_special_occasion(date)], date
-
-
-def encode_dates_for_duration(date: datetime, last_date: datetime):
-    tot_seconds = int((date-last_date).total_seconds())
-
-    if tot_seconds > 0:
-        tot_minutes = int(tot_seconds / 60)
-        tot_hours = int(tot_minutes / 60)
-        days = int(tot_hours / 24)
-        return str(days) + 'd' + str(tot_hours % 24) + 'h' + str(tot_minutes % 60) + 'm' + str(tot_seconds % 60) + 's'
-    else:
-        return None
+            is_special_occasion(date)]
 
 
 def parse_date(column: list, column_name: str) -> (DataFrame, list):
@@ -183,53 +186,40 @@ def parse_date(column: list, column_name: str) -> (DataFrame, list):
                (column_name+'_date_year'), (column_name+'_date_hours'), (column_name+'_date_minutes'),
                (column_name+'_date_seconds'), (column_name+'_date_special_occasion')]
 
-    # encoded_dates = [
-    #     [None for _ in columns]
-    #     if (value is None or value == '' or value == 'None')
-    #     else encode_date(value)
-    #     for value in column
-    # ]
-    encoded_dates = []
-    elapsed_times = []
-    last_date = None
-
-    for value in column:
-        if value is None or value == '' or value == 'None':
-            encoded_dates += [[None for _ in columns]]
-            elapsed_times += [None]
-        else:
-            listed_date, date = encode_date(value)
-            encoded_dates += [listed_date]
-            if last_date is None:
-                elapsed_times += [None]
-            else:
-                elapsed_times += [encode_dates_for_duration(date, last_date)]
-            last_date = date
+    encoded_dates = [
+        [None for _ in columns]
+        if (value is None or value == '' or value == 'None')
+        else encode_date(value)
+        for value in column
+    ]
 
     results_df = DataFrame(data=encoded_dates, columns=columns)
     results_df = results_df.where(pd.notnull(results_df), None)
 
-    return results_df, elapsed_times
+    return results_df
 
 
-def encode_duration(value, columns):
-    formatted_string = format_string_duration_parse(value)
-    row = [0 for _ in columns]
-
-    for group in formatted_string:
-        if group[1] == duration_allowed_word[0] or group[1] == duration_allowed_word[1]:
-            row[0] += int(group[0])
-        elif group[1] == duration_allowed_word[2] or group[1] == duration_allowed_word[3]:
-            row[1] += int(group[0])
-        elif group[1] == duration_allowed_word[4] or group[1] == duration_allowed_word[5]:
-            row[2] += int(group[0])
-        elif group[1] == duration_allowed_word[6] or group[1] == duration_allowed_word[7]:
-            row[3] += int(group[0])
-
-    return row
+def encode_duration(value):
+    return [value.days, value.hours, value.minutes, value.seconds]
 
 
-def parse_duration(column: list, column_name: str) -> DataFrame:
+def encode_dates_for_duration(date: datetime, last_date: datetime):
+    if date is None or last_date is None:
+        return None
+    else:
+        tot_seconds = int((date - last_date).total_seconds())
+
+        if tot_seconds > 0:
+            tot_minutes = int(tot_seconds / 60)
+            tot_hours = int(tot_minutes / 60)
+            days = int(tot_hours / 24)
+            return datetime.timedelta(days=days, hours=(tot_hours % 24), minutes=(tot_minutes % 60),
+                                      seconds=(tot_seconds % 60))
+        else:
+            return None
+
+
+def parse_duration(current_time: list, column_name: str, last_time: list) -> DataFrame:
     """Parses strings of column into datetime objects and returns a DataFrame
 
     I assume that I receive the duration in one of the following format
@@ -239,18 +229,19 @@ def parse_duration(column: list, column_name: str) -> DataFrame:
     - number days
 
     All space will be removed
-    :param column:
+    :param current_time:
     :param column_name:
+    :param last_time:
     :return:
     """
     columns = [(column_name+'_elapsed_days'), (column_name+'_elapsed_hours'), (column_name+'_elapsed_minutes'),
                (column_name+'_elapsed_seconds')]
 
     encoded_durations = [
-        encode_duration(value, columns)
-        if (isinstance(value, str) and value != '' and value != 'None')
-        else [None for _ in columns]
-        for value in column
+        encode_duration(
+            encode_dates_for_duration(new_date, old_date)
+        )
+        for new_date, old_date in zip(current_time, last_time)
     ]
 
     results_df = DataFrame(data=encoded_durations, columns=columns)
@@ -287,8 +278,6 @@ if __name__ == '__main__':
     print(is_time_or_duration(time_test))
     print(is_time_or_duration(duration_test))
 
-    parsed_dates, durations = parse_date(time_test, 't1')
+    parsed_dates = parse_date(time_test, 't1')
     print(parsed_dates.head())
-    print(durations)
-    print(parse_duration(durations, 't1').head())
     print(parse_duration(duration_test, 't2').head())
