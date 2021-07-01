@@ -50,6 +50,7 @@ def _trace_to_row(trace: Trace, prefix_length: int, columns: list, padding: bool
     trace_row = [ trace.attributes['concept:name'] ]
 
     if len(trace) <= prefix_length - 1 and not padding:
+        pass
         trace += [
             Event({
                 'concept:name': '0',

@@ -13,6 +13,7 @@ from src.labeling.common import LabelTypes
 from src.log.common import get_log
 from src.predictive_model.common import PredictionMethods, get_tensor
 from src.predictive_model.predictive_model import PredictiveModel, drop_columns
+from src.encoding.time_encoding import TimeEncodingType
 
 logger = logging.getLogger(__name__)
 
@@ -65,12 +66,14 @@ def run_simple_pipeline(CONF=None):
     encoder, validate_df = get_encoded_df(
         log=validate_log,
         encoder=encoder,
-        CONF=CONF
+        CONF=CONF,
+        train_df=train_df
     )
     encoder, test_df = get_encoded_df(
         log=test_log,
         encoder=encoder,
-        CONF=CONF
+        CONF=CONF,
+        train_df=train_df
     )
 
     logger.debug('TRAIN PREDICTIVE MODEL')

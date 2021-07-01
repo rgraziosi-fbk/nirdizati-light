@@ -9,7 +9,7 @@ from src.predictive_model.common import PredictionMethods, get_tensor
 
 def compute_feedback(CONF, explanations, predictive_model, test_df, encoder, top_k=None):
 
-    if predictive_model.model_type is PredictionMethods.RANDOM_FOREST.value:
+    if predictive_model.model_type is not PredictionMethods.LSTM.value:
         predicted = predictive_model.model.predict(drop_columns(test_df))
     elif predictive_model.model_type is PredictionMethods.LSTM.value:
         probabilities = predictive_model.model.predict(get_tensor(CONF, drop_columns(test_df)))
