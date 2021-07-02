@@ -3,6 +3,8 @@ import logging
 from pandas import DataFrame
 from pm4py.objects.log.log import EventLog
 
+from datetime import timezone, datetime
+
 from src.encoding.data_encoder import Encoder
 from src.encoding.feature_encoder.frequency_features import frequency_features
 from src.encoding.feature_encoder.simple_features import simple_features
@@ -36,8 +38,7 @@ def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_
     )
 
     logger.debug('EXPLODE DATES')
-    if CONF['time_encoding'] != TimeEncodingType.NONE.value:
-        df = time_encoding(df, CONF['time_encoding'])
+    df = time_encoding(df, CONF['time_encoding'])
 
     logger.debug('ALIGN DATAFRAMES')
     if train_df is not None:

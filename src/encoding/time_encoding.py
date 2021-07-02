@@ -1,4 +1,6 @@
 import datetime
+from datetime import timezone
+
 from enum import Enum
 
 import pandas as pd
@@ -37,6 +39,9 @@ def time_encoding(df: DataFrame, encoding_type) -> DataFrame:
         current_time = df[column_name]
         column_type = is_time_or_duration(current_time)
 
+        if column_type == TimeType.DATE.value and encoding_type == TimeEncodingType.NONE.value:
+            df_output[column_name] = convert_datetime_in_UTC(current_time)
+
         if column_type == TimeType.DATE.value and encoding_type in [TimeEncodingType.DATE.value, TimeEncodingType.DATE_AND_DURATION.value]:
             result_df = parse_date(current_time, column_name)
             df_output.append(result_df)
@@ -53,6 +58,15 @@ def time_encoding(df: DataFrame, encoding_type) -> DataFrame:
             ]
 
     return df_output
+
+
+def convert_datetime_in_UTC(column: list):
+    return [
+        value.replace(tzinfo=timezone.utc).timestamp()
+        if isinstance(value, datetime)
+        else dateparser.parse(value).replace(tzinfo=timezone.utc).timestamp()
+        for value in column
+    ]
 
 
 def is_time_or_duration(column: list):
