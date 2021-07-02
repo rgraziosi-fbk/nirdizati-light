@@ -2,15 +2,15 @@ import logging
 
 from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 import tensorflow as tf
 import numpy as np
 from sklearn.linear_model import SGDClassifier, Perceptron
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 
-from src.evaluation.common import evaluate
-from src.predictive_model.common import PredictionMethods, get_tensor, shape_label_df
+from src.evaluation.common import evaluate_classifier, evaluate_regressor
+from src.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor, shape_label_df
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class PredictiveModel:
         self.validate_df = drop_columns(validate_df)
         self.validate_df_shaped = None
 
-        if model_type is PredictionMethods.LSTM.value:
+        if model_type is ClassificationMethods.LSTM.value:
             self.train_tensor = get_tensor(CONF, self.train_df)
             self.validate_tensor = get_tensor(CONF, self.validate_df)
             self.train_label = shape_label_df(self.full_train_df)
@@ -44,14 +44,18 @@ class PredictiveModel:
             model = self._instantiate_model(config)
 
             self._fit_model(model)
-
-            predicted, scores = self._output_model(model=model)
-
             actual = self.full_validate_df['label']
-            if self.CONF['predictive_model'] is PredictionMethods.LSTM.value:
+            if self.CONF['predictive_model'] is ClassificationMethods.LSTM.value:
                 actual = np.argmax(np.array(actual.to_list()), axis=1)
 
-            result = evaluate(actual, predicted, scores, loss=target)
+            if self.model_type in [item.value for item in ClassificationMethods]:
+                predicted, scores = self._output_model(model=model)
+                result = evaluate_classifier(actual, predicted, scores, loss=target)
+            elif self.model_type in [item.value for item in RegressionMethods]:
+                predicted = model.predict(self.validate_df)
+                result = evaluate_regressor(actual, predicted, loss=target)
+            else:
+                raise Exception('Unsupported model_type')
 
             return {
                 'status': STATUS_OK,
@@ -69,18 +73,20 @@ class PredictiveModel:
             }
 
     def _instantiate_model(self, config):
-        if self.model_type is PredictionMethods.RANDOM_FOREST.value:
+        if self.model_type is ClassificationMethods.RANDOM_FOREST.value:
             model = RandomForestClassifier(**config)
-        elif self.model_type == PredictionMethods.KNN.value:
+        elif self.model_type == ClassificationMethods.KNN.value:
             model = KNeighborsClassifier(**config)
-        elif self.model_type == PredictionMethods.XGBOOST.value:
+        elif self.model_type == ClassificationMethods.XGBOOST.value:
             model = XGBClassifier(**config)
-        elif self.model_type == PredictionMethods.SGDCLASSIFIER.value:
+        elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
-        elif self.model_type == PredictionMethods.PERCEPTRON.value:
+        elif self.model_type == ClassificationMethods.PERCEPTRON.value:
             model = Perceptron(**config)
+        elif self.model_type == RegressionMethods.RANDOM_FOREST.value:
+            model = RandomForestRegressor(**config)
 
-        elif self.model_type is PredictionMethods.LSTM.value:
+        elif self.model_type is ClassificationMethods.LSTM.value:
             # input layer
             main_input = tf.keras.layers.Input(shape=(self.train_tensor.shape[1], self.train_tensor.shape[2]),
                                                name='main_input')
@@ -110,10 +116,10 @@ class PredictiveModel:
 
     def _fit_model(self, model):
 
-        if self.model_type is not PredictionMethods.LSTM.value:
+        if self.model_type is not ClassificationMethods.LSTM.value:
             model.fit(self.train_df, self.full_train_df['label'])
 
-        elif self.model_type is PredictionMethods.LSTM.value:
+        elif self.model_type is ClassificationMethods.LSTM.value:
             early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
             lr_reducer = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, verbose=0,
                                                               mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
@@ -128,14 +134,14 @@ class PredictiveModel:
 
     def _output_model(self, model):
 
-        if self.model_type is not PredictionMethods.LSTM.value:
+        if self.model_type is not ClassificationMethods.LSTM.value:
             predicted = model.predict(self.validate_df)
             scores = model.predict_proba(self.validate_df)[:, 1]
-        elif self.model_type is PredictionMethods.LSTM.value:
+        elif self.model_type is ClassificationMethods.LSTM.value:
             probabilities = model.predict(self.validate_tensor)
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
         else:
-            raise Exception('unsupported model_type')
+            raise Exception('Unsupported model_type')
 
         return predicted, scores

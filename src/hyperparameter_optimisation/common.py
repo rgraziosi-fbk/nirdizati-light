@@ -5,16 +5,17 @@ import numpy as np
 from hyperopt import Trials, hp, fmin
 from hyperopt.pyll import scope
 
-from src.predictive_model.common import PredictionMethods
+from src.predictive_model.common import ClassificationMethods, RegressionMethods
 
 
 class HyperoptTarget(Enum):
     AUC = 'auc'
     F1 = 'f1_score'
+    MAE = 'mae'
 
 
 def _get_space(model_type) -> dict:
-    if model_type is PredictionMethods.RANDOM_FOREST.value:
+    if model_type is ClassificationMethods.RANDOM_FOREST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
             'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
@@ -22,19 +23,19 @@ def _get_space(model_type) -> dict:
             'warm_start': True
         }
 
-    elif model_type is PredictionMethods.KNN.value:
+    elif model_type is ClassificationMethods.KNN.value:
         return {
             'n_neighbors': hp.choice('n_neighbors', np.arange(1, 20, dtype=int)),
             'weights': hp.choice('weights', ['uniform', 'distance']),
         }
 
-    elif model_type is PredictionMethods.XGBOOST.value:
+    elif model_type is ClassificationMethods.XGBOOST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
             'max_depth': scope.int(hp.quniform('max_depth', 3, 30, 1)),
         }
 
-    elif model_type is PredictionMethods.SGDCLASSIFIER.value:
+    elif model_type is ClassificationMethods.SGDCLASSIFIER.value:
         return {
             'loss': hp.choice('loss', ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_loss',
                                        'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive']),
@@ -53,7 +54,7 @@ def _get_space(model_type) -> dict:
             'average': hp.choice('average', [True, False])
         }
 
-    elif model_type is PredictionMethods.PERCEPTRON.value:
+    elif model_type is ClassificationMethods.PERCEPTRON.value:
         return {
             'penalty': hp.choice('penalty', [None, 'l1', 'l2', 'elasticnet']),
             'alpha': hp.uniform('alpha', 0.0001, 0.5),
@@ -66,7 +67,14 @@ def _get_space(model_type) -> dict:
             'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5))
         }
 
-    elif model_type is PredictionMethods.LSTM.value:
+    elif model_type is RegressionMethods.RANDOM_FOREST.value:
+        return {
+            'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
+            'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
+            'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
+        }
+
+    elif model_type is ClassificationMethods.LSTM.value:
         return {
             'activation': hp.choice('activation', ['linear', 'tanh', 'relu']),
             'kernel_initializer': hp.choice('kernel_initializer', ['glorot_uniform']),
@@ -101,8 +109,9 @@ def _get_space(model_type) -> dict:
         #     # 'ccp_alpha': 0.,
         #     # 'max_samples': None
         # }
+
     else:
-        raise Exception('unsupported model_type')
+        raise Exception('Unsupported model_type')
 
 
 def retrieve_best_model(predictive_model, model_type, max_evaluations, target):
