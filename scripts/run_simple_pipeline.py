@@ -4,14 +4,14 @@ import numpy as np
 
 from src.encoding.common import get_encoded_df, EncodingType
 from src.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
-from src.evaluation.common import evaluate
+from src.evaluation.common import evaluate_classifier, evaluate_regressor
 from src.explanation.common import explain, ExplainerType
 from src.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback
 from src.confusion_matrix_feedback.randomise_features import randomise_features
 from src.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
 from src.labeling.common import LabelTypes
 from src.log.common import get_log
-from src.predictive_model.common import PredictionMethods, get_tensor
+from src.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor
 from src.predictive_model.predictive_model import PredictiveModel, drop_columns
 from src.encoding.time_encoding import TimeEncodingType
 

@@ -3,13 +3,17 @@ from pandas import DataFrame
 import numpy as np
 
 
-class PredictionMethods(Enum):
-    RANDOM_FOREST = 'randomForest'
+class ClassificationMethods(Enum):
+    RANDOM_FOREST = 'randomForestClassifier'
     KNN = 'knn'
     XGBOOST = 'xgboost'
     SGDCLASSIFIER = 'SGDClassifier'
     PERCEPTRON = 'perceptron'
     LSTM = 'lstm'
+
+
+class RegressionMethods(Enum):
+    RANDOM_FOREST = 'randomForestRegressor'
 
 
 def get_tensor(CONF, df: DataFrame):
