@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from datetime import timezone
 
 from enum import Enum

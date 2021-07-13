@@ -59,8 +59,9 @@ def evaluate_regressor(y_true, y_pred, loss=None):
         evaluation.update({'mape': None})
 
     if loss is not None:    # the lower the better
-        evaluation.update({'loss': -evaluation[loss]})
+        evaluation.update({'loss': evaluation[loss]})
     return evaluation
+
 
 def _mean_absolute_percentage_error(y_true, y_pred):
     """Calculates and returns the mean absolute percentage error
@@ -73,3 +74,29 @@ def _mean_absolute_percentage_error(y_true, y_pred):
     if 0 in y_true:
         return -1
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+
+def evaluate_recommender(y_true, y_pred):
+    evaluation = {}
+
+    y_true = [str(el) for el in y_true]
+    y_pred = [str(el) for el in y_pred]
+
+    try:
+        evaluation.update({'f1_score': f1_score(y_true, y_pred, average='macro')})
+    except Exception as e:
+        evaluation.update({'f1_score': None})
+    try:
+        evaluation.update({'accuracy': accuracy_score(y_true, y_pred)})
+    except Exception as e:
+        evaluation.update({'accuracy': None})
+    try:
+        evaluation.update({'precision': precision_score(y_true, y_pred, average='macro')})
+    except Exception as e:
+        evaluation.update({'precision': None})
+    try:
+        evaluation.update({'recall': recall_score(y_true, y_pred, average='macro')})
+    except Exception as e:
+        evaluation.update({'recall': None})
+
+    return evaluation
