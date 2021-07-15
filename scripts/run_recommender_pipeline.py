@@ -72,6 +72,7 @@ def run_recommender_pipeline(CONF=None):
 
     logger.debug('ENCODE DATA-- REGRESSOR')
     CONF_REGRESSOR = dict(CONF)
+    initial_prefix_len = CONF_REGRESSOR['prefix_length']
     CONF_REGRESSOR['prefix_length'] += 1
     CONF_REGRESSOR['predictive_model'] = RegressionMethods.RANDOM_FOREST.value
 
@@ -79,9 +80,12 @@ def run_recommender_pipeline(CONF=None):
         for trace in log:
             trace.attributes['label'] = None
             # time between current prefix and end of trace
-            trace.attributes['label'] = \
-                trace[-1]['time:timestamp'] - \
-                trace[CONF['prefix_length']]['time:timestamp'] #time is exact, maybe better tassellating it
+            if len(trace) > CONF['prefix_length']:
+                trace.attributes['label'] = \
+                    trace[-1]['time:timestamp'] - \
+                    trace[CONF['prefix_length']]['time:timestamp'] #time is exact, maybe better tassellating it
+            else:
+                trace.attributes['label'] = trace[-1]['time:timestamp']-trace[-1]['time:timestamp'] #todo not sure this is correct
             trace.attributes['label'] = trace.attributes['label'].seconds
         return log
 
@@ -114,7 +118,7 @@ def run_recommender_pipeline(CONF=None):
     CONF_TEST = dict(CONF_CLASSIFIER)
     CONF_TEST['task_generation_type'] = TaskGenerationType.ONLY_THIS.value
     CONF_TEST['prefix_length_strategy'] = PrefixLengthStrategy.FIXED.value
-    CONF_TEST['prefix_length'] = 4
+    CONF_TEST['prefix_length'] = initial_prefix_len
     classifier_encoder, test_df = get_encoded_df(
         log=test_log,
         encoder=classifier_encoder,
