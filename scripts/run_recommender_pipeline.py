@@ -94,12 +94,12 @@ def run_recommender_pipeline(CONF=None):
 
     encoder, regressor_train_df = get_encoded_df(
         log=relabeled_train_log,
-        CONF=CONF
+        CONF=CONF_REGRESSOR
     )
     encoder, regressor_validate_df = get_encoded_df(
         log=relabeled_validate_log,
         encoder=encoder,
-        CONF=CONF,
+        CONF=CONF_REGRESSOR,
         train_df=regressor_train_df
     )
 

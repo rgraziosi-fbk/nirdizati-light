@@ -59,7 +59,7 @@ def evaluate_regressor(y_true, y_pred, loss=None):
         evaluation.update({'mape': None})
 
     if loss is not None:    # the lower the better
-        evaluation.update({'loss': evaluation[loss]})
+        evaluation.update({'loss': -evaluation[loss]})
     return evaluation
 
 

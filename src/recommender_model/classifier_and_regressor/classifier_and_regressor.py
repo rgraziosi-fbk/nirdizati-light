@@ -76,7 +76,7 @@ class ClassifierAndRegressor:
                 (
                     next_activity,
                     self.model[RecommenderModelInstantiation.REGRESSOR.value].model.predict(
-                        drop_columns(df).T[trace].values.reshape(1, -1) + next_activity)
+                        [list(drop_columns(df).T[trace].values.reshape(1, -1)[0]) + [next_activity]])
                 )
                 for next_activity in likely_next_activities
             ]
