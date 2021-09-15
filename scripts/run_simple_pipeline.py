@@ -1,19 +1,15 @@
-import itertools
 import logging
 import numpy as np
 
 from src.encoding.common import get_encoded_df, EncodingType
 from src.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
-from src.evaluation.common import evaluate_classifier, evaluate_regressor
-from src.explanation.common import explain, ExplainerType
-from src.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback
-from src.confusion_matrix_feedback.randomise_features import randomise_features
+from src.evaluation.common import evaluate_classifier
+from src.explanation.common import ExplainerType
 from src.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
 from src.labeling.common import LabelTypes
 from src.log.common import get_log
-from src.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor
+from src.predictive_model.common import ClassificationMethods, get_tensor
 from src.predictive_model.predictive_model import PredictiveModel, drop_columns
-from src.encoding.time_encoding import TimeEncodingType
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +29,7 @@ def run_simple_pipeline(CONF=None):
                 {
                     'TRAIN_DATA': '../input_data/' + 'd1_train_explainability_0-38.xes',
                     'VALIDATE_DATA': '../input_data/' + 'd1_validation_explainability_38-40.xes',
-                    'FEEDBACK_DATA': '../input_data/' + 'd1_test_explainability_40-50.xes',
+                    # 'FEEDBACK_DATA': '../input_data/' + 'd1_test_explainability_40-50.xes',
                     'TEST_DATA': '../input_data/' + 'd1_test2_explainability_50-60.xes',
                     'OUTPUT_DATA': '../output_data',
                 },
@@ -44,7 +40,7 @@ def run_simple_pipeline(CONF=None):
             'task_generation_type': TaskGenerationType.ALL_IN_ONE.value,
             'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
             'labeling_type': LabelTypes.NEXT_ACTIVITY.value,
-            'predictive_model': PredictionMethods.RANDOM_FOREST.value,  # RANDOM_FOREST, LSTM
+            'predictive_model': ClassificationMethods.RANDOM_FOREST.value,  # RANDOM_FOREST, LSTM
             'explanator': ExplainerType.SHAP.value,  # SHAP, LRP
             'threshold': 13,
             'top_k': 10,
@@ -87,19 +83,19 @@ def run_simple_pipeline(CONF=None):
     )
 
     logger.debug('EVALUATE PREDICTIVE MODEL')
-    if predictive_model.model_type is not PredictionMethods.LSTM.value:
+    if predictive_model.model_type is not ClassificationMethods.LSTM.value:
         predicted = predictive_model.model.predict(drop_columns(test_df))
         scores = predictive_model.model.predict_proba(drop_columns(test_df))[:, 1]
-    elif predictive_model.model_type is PredictionMethods.LSTM.value:
+    elif predictive_model.model_type is ClassificationMethods.LSTM.value:
         probabilities = predictive_model.model.predict(get_tensor(CONF, drop_columns(test_df)))
         predicted = np.argmax(probabilities, axis=1)
         scores = np.amax(probabilities, axis=1)
 
     actual = test_df['label']
-    if predictive_model.model_type is PredictionMethods.LSTM.value:
+    if predictive_model.model_type is ClassificationMethods.LSTM.value:
         actual = np.argmax(np.array(actual.to_list()), axis=1)
 
-    initial_result = evaluate(actual, predicted, scores)
+    initial_result = evaluate_classifier(actual, predicted, scores)
 
     logger.info('RESULT')
     logger.info('INITIAL', initial_result)
