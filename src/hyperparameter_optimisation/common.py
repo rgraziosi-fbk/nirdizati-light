@@ -67,11 +67,12 @@ def _get_space(model_type) -> dict:
             'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5))
         }
 
-    elif model_type is RegressionMethods.RANDOM_FOREST.value:
+    elif model_type is ClassificationMethods.RANDOM_FOREST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
-            'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
             'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
+            'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
+            'warm_start': True
         }
 
     elif model_type is ClassificationMethods.LSTM.value:

@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 
 from pandas import DataFrame
 from pm4py.objects.log.log import EventLog
@@ -16,15 +17,27 @@ from src.encoding.time_encoding import time_encoding, TimeEncodingType
 logger = logging.getLogger(__name__)
 
 
+class EncodingType(Enum):
+    SIMPLE = 'simple'
+    FREQUENCY = 'frequency'
+    COMPLEX = 'complex'
+    DECLARE = 'declare'
+
+class EncodingTypeAttribute(Enum):
+    LABEL = 'label'
+    ONEHOT = 'onehot'
+
+
 TRACE_TO_DF = {
     EncodingType.SIMPLE.value : simple_features,
     EncodingType.FREQUENCY.value : frequency_features,
+    # EncodingType.FREQUENCY.value : frequency_features,
     EncodingType.COMPLEX.value : complex_features,
     # EncodingType.DECLARE.value : declare_features
 }
 
 
-def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_cols: DataFrame=None, train_df=None) -> (Encoder, DataFrame):
+def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_cols: DataFrame=None, train_df=None,experiment=None) -> (Encoder, DataFrame):
     logger.debug('SELECT FEATURES')
     df = TRACE_TO_DF[CONF['feature_selection']](
         log,
@@ -47,7 +60,6 @@ def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_
     if not encoder:
         logger.debug('INITIALISE ENCODER')
         encoder = Encoder(df=df, attribute_encoding=CONF['attribute_encoding'])
-
     logger.debug('ENCODE')
     encoder.encode(df=df)
 

@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 import tensorflow as tf
 import numpy as np
 from sklearn.linear_model import SGDClassifier, Perceptron
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def drop_columns(df: DataFrame) -> DataFrame:
-    df = df.drop(['trace_id', 'label'], 1)
+    df = df.drop(['trace_id', 'label'],1)
     return df
 
 class PredictiveModel:
@@ -82,7 +83,9 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
         elif self.model_type == ClassificationMethods.PERCEPTRON.value:
+            #added CalibratedClassifier to get predict_proba from perceptron model
             model = Perceptron(**config)
+            model = CalibratedClassifierCV(model, cv=10, method='isotonic')
         elif self.model_type == RegressionMethods.RANDOM_FOREST.value:
             model = RandomForestRegressor(**config)
 
@@ -128,7 +131,7 @@ class PredictiveModel:
                       validation_split=0.1,
                       verbose=1,
                       callbacks=[early_stopping, lr_reducer],
-                      batch_size=128,
+                      batch_size=64,
                       epochs=1)
 
 
