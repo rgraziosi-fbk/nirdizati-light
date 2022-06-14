@@ -46,7 +46,7 @@ class PredictiveModel:
             self._fit_model(model)
             actual = self.full_validate_df['label']
             if self.CONF['predictive_model'] is ClassificationMethods.LSTM.value:
-                actual = np.argmax(np.array(actual.to_list()), axis=1)
+                actual = np.array(actual.to_list())
 
             if self.model_type in [item.value for item in ClassificationMethods]:
                 predicted, scores = self._output_model(model=model)
@@ -117,7 +117,7 @@ class PredictiveModel:
     def _fit_model(self, model):
 
         if self.model_type is not ClassificationMethods.LSTM.value:
-            model.fit(self.train_df, self.full_train_df['label'])
+            model.fit(self.train_df.values, self.full_train_df['label'])
 
         elif self.model_type is ClassificationMethods.LSTM.value:
             early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
