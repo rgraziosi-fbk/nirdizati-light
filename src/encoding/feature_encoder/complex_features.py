@@ -9,8 +9,6 @@ from src.labeling.common import add_label_column
 ATTRIBUTE_CLASSIFIER = None
 
 PREFIX_ = 'prefix_'
-PREFIX = 'prefix'
-single_prefix = False
 
 
 def complex_features(log: EventLog, prefix_length, padding, prefix_length_strategy: str, labeling_type, generation_type, feature_list: list = None, target_event: str = None) -> DataFrame:
@@ -28,7 +26,7 @@ def complex_features(log: EventLog, prefix_length, padding, prefix_length_strate
                 encoded_data.append(_trace_to_row(trace, event_index, additional_columns, prefix_length_strategy, padding, columns, labeling_type))
         else:
             encoded_data.append(_trace_to_row(trace, trace_prefix_length, additional_columns, prefix_length_strategy, padding, columns, labeling_type))
-    #change prefiz_i to prefix and update feature lsit
+
     return DataFrame(columns=columns, data=encoded_data)
 
 
@@ -57,17 +55,10 @@ def _columns_complex(log, prefix_length: int, feature_list: list = None) -> tupl
     additional_columns = _compute_additional_columns(log)
     columns = ['trace_id']
     columns += additional_columns['trace_attributes']
-    if single_prefix == True:
-        for i in range(1, prefix_length + 1):
-            for additional_column in additional_columns['event_attributes']:
-                columns.append(additional_column + "_" + str(i))
-        columns.insert(len(columns), PREFIX)
-    else:
-        for i in range(1, prefix_length + 1):
-            columns.append(PREFIX_ + str(i))
-            for additional_column in additional_columns['event_attributes']:
-                columns.append(additional_column + "_" + str(i))
-
+    for i in range(1, prefix_length + 1):
+        columns.append(PREFIX_ + str(i))
+        for additional_column in additional_columns['event_attributes']:
+            columns.append(additional_column + "_" + str(i))
     columns += ['label']
     if feature_list is not None:
         assert(list(feature_list) == columns)
@@ -79,21 +70,16 @@ def _data_complex(trace: Trace, prefix_length: int, additional_columns: dict) ->
 
     Appends values in additional_columns
     """
-    event_list = []
     data = [trace.attributes.get(att, 0) for att in additional_columns['trace_attributes']]
     for idx, event in enumerate(trace):
         if idx == prefix_length:
             break
         event_name = event["concept:name"]
-        if single_prefix == True:
-            event_list.append(event_name)
-        else:
-            data.append(event_name)
+        data.append(event_name)
 
         for att in additional_columns['event_attributes']:
             data.append(event.get(att, '0'))
-    if single_prefix == True:
-        data.append(event_list)
+
     return data
 
 
