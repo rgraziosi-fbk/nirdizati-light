@@ -8,8 +8,10 @@ PADDING_VALUE = 0
 #onehot and minmaxscaler not fully done
 
 class Encoder:
-    def __init__(self, df: DataFrame = None, attribute_encoding=None):
+    def __init__(self, df: DataFrame = None, attribute_encoding=None,feature_selection=None,prefix_length=None):
         self.attribute_encoding = attribute_encoding
+        self.feature_selection = feature_selection
+        self.prefix_length = prefix_length
         self._label_encoder = {}
         self._numeric_encoder = {}
         self._label_dict = {}
@@ -18,11 +20,11 @@ class Encoder:
         self._unscaled_values = {}
         for column in df:
             if column != 'trace_id':
-                if not is_numeric_dtype(df[column].dtype) :#or (is_numeric_dtype(df[column].dtype) and np.any(df[column] < 0)):
-                    if column == 'prefix':
-                        print('column:', column, 'considered NOT number, set values are:', [set(ele) for ele in df[column]])
-                    else:
-                        print('column:', column, 'considered NOT number, set values are:', set(df[column]))
+                if not is_numeric_dtype(df[column].dtype):#or (is_numeric_dtype(df[column].dtype) and np.any(df[column] < 0)):
+                    #if column == 'prefix':
+                    #    print('column:', column)
+                    #else:
+                    #    print('column:', column, 'considered NOT number, set values are:', set(tuple(row) for row in df[column]))
                     if attribute_encoding == 'label':
                         self._label_encoder[column] = LabelEncoder().fit(
                             sorted(pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])))
@@ -40,12 +42,12 @@ class Encoder:
                             self._label_dict[column] = dict(zip(classes, transforms))
                             self._label_dict_decoder[column] = dict(zip(transforms, classes))
                         else:
-                            padded_values = pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])
-                            label_enc = pd.DataFrame(LabelEncoder().fit_transform(sorted(padded_values)))
-                            self._label_encoder[column] = OneHotEncoder(sparse=False).fit(label_enc)
+                            #padded_values = pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])
+                            #label_enc = pd.DataFrame(LabelEncoder().fit_transform(sorted(padded_values)))
+                            self._label_encoder[column] = OneHotEncoder(sparse=False).fit(df[column].astype(str).values.reshape(-1,1))
                             categories = self._label_encoder[column].categories_[0].reshape(-1, 1)
                             transforms = [tuple(enc) for enc in self._label_encoder[column].transform(categories)]
-                            classes = list(padded_values.unique())
+                            classes = list(categories.flatten())
                             self._label_dict[column] = dict(zip(classes, transforms))
                             self._label_dict_decoder[column] = dict(zip(transforms, classes))
 
@@ -80,11 +82,10 @@ class Encoder:
         decoded_row = []
         for column, value in row.iteritems():
             if column != 'trace_id':
-                if column in self._label_encoder or self._numeric_encoder:
-                    if not is_numeric_dtype(column.dtype):
-                        decoded_row += [self._label_dict_decoder[column].get(value, PADDING_VALUE)]
-                    else:
-                        decoded_row += [self._unscaled_values[column].get(value)]
+                if column in self._label_encoder:
+                     decoded_row += [self._label_dict_decoder[column].get(value, PADDING_VALUE)]
+                elif column in self._numeric_encoder:
+                    decoded_row += [self._numeric_encoder[column].inverse_transform(np.array(value).reshape(-1,1))[0][0]]
             else:
                 decoded_row += [value]
         return np.array(decoded_row)

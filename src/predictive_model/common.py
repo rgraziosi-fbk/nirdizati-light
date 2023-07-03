@@ -11,6 +11,8 @@ class ClassificationMethods(Enum):
     SGDCLASSIFIER = 'SGDClassifier'
     PERCEPTRON = 'perceptron'
     LSTM = 'lstm'
+    MLP = 'mlp'
+    SVM = 'svc'
 
 
 class RegressionMethods(Enum):
