@@ -1,0 +1,17 @@
+activity ivliquid
+activity leucocytes
+activity lacticacid
+activity ertriage
+activity admissionnc
+activity crp
+activity ersepsistriage
+activity erregistration
+activity other
+activity ivantibiotics
+Existence1[other] | |
+Existence1[erregistration] | |
+Init[erregistration] | |
+Exactly1[ertriage] | |
+Response[erregistration, other] | | |
+Response[erregistration, ertriage] | | |
+Response[ertriage, other] | | |

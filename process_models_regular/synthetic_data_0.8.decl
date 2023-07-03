@@ -1,0 +1,40 @@
+activity Receive Questionnaire Response
+activity Low Insurance Check
+activity Create Questionnaire
+activity Send Notification by Phone
+activity Contact Hospital
+activity other
+activity Register
+activity Low Medical History
+activity Reject Claim
+activity High Medical History
+activity Send Questionnaire
+activity High Insurance Check
+activity Send Notification by Post
+activity Prepare Notification Content
+activity Send Notification by e-mail
+activity Accept Claim
+Existence1[Register] | |
+Absence2[Register] | |
+Exactly1[Register] | |
+Init[Register] | |
+Existence1[Create Questionnaire] | |
+Absence2[Create Questionnaire] | |
+Exactly1[Create Questionnaire] | |
+Existence1[Prepare Notification Content] | |
+Absence2[Prepare Notification Content] | |
+Exactly1[Prepare Notification Content] | |
+Responded Existence[Create Questionnaire, Register] | | |
+Responded Existence[Register, Create Questionnaire] | | |
+Response[Register, Create Questionnaire] | | |
+Alternate Response[Register, Create Questionnaire] | | |
+Precedence[Register, Create Questionnaire] | | |
+Alternate Precedence[Register, Create Questionnaire] | | |
+Responded Existence[Prepare Notification Content, Register] | | |
+Responded Existence[Register, Prepare Notification Content] | | |
+Response[Register, Prepare Notification Content] | | |
+Alternate Response[Register, Prepare Notification Content] | | |
+Precedence[Register, Prepare Notification Content] | | |
+Alternate Precedence[Register, Prepare Notification Content] | | |
+Responded Existence[Prepare Notification Content, Create Questionnaire] | | |
+Responded Existence[Create Questionnaire, Prepare Notification Content] | | |

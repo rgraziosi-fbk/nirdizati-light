@@ -1,0 +1,58 @@
+activity Prepare Notification Content
+activity Contact Hospital
+activity Send Notification by e-mail
+activity Archive
+activity Low Medical History
+activity Receive Questionnaire Response
+activity Low Insurance Check
+activity Create Questionnaire
+activity High Insurance Check
+activity 0
+activity Send Notification by Phone
+activity High Medical History
+activity Send Questionnaire
+activity Register
+activity Send Notification by Post
+activity Reject Claim
+activity Skip Questionnaire
+activity Accept Claim
+Existence1[Register] | |
+Absence2[Register] | |
+Exactly1[Register] | |
+Init[Register] | |
+Existence1[Prepare Notification Content] | |
+Absence2[Prepare Notification Content] | |
+Exactly1[Prepare Notification Content] | |
+Existence1[Create Questionnaire] | |
+Absence2[Create Questionnaire] | |
+Exactly1[Create Questionnaire] | |
+Choice[Prepare Notification Content, Register] | | |
+Choice[Register, Prepare Notification Content] | | |
+Responded Existence[Prepare Notification Content, Register] | | |
+Responded Existence[Register, Prepare Notification Content] | | |
+Response[Register, Prepare Notification Content] | | |
+Alternate Response[Register, Prepare Notification Content] | | |
+Precedence[Register, Prepare Notification Content] | | |
+Alternate Precedence[Register, Prepare Notification Content] | | |
+Not Response[Prepare Notification Content, Register] | | |
+Not Chain Response[Prepare Notification Content, Register] | | |
+Not Chain Response[Register, Prepare Notification Content] | | |
+Not Precedence[Prepare Notification Content, Register] | | |
+Not Chain Precedence[Prepare Notification Content, Register] | | |
+Not Chain Precedence[Register, Prepare Notification Content] | | |
+Choice[Register, Create Questionnaire] | | |
+Choice[Create Questionnaire, Register] | | |
+Responded Existence[Register, Create Questionnaire] | | |
+Responded Existence[Create Questionnaire, Register] | | |
+Response[Register, Create Questionnaire] | | |
+Alternate Response[Register, Create Questionnaire] | | |
+Precedence[Register, Create Questionnaire] | | |
+Alternate Precedence[Register, Create Questionnaire] | | |
+Not Response[Create Questionnaire, Register] | | |
+Not Chain Response[Create Questionnaire, Register] | | |
+Not Precedence[Create Questionnaire, Register] | | |
+Not Chain Precedence[Create Questionnaire, Register] | | |
+Choice[Prepare Notification Content, Create Questionnaire] | | |
+Choice[Create Questionnaire, Prepare Notification Content] | | |
+Responded Existence[Prepare Notification Content, Create Questionnaire] | | |
+Responded Existence[Create Questionnaire, Prepare Notification Content] | | |
