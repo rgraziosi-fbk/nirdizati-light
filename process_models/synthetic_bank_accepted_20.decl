@@ -1,0 +1,91 @@
+activity wassessfraud
+activity apartlysubmitted
+activity osent
+activity afinalized
+activity wfixincompletesubmission
+activity osentback
+activity oselected
+activity wcompletepreacceptedappl
+activity wcallafteroffer
+activity aaccepted
+activity ocreated
+activity apreaccepted
+activity asubmitted
+Existence1[wcompletepreacceptedappl] | |
+Existence2[wcompletepreacceptedappl] | |
+Existence1[asubmitted] | |
+Existence2[asubmitted] | |
+Exactly2[asubmitted] | |
+Init[asubmitted] | |
+Existence1[apreaccepted] | |
+Existence2[apreaccepted] | |
+Exactly2[apreaccepted] | |
+Existence1[apartlysubmitted] | |
+Existence2[apartlysubmitted] | |
+Exactly2[apartlysubmitted] | |
+Choice[wcompletepreacceptedappl, asubmitted] | | |
+Choice[asubmitted, wcompletepreacceptedappl] | | |
+Responded Existence[wcompletepreacceptedappl, asubmitted] | | |
+Responded Existence[asubmitted, wcompletepreacceptedappl] | | |
+Response[asubmitted, wcompletepreacceptedappl] | | |
+Precedence[asubmitted, wcompletepreacceptedappl] | | |
+Not Response[wcompletepreacceptedappl, asubmitted] | | |
+Not Chain Response[wcompletepreacceptedappl, asubmitted] | | |
+Not Chain Response[asubmitted, wcompletepreacceptedappl] | | |
+Not Precedence[wcompletepreacceptedappl, asubmitted] | | |
+Not Chain Precedence[wcompletepreacceptedappl, asubmitted] | | |
+Not Chain Precedence[asubmitted, wcompletepreacceptedappl] | | |
+Choice[apreaccepted, wcompletepreacceptedappl] | | |
+Choice[wcompletepreacceptedappl, apreaccepted] | | |
+Responded Existence[apreaccepted, wcompletepreacceptedappl] | | |
+Responded Existence[wcompletepreacceptedappl, apreaccepted] | | |
+Response[apreaccepted, wcompletepreacceptedappl] | | |
+Precedence[apreaccepted, wcompletepreacceptedappl] | | |
+Not Response[wcompletepreacceptedappl, apreaccepted] | | |
+Not Chain Response[wcompletepreacceptedappl, apreaccepted] | | |
+Not Precedence[wcompletepreacceptedappl, apreaccepted] | | |
+Not Chain Precedence[wcompletepreacceptedappl, apreaccepted] | | |
+Choice[apartlysubmitted, wcompletepreacceptedappl] | | |
+Choice[wcompletepreacceptedappl, apartlysubmitted] | | |
+Responded Existence[apartlysubmitted, wcompletepreacceptedappl] | | |
+Responded Existence[wcompletepreacceptedappl, apartlysubmitted] | | |
+Response[apartlysubmitted, wcompletepreacceptedappl] | | |
+Precedence[apartlysubmitted, wcompletepreacceptedappl] | | |
+Not Response[wcompletepreacceptedappl, apartlysubmitted] | | |
+Not Chain Response[apartlysubmitted, wcompletepreacceptedappl] | | |
+Not Chain Response[wcompletepreacceptedappl, apartlysubmitted] | | |
+Not Precedence[wcompletepreacceptedappl, apartlysubmitted] | | |
+Not Chain Precedence[apartlysubmitted, wcompletepreacceptedappl] | | |
+Not Chain Precedence[wcompletepreacceptedappl, apartlysubmitted] | | |
+Choice[apreaccepted, asubmitted] | | |
+Choice[asubmitted, apreaccepted] | | |
+Responded Existence[apreaccepted, asubmitted] | | |
+Responded Existence[asubmitted, apreaccepted] | | |
+Response[asubmitted, apreaccepted] | | |
+Precedence[asubmitted, apreaccepted] | | |
+Not Response[apreaccepted, asubmitted] | | |
+Not Chain Response[apreaccepted, asubmitted] | | |
+Not Chain Response[asubmitted, apreaccepted] | | |
+Not Precedence[apreaccepted, asubmitted] | | |
+Not Chain Precedence[apreaccepted, asubmitted] | | |
+Not Chain Precedence[asubmitted, apreaccepted] | | |
+Choice[apartlysubmitted, asubmitted] | | |
+Choice[asubmitted, apartlysubmitted] | | |
+Responded Existence[apartlysubmitted, asubmitted] | | |
+Responded Existence[asubmitted, apartlysubmitted] | | |
+Response[asubmitted, apartlysubmitted] | | |
+Precedence[asubmitted, apartlysubmitted] | | |
+Not Response[apartlysubmitted, asubmitted] | | |
+Not Chain Response[apartlysubmitted, asubmitted] | | |
+Not Precedence[apartlysubmitted, asubmitted] | | |
+Not Chain Precedence[apartlysubmitted, asubmitted] | | |
+Choice[apreaccepted, apartlysubmitted] | | |
+Choice[apartlysubmitted, apreaccepted] | | |
+Responded Existence[apreaccepted, apartlysubmitted] | | |
+Responded Existence[apartlysubmitted, apreaccepted] | | |
+Response[apartlysubmitted, apreaccepted] | | |
+Precedence[apartlysubmitted, apreaccepted] | | |
+Not Response[apreaccepted, apartlysubmitted] | | |
+Not Chain Response[apreaccepted, apartlysubmitted] | | |
+Not Precedence[apreaccepted, apartlysubmitted] | | |
+Not Chain Precedence[apreaccepted, apartlysubmitted] | | |

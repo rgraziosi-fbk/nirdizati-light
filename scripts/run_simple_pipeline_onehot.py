@@ -29,10 +29,10 @@ def run_simple_pipeline(CONF=None):
         CONF = {  # This contains the configuration for the run
             'data':
                 {
-                    'TRAIN_DATA': '../input_data/' + 'd1_train_explainability_0-38.xes',
-                    'VALIDATE_DATA': '../input_data/' + 'd1_validation_explainability_38-40.xes',
-                    # 'FEEDBACK_DATA': '../input_data/' + 'd1_test_explainability_40-50.xes',
-                    'TEST_DATA': '../input_data/' + 'd1_test2_explainability_50-60.xes',
+                    'TRAIN_DATA': '../synthetic_data/' + 'd1_train_explainability_0-38.xes',
+                    'VALIDATE_DATA': '../synthetic_data/' + 'validate.xes',
+                    # 'FEEDBACK_DATA': '../synthetic_data/' + 'feedback.xes',
+                    'TEST_DATA': '../synthetic_data/' + 'test.xes',
                     'OUTPUT_DATA': '../output_data',
                 },
             'prefix_length_strategy': PrefixLengthStrategy.PERCENTAGE.value,
@@ -145,31 +145,42 @@ def run_simple_pipeline(CONF=None):
 
 
 if __name__ == '__main__':
-    dic = run_simple_pipeline({  # This contains the configuration for the run
+    dataset_list = ['bpic2012_O_ACCEPTED-COMPLETE', 'bpic2012_O_CANCELLED-COMPLETE', 'bpic2012_O_DECLINED-COMPLETE',
+                    'BPIC15_1_f2', 'BPIC15_2_f2', 'BPIC15_3_f2', 'BPIC15_4_f2', 'BPIC15_5_f2',
+                    'Production', 'BPIC11_f4', 'BPIC11_f2', 'BPIC11_f1',
+                    'sepsis_cases_1', 'sepsis_cases_2', 'sepsis_cases_4']
+
+
+
+    for dataset in dataset_list:
+        CONF = {  # This contains the configuration for the run
             'data':
-                {
-                    'TRAIN_DATA': '../input_data/BPI11_f2/train.xes',
-                    'VALIDATE_DATA': '../input_data/BPI11_f2/validate.xes',
-                    'TEST_DATA': '../input_data/BPI11_f2/f2_80-100.xes',
-                    'OUTPUT_DATA': '../output_data',
-                },
+                {'FULL_DATA': '../'+dataset+'/' + 'full.xes',
+                 'TRAIN_DATA': '../'+dataset+'/' + 'train.xes',
+                 'VALIDATE_DATA': '../'+dataset+'/' + 'validate.xes',
+                 'FEEDBACK_DATA': '../'+dataset+'/' + 'feedback.xes',
+                 'TEST_DATA': '../'+dataset+'/' +  'test.xes',
+                 'OUTPUT_DATA': '../output_data',
+                 },
             'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
-            'prefix_length': 7,
+            'prefix_length': 3,
             'padding': True,  # TODO: why use of padding?
             'feature_selection': EncodingType.COMPLEX.value,
-            'task_generation_type': TaskGenerationType.ALL_IN_ONE.value,
-            'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
+            'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+            'attribute_encoding': EncodingTypeAttribute.ONEHOT.value,  # LABEL, ONEHOT
             'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-            'predictive_model': ClassificationMethods.RANDOM_FOREST.value,  # RANDOM_FOREST, LSTM
-            'explanator': ExplainerType.SHAP.value,  # SHAP, LRP
+            'predictive_model': ClassificationMethods.LSTM.value,  # RANDOM_FOREST, LSTM, PERCEPTRON
+            'explanator': ExplainerType.DICE.value,  # SHAP, LRP, ICE, DICE
             'threshold': 13,
             'top_k': 10,
-            'hyperparameter_optimisation': True,  # TODO: this parameter is not used
-            'hyperparameter_optimisation_target': HyperoptTarget.AUC.value,
-            'hyperparameter_optimisation_epochs': 10,  # 100 TODO set a higher value
-            'target_event': None,
-            'time_encoding': TimeEncodingType.NONE.value
-        })
-    print(str(dic))
+            'hyperparameter_optimisation': False,  # TODO: this parameter is not used
+            'hyperparameter_optimisation_target': HyperoptTarget.F1.value,
+            'hyperparameter_optimisation_epochs': 2,
+            'time_encoding': TimeEncodingType.NONE.value,
+            'target_event': None
+        }
+        run_simple_pipeline(CONF=CONF)
+
+
 
 

@@ -1,0 +1,40 @@
+activity other
+activity wcompletepreacceptedappl
+activity osent
+activity acancelled
+activity adeclined
+activity wfixincompletesubmission
+activity oaccepted
+activity wassessapplication
+activity asubmitted
+activity osentback
+activity aaccepted
+activity wassessfraud
+activity wcallafteroffer
+activity aapproved
+activity aregistered
+activity odeclined
+activity wcallmissinginformation
+activity apartlysubmitted
+activity apreaccepted
+activity oselected
+activity afinalized
+activity ocreated
+activity ocancelled
+Existence1[asubmitted] | |
+Existence2[asubmitted] | |
+Exactly2[asubmitted] | |
+Init[asubmitted] | |
+Existence1[apartlysubmitted] | |
+Existence2[apartlysubmitted] | |
+Exactly2[apartlysubmitted] | |
+Choice[apartlysubmitted, asubmitted] | | |
+Choice[asubmitted, apartlysubmitted] | | |
+Responded Existence[apartlysubmitted, asubmitted] | | |
+Responded Existence[asubmitted, apartlysubmitted] | | |
+Response[asubmitted, apartlysubmitted] | | |
+Precedence[asubmitted, apartlysubmitted] | | |
+Not Response[apartlysubmitted, asubmitted] | | |
+Not Chain Response[apartlysubmitted, asubmitted] | | |
+Not Precedence[apartlysubmitted, asubmitted] | | |
+Not Chain Precedence[apartlysubmitted, asubmitted] | | |

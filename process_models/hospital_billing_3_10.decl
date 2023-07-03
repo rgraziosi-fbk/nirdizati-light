@@ -1,0 +1,43 @@
+activity fin
+activity new
+activity storno
+activity other
+activity joinpat
+activity manual
+activity codeok
+activity setstatus
+activity billed
+activity delete
+activity changediagn
+activity release
+activity reject
+activity codeerror
+activity codenok
+activity empty
+activity changeend
+Existence1[new] | |
+Init[new] | |
+Choice[new, other] | | |
+Choice[other, new] | | |
+Responded Existence[other, new] | | |
+Precedence[new, other] | | |
+Not Response[other, new] | | |
+Not Chain Response[new, other] | | |
+Not Chain Response[other, new] | | |
+Not Precedence[other, new] | | |
+Not Chain Precedence[new, other] | | |
+Not Chain Precedence[other, new] | | |
+Choice[fin, new] | | |
+Choice[new, fin] | | |
+Responded Existence[fin, new] | | |
+Precedence[new, fin] | | |
+Not Response[fin, new] | | |
+Not Chain Response[fin, new] | | |
+Not Precedence[fin, new] | | |
+Not Chain Precedence[fin, new] | | |
+Choice[fin, other] | | |
+Choice[other, fin] | | |
+Not Response[other, fin] | | |
+Not Chain Response[other, fin] | | |
+Not Precedence[other, fin] | | |
+Not Chain Precedence[other, fin] | | |

@@ -1,0 +1,65 @@
+activity lacticacid
+activity ivantibiotics
+activity other
+activity leucocytes
+activity ersepsistriage
+activity releaseb
+activity releasec
+activity released
+activity ertriage
+activity crp
+activity erregistration
+activity ivliquid
+activity admissionic
+activity returner
+activity admissionnc
+Existence1[erregistration] | |
+Absence2[erregistration] | |
+Exactly1[erregistration] | |
+Absence2[ersepsistriage] | |
+Absence2[ertriage] | |
+Choice[admissionnc, crp] | | |
+Choice[crp, admissionnc] | | |
+Choice[admissionnc, erregistration] | | |
+Choice[erregistration, admissionnc] | | |
+Responded Existence[admissionnc, erregistration] | | |
+Precedence[erregistration, admissionnc] | | |
+Not Response[admissionnc, erregistration] | | |
+Not Chain Response[admissionnc, erregistration] | | |
+Not Chain Response[erregistration, admissionnc] | | |
+Not Precedence[admissionnc, erregistration] | | |
+Not Chain Precedence[admissionnc, erregistration] | | |
+Not Chain Precedence[erregistration, admissionnc] | | |
+Responded Existence[admissionnc, ersepsistriage] | | |
+Choice[ertriage, admissionnc] | | |
+Choice[admissionnc, ertriage] | | |
+Not Response[admissionnc, ertriage] | | |
+Not Chain Response[ertriage, admissionnc] | | |
+Not Chain Response[admissionnc, ertriage] | | |
+Not Precedence[admissionnc, ertriage] | | |
+Not Chain Precedence[ertriage, admissionnc] | | |
+Not Chain Precedence[admissionnc, ertriage] | | |
+Choice[leucocytes, admissionnc] | | |
+Choice[admissionnc, leucocytes] | | |
+Choice[erregistration, crp] | | |
+Choice[crp, erregistration] | | |
+Responded Existence[crp, erregistration] | | |
+Choice[ersepsistriage, crp] | | |
+Choice[crp, ersepsistriage] | | |
+Choice[ertriage, crp] | | |
+Choice[crp, ertriage] | | |
+Choice[ersepsistriage, erregistration] | | |
+Choice[erregistration, ersepsistriage] | | |
+Responded Existence[ersepsistriage, erregistration] | | |
+Choice[ertriage, erregistration] | | |
+Choice[erregistration, ertriage] | | |
+Responded Existence[ertriage, erregistration] | | |
+Choice[leucocytes, erregistration] | | |
+Choice[erregistration, leucocytes] | | |
+Responded Existence[leucocytes, erregistration] | | |
+Choice[ertriage, ersepsistriage] | | |
+Choice[ersepsistriage, ertriage] | | |
+Choice[leucocytes, ersepsistriage] | | |
+Choice[ersepsistriage, leucocytes] | | |
+Choice[leucocytes, ertriage] | | |
+Choice[ertriage, leucocytes] | | |
