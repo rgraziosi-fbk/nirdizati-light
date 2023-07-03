@@ -1,7 +1,7 @@
 from functools import reduce
 
 from pandas import DataFrame
-from pm4py.objects.log.log import Trace, EventLog
+from pm4py.objects.log.obj import Trace, EventLog
 
 from src.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType, PrefixLengthStrategy
 from src.labeling.common import add_label_column
@@ -10,10 +10,10 @@ ATTRIBUTE_CLASSIFIER = None
 
 PREFIX_ = 'prefix_'
 PREFIX = 'prefix'
-single_prefix = False
+single_prefix = True
 
 
-def complex_features(log: EventLog, prefix_length, padding, prefix_length_strategy: str, labeling_type, generation_type, feature_list: list = None, target_event: str = None) -> DataFrame:
+def loreley_complex_features(log: EventLog, prefix_length, padding, prefix_length_strategy: str, labeling_type, generation_type, feature_list: list = None, target_event: str = None) -> DataFrame:
     max_prefix_length = get_max_prefix_length(log, prefix_length, prefix_length_strategy, target_event)
     columns, additional_columns = _columns_complex(log, max_prefix_length, feature_list)
     columns_number = len(columns)
@@ -57,16 +57,10 @@ def _columns_complex(log, prefix_length: int, feature_list: list = None) -> tupl
     additional_columns = _compute_additional_columns(log)
     columns = ['trace_id']
     columns += additional_columns['trace_attributes']
-    if single_prefix == True:
-        for i in range(1, prefix_length + 1):
-            for additional_column in additional_columns['event_attributes']:
-                columns.append(additional_column + "_" + str(i))
-        columns.insert(len(columns), PREFIX)
-    else:
-        for i in range(1, prefix_length + 1):
-            columns.append(PREFIX_ + str(i))
-            for additional_column in additional_columns['event_attributes']:
-                columns.append(additional_column + "_" + str(i))
+    for i in range(1, prefix_length + 1):
+        for additional_column in additional_columns['event_attributes']:
+            columns.append(additional_column + "_" + str(i))
+    columns.insert(len(columns), PREFIX)
 
     columns += ['label']
     if feature_list is not None:
@@ -85,15 +79,11 @@ def _data_complex(trace: Trace, prefix_length: int, additional_columns: dict) ->
         if idx == prefix_length:
             break
         event_name = event["concept:name"]
-        if single_prefix == True:
-            event_list.append(event_name)
-        else:
-            data.append(event_name)
+        event_list.append(event_name)
 
         for att in additional_columns['event_attributes']:
             data.append(event.get(att, '0'))
-    if single_prefix == True:
-        data.append(event_list)
+    data.append(event_list)
     return data
 
 

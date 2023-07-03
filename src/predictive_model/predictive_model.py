@@ -1,11 +1,15 @@
 import logging
 
+#import tensorflow.python.keras.models
 from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-import tensorflow as tf
+#import tensorflow as tf
 import numpy as np
 from sklearn.linear_model import SGDClassifier, Perceptron
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 
@@ -16,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def drop_columns(df: DataFrame) -> DataFrame:
-    df = df.drop(['trace_id', 'label'], 1)
+    df = df.drop(['trace_id', 'label'],1)
     return df
 
 class PredictiveModel:
@@ -38,15 +42,19 @@ class PredictiveModel:
             self.validate_tensor = get_tensor(CONF, self.validate_df)
             self.train_label = shape_label_df(self.full_train_df)
             self.validate_label = shape_label_df(self.full_validate_df)
-
+        elif model_type is ClassificationMethods.MLP.value:
+            self.train_label = self.full_train_df['label'].nunique()
+            self.validate_label = self.full_validate_df['label'].nunique()
     def train_and_evaluate_configuration(self, config, target):
         try:
             model = self._instantiate_model(config)
-
+            #if self.CONF['predictive_model'] is ClassificationMethods.MLP.value:
+            #    self._fit_model(model,config)
+            #else:
             self._fit_model(model)
             actual = self.full_validate_df['label']
             if self.CONF['predictive_model'] is ClassificationMethods.LSTM.value:
-                actual = np.argmax(np.array(actual.to_list()), axis=1)
+                actual = np.array(actual.to_list())
 
             if self.model_type in [item.value for item in ClassificationMethods]:
                 predicted, scores = self._output_model(model=model)
@@ -82,10 +90,16 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
         elif self.model_type == ClassificationMethods.PERCEPTRON.value:
+            #added CalibratedClassifier to get predict_proba from perceptron model
             model = Perceptron(**config)
+            model = CalibratedClassifierCV(model, cv=10, method='isotonic')
+        elif self.model_type is ClassificationMethods.MLP.value:
+            model = MLPClassifier(**config)
+            #model = CalibratedClassifierCV(model, cv=10, method='isotonic')
         elif self.model_type == RegressionMethods.RANDOM_FOREST.value:
             model = RandomForestRegressor(**config)
-
+        elif self.model_type == ClassificationMethods.SVM.value:
+            model = SVC(**config,probability=True)
         elif self.model_type is ClassificationMethods.LSTM.value:
             # input layer
             main_input = tf.keras.layers.Input(shape=(self.train_tensor.shape[1], self.train_tensor.shape[2]),
@@ -109,17 +123,14 @@ class PredictiveModel:
             model = tf.keras.models.Model(inputs=[main_input], outputs=[output])
             model.compile(loss={'output': 'categorical_crossentropy'}, optimizer=config['optimizer'])
             model.summary()
-
         else:
             raise Exception('unsupported model_type')
         return model
 
-    def _fit_model(self, model):
+    def _fit_model(self, model,config=None):
 
-        if self.model_type is not ClassificationMethods.LSTM.value:
-            model.fit(self.train_df, self.full_train_df['label'])
 
-        elif self.model_type is ClassificationMethods.LSTM.value:
+        if self.model_type is ClassificationMethods.LSTM.value:
             early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
             lr_reducer = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, verbose=0,
                                                               mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
@@ -128,20 +139,46 @@ class PredictiveModel:
                       validation_split=0.1,
                       verbose=1,
                       callbacks=[early_stopping, lr_reducer],
-                      batch_size=128,
+                      batch_size=64,
                       epochs=1)
-
+        #elif self.model_type is ClassificationMethods.MLP.value:
+        #    model.fit(self.train_df.values, self.full_train_df['label'],
+        #              epochs=config['epochs'],batch_size=config['batch_size'])
+        elif self.model_type not in (ClassificationMethods.LSTM.value):
+            model.fit(self.train_df.values, self.full_train_df['label'])
 
     def _output_model(self, model):
-
-        if self.model_type is not ClassificationMethods.LSTM.value:
-            predicted = model.predict(self.validate_df)
-            scores = model.predict_proba(self.validate_df)[:, 1]
-        elif self.model_type is ClassificationMethods.LSTM.value:
+        if self.model_type is ClassificationMethods.LSTM.value:
             probabilities = model.predict(self.validate_tensor)
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
+        #elif self.model_type is ClassificationMethods.MLP.value:
+        #    probabilities = model.predict(self.validate_df)
+        #    predicted = [1 if prob > 0.5 else 0 for prob in probabilities]
+        #    scores = np.amax(probabilities, axis=1)
+        elif self.model_type not in (ClassificationMethods.LSTM.value):
+            predicted = model.predict(self.validate_df)
+            scores = model.predict_proba(self.validate_df)[:, 1]
         else:
             raise Exception('Unsupported model_type')
 
         return predicted, scores
+
+
+
+'''
+elif self.model_type is ClassificationMethods.MLP.value:
+    inputs = tf.keras.Input(shape=(len(self.train_df.iloc[1, :])))
+    for i in range(config['nr_of_hidden_layers']):
+        x = tf.keras.layers.Dense(config['nr_of_units'], activation="relu")(inputs)
+        x = tf.keras.layers.Dropout(0.5)(x)
+    if self.train_label < 3:
+        output = tf.keras.layers.Dense(1, activation="sigmoid")(x)
+        model = tf.keras.Model(inputs, output)
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    else:
+        output = tf.keras.layers.Dense(self.train_label, activation="softmax")(x)
+        model = tf.keras.Model(inputs, output)
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    model.summary()
+'''
