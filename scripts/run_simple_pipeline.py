@@ -1,10 +1,10 @@
 import logging
 import numpy as np
-
 import sys
 import csv
 from src.encoding.common import get_encoded_df, EncodingType
 from src.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
+from src.encoding.time_encoding import TimeEncodingType
 from src.evaluation.common import evaluate_classifier
 from src.explanation.common import ExplainerType, explain
 from src.explanation.wrappers.dice_wrapper import plausibility
@@ -13,7 +13,6 @@ from src.labeling.common import LabelTypes
 from src.log.common import get_log
 from src.predictive_model.common import ClassificationMethods, get_tensor
 from src.predictive_model.predictive_model import PredictiveModel, drop_columns
-
 from src.explanation.visualizations.plot import line_plot,bar_plot
 import pandas as pd
 import itertools
@@ -61,12 +60,13 @@ def run_simple_pipeline(CONF=None):
         }
 
     logger.debug('LOAD DATA')
+    full_log = get_log(filepath=CONF['data']['FULL_DATA'])
     train_log = get_log(filepath=CONF['data']['TRAIN_DATA'])
     validate_log = get_log(filepath=CONF['data']['VALIDATE_DATA'])
     test_log = get_log(filepath=CONF['data']['TEST_DATA'])
+    feedback_log = get_log(filepath=CONF['data']['FEEDBACK_DATA'])
 
     logger.debug('ENCODE DATA')
-
     encodings = [EncodingType.SIMPLE_TRACE.value]
     for encoding in encodings:
         CONF['feature_selection'] = encoding
@@ -132,7 +132,7 @@ def run_simple_pipeline(CONF=None):
             full_df = pd.concat([train_df,validate_df,test_df])
             cf_dataset.loc[len(cf_dataset)] = 0
             methods = ['genetic_conformance']
-            optimizations = ['loss_function','filtering']
+            optimizations = ['loss_function']
             heuristics = ['heuristic_2']
             for method in methods:
                 for heuristic in heuristics:
@@ -145,7 +145,6 @@ def run_simple_pipeline(CONF=None):
     logger.info('RESULT')
     logger.info('INITIAL', initial_result)
     logger.info('Done, cheers!')
-
 
     #return { 'initial_result', initial_result, 'predictive_model.config', predictive_model.config}
 if __name__ == '__main__':
