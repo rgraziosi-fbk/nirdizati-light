@@ -1,9 +1,9 @@
 from enum import Enum
 
-from src.explanation.wrappers.shap_wrapper import shap_explain
-from src.explanation.wrappers.lrp_wrapper import lrp_explain
-from src.explanation.wrappers.ice_wrapper import ice_explain
 from src.explanation.wrappers.dice_wrapper import dice_explain
+from src.explanation.wrappers.ice_wrapper import ice_explain
+from src.explanation.wrappers.lrp_wrapper import lrp_explain
+from src.explanation.wrappers.shap_wrapper import shap_explain
 
 
 class ExplainerType(Enum):

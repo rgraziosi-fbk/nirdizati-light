@@ -1,15 +1,13 @@
 from datetime import datetime
 from datetime import timezone
-
 from enum import Enum
 
-import pandas as pd
-from pandas import *
-
-from numpy import *
-from dateutil.parser import parse
 import dateparser
 import holidays
+import pandas as pd
+from dateutil.parser import parse
+from numpy import *
+from pandas import *
 
 
 class TimeType(Enum):

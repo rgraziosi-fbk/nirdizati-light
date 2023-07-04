@@ -1,7 +1,7 @@
 import logging
-import pathlib
-from pandas import read_csv
-from pm4py import format_dataframe,convert_to_event_log,read_xes
+
+from pm4py import read_xes
+
 logger = logging.getLogger(__name__)
 
 

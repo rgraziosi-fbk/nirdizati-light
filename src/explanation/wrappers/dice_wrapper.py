@@ -1,19 +1,19 @@
-import dice_ml
-import pickle
-from src.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor, shape_label_df
-import pandas as pd
-import numpy as np
-from scipy.spatial.distance import cdist, pdist
-from scipy.spatial.distance import _validate_vector
-from scipy.stats import median_abs_deviation
 import warnings
+
+import dice_ml
+import numpy as np
+import pandas as pd
+from scipy.spatial.distance import _validate_vector
+from scipy.spatial.distance import cdist, pdist
+from scipy.stats import median_abs_deviation
+
+from src.predictive_model.common import ClassificationMethods
+
 warnings.filterwarnings("ignore", category=UserWarning)
 import pm4py
 import os
-from declare4py.src.declare4py.declare4py import Declare4Py
-from declare4py.src.declare4py.enums import TraceState
+from declare4py.enums import TraceState
 from scripts.dataset_confs import DatasetConfs
-import itertools
 from datetime import datetime
 
 #if ALL_IN_ONE task generation, use dice without MAD because it will make it 0 anyway
@@ -23,10 +23,10 @@ from datetime import datetime
 #path_cf = 'conformance_cf_results_all_encs/'
 #path_results = 'conformance_eval_results_all_encs/'
 #path_cf = '../counterfactual_results/'
-path_results = '../evaluation_query_conformance_complex/'
+path_results = '../cf_results/evaluation_query_conformance_complex/'
 #path_results = '../evaluation_query_conformance_loss/'
-model_path = '../process_models_complex/'
-path_cf = '../conformance_cf_results_all_encs/'
+model_path = '../process_models/process_models_complex/'
+path_cf = '../cf_results/conformance_cf_results_all_encs/'
 #path_results = 'genetic_conformance_filtering/'
 single_prefix = ['loreley','loreley_complex']
 deviance_mining = True
@@ -45,7 +45,7 @@ def dice_explain(CONF, predictive_model,cf_df,encoder,df,query_instances, featur
     else:
         ratio_cont = len(continuous_features)/len(categorical_features)
     time_start = datetime.now()
-    query_instances_for_cf = query_instances.iloc[:15,:-1]
+    query_instances_for_cf = query_instances.iloc[11:15,:-1]
     d = dice_ml.Data(dataframe=cf_df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method,encoder)

@@ -132,7 +132,7 @@ def run_simple_pipeline(CONF=None):
             full_df = pd.concat([train_df,validate_df,test_df])
             cf_dataset.loc[len(cf_dataset)] = 0
             methods = ['genetic_conformance']
-            optimizations = ['loss_function']
+            optimizations = ['filtering']
             heuristics = ['heuristic_2']
             for method in methods:
                 for heuristic in heuristics:
@@ -171,11 +171,11 @@ if __name__ == '__main__':
         for prefix in prefix_lengths:
             CONF = {  # This contains the configuration for the run
                 'data':
-                    {'FULL_DATA':  '../'+dataset+'/' + 'full.xes',
-                     'TRAIN_DATA':   '../'+dataset+'/' + 'train.xes',
-                     'VALIDATE_DATA':   '../'+dataset+'/' + 'validate.xes',
-                     'FEEDBACK_DATA':  '../'+dataset+'/' + 'feedback.xes',
-                     'TEST_DATA':   '../'+dataset+'/' + 'test.xes',
+                    {'FULL_DATA':  '../datasets/'+dataset+'/' + 'full.xes',
+                     'TRAIN_DATA':   '../datasets/'+dataset+'/' + 'train.xes',
+                     'VALIDATE_DATA':   '../datasets/'+dataset+'/' + 'validate.xes',
+                     'FEEDBACK_DATA':  '../datasets/'+dataset+'/' + 'feedback.xes',
+                     'TEST_DATA':   '../datasets/'+dataset+'/' + 'test.xes',
                      'OUTPUT_DATA': '../output_data',
                      },
                 'prefix_length_strategy': PrefixLengthStrategy.PERCENTAGE.value,

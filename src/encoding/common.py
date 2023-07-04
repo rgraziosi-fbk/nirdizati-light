@@ -4,19 +4,15 @@ from enum import Enum
 from pandas import DataFrame
 from pm4py.objects.log.obj import EventLog
 
-from datetime import timezone, datetime
-
 from src.encoding.data_encoder import Encoder
-from src.encoding.feature_encoder.frequency_features import frequency_features
-from src.encoding.feature_encoder.simple_features import simple_features
 from src.encoding.feature_encoder.complex_features import complex_features
-from src.encoding.feature_encoder.loreley_features import loreley_features
-from src.encoding.feature_encoder.simple_trace_features import simple_trace_features
+from src.encoding.feature_encoder.frequency_features import frequency_features
 from src.encoding.feature_encoder.loreley_complex_features import loreley_complex_features
-
-from src.encoding.constants import EncodingType
+from src.encoding.feature_encoder.loreley_features import loreley_features
+from src.encoding.feature_encoder.simple_features import simple_features
+from src.encoding.feature_encoder.simple_trace_features import simple_trace_features
 # from src.encoding.feature_encoder.declare_features.declare_features import declare_features
-from src.encoding.time_encoding import time_encoding, TimeEncodingType
+from src.encoding.time_encoding import time_encoding
 
 logger = logging.getLogger(__name__)
 

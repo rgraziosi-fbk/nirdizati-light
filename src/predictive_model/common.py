@@ -1,7 +1,8 @@
 from enum import Enum
-from pandas import DataFrame
+
 import numpy as np
 from funcy import flatten
+from pandas import DataFrame
 
 
 class ClassificationMethods(Enum):

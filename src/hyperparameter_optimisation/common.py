@@ -5,7 +5,7 @@ import numpy as np
 from hyperopt import Trials, hp, fmin
 from hyperopt.pyll import scope
 
-from src.predictive_model.common import ClassificationMethods, RegressionMethods
+from src.predictive_model.common import ClassificationMethods
 
 
 class HyperoptTarget(Enum):

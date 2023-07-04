@@ -1,8 +1,8 @@
 from pandas import DataFrame
 from pm4py.objects.log.obj import EventLog, Trace
 
-from src.labeling.common import add_label_column
 from src.encoding.constants import TaskGenerationType, get_prefix_length, get_max_prefix_length, PrefixLengthStrategy
+from src.labeling.common import add_label_column
 
 ATTRIBUTE_CLASSIFIER = None
 PREFIX_ = 'prefix_'

@@ -1,16 +1,16 @@
 import logging
 
-#import tensorflow.python.keras.models
+# import tensorflow as tf
+import numpy as np
+# import tensorflow.python.keras.models
 from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-#import tensorflow as tf
-import numpy as np
-from sklearn.linear_model import SGDClassifier, Perceptron
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import SGDClassifier, Perceptron
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
 from src.evaluation.common import evaluate_classifier, evaluate_regressor
