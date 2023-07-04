@@ -132,7 +132,7 @@ def run_simple_pipeline(CONF=None):
             full_df = pd.concat([train_df,validate_df,test_df])
             cf_dataset.loc[len(cf_dataset)] = 0
             methods = ['genetic_conformance']
-            optimizations = ['filtering']
+            optimizations = ['filtering','loss_function']
             heuristics = ['heuristic_2']
             for method in methods:
                 for heuristic in heuristics:
@@ -140,7 +140,7 @@ def run_simple_pipeline(CONF=None):
                         explanations = explain(CONF, predictive_model,encoder=encoder,cf_df=full_df.iloc[:,1:],
                                            query_instances=test_df_correct.iloc[:,1:],
                                            features_to_vary=features_to_vary,method=method,df=full_df.iloc[:,1:],optimization=optimization,
-                                           heuristic=heuristic)
+                                           heuristic=heuristic,support=0.8)
         del encoder, train_df, test_df, validate_df
     logger.info('RESULT')
     logger.info('INITIAL', initial_result)
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     #'synthetic_data'
     #'Production'
     ]
-    prefix_lengths = [0.2]
+    prefix_lengths = [0.2,0.4,0.6,0.8,1.0]
     #prefix_lengths = [0.6]
     for dataset in dataset_list:
         for prefix in prefix_lengths:
