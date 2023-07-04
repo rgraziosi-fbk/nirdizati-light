@@ -2,7 +2,6 @@ build/
 .idea/
 
 __pycache__/
-/.ipynb_checkpoints/
 /BPIC11_f1/
 /BPIC11_f2/
 /BPIC11_f3/
@@ -24,8 +23,6 @@ __pycache__/
 /eval_graphs_no_debug/
 /evaluation_query_conformance/
 /evaluation_query_conformance_complex/
-/evaluation_query_conformance_filtering/
-/evaluation_query_conformance_loss/
 /evaluation_query_conformance_mating/
 /evaluation_results_parents_filtering/
 /evaluation_results_parents_loss/
@@ -47,5 +44,3 @@ __pycache__/
 /test_plots/
 /traffic_fines_1/
 /venv/
-/compare results.ipynb
-/evaluation_resultscfeval_bpic2012_O_ACCEPTED-COMPLETE_randomForestClassifier_dice_simple.csv
