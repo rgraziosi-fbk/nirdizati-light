@@ -1,8 +1,8 @@
 import numpy as np
 from numpy import newaxis as na
 
-from src.predictive_model.predictive_model import drop_columns
 from src.predictive_model.common import get_tensor
+from src.predictive_model.predictive_model import drop_columns
 
 
 def lrp_explain(CONF, predictive_model, full_test_df, encoder):

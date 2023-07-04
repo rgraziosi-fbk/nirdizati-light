@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import timedelta
 
 from pandas import DataFrame
-from pm4py.objects.log.log import EventLog, Trace, Event
+from pm4py.objects.log.obj import EventLog, Trace, Event
 
 from src.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType
 from src.labeling.common import add_label_column

@@ -5,7 +5,7 @@ import numpy as np
 from hyperopt import Trials, hp, fmin
 from hyperopt.pyll import scope
 
-from src.predictive_model.common import ClassificationMethods, RegressionMethods
+from src.predictive_model.common import ClassificationMethods
 
 
 class HyperoptTarget(Enum):
@@ -20,6 +20,7 @@ def _get_space(model_type) -> dict:
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
             'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
             'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
+            'criterion': hp.choice('criterion',['gini','entropy']),
             'warm_start': True
         }
 
@@ -37,23 +38,23 @@ def _get_space(model_type) -> dict:
 
     elif model_type is ClassificationMethods.SGDCLASSIFIER.value:
         return {
-            'loss': hp.choice('loss', ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_loss',
+            'loss': hp.choice('loss', ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_error',
                                        'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive']),
             'penalty': hp.choice('penalty', [None, 'l1', 'l2', 'elasticnet']),
             'alpha': hp.uniform('alpha', 0.0001, 0.5),
-            'l1_ratio': hp.uniform('l1_ratio', 0.15, 1.0),
             'fit_intercept': hp.choice('fit_intercept', [True, False]),
             'tol': hp.uniform('tol', 1e-3, 0.5),
-            'epsilon': hp.uniform('epsilon', 1e-3, 0.5),
-            'learning_rate': hp.choice('learning_rate', ['constant', 'optimal', 'invscaling', 'adaptive']),
-            'eta0': scope.int(hp.quniform('eta0', 4, 30, 1)),
-            'power_t': hp.uniform('power_t', 0.3, 0.7),
+            'shuffle': hp.choice('shuffle', [True, False]),
+            'eta0': hp.quniform('eta0', 0, 2),
             # 'early_stopping': hp.choice('early_stopping', [True, False]), #needs to be false with partial_fit
-            'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5)),
             'validation_fraction': 0.1,
-            'average': hp.choice('average', [True, False])
+            'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 1, 30, 5))
         }
-
+    elif model_type is ClassificationMethods.SVM.value:
+        return{
+            'kernel' : hp.choice('kernel',['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']),
+            'C' : hp.uniform('C',0.1,1)
+        }
     elif model_type is ClassificationMethods.PERCEPTRON.value:
         return {
             'penalty': hp.choice('penalty', [None, 'l1', 'l2', 'elasticnet']),
@@ -66,12 +67,22 @@ def _get_space(model_type) -> dict:
             'validation_fraction': 0.1,
             'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5))
         }
-
-    elif model_type is RegressionMethods.RANDOM_FOREST.value:
+    elif model_type is ClassificationMethods.MLP.value:
+        return {
+            'hidden_layer_sizes': scope.int(hp.uniform('hidden_layer_sizes',10,100)),
+            'alpha': hp.uniform('alpha', 0.0001, 0.5),
+            'shuffle': hp.choice('shuffle', [True, False]),
+#            'eta0': scope.int(hp.quniform('eta0', 4, 30, 1)),
+            # 'early_stopping': hp.choice('early_stopping', [True, False]), #needs to be false with partial_fit
+            'validation_fraction': 0.1,
+            'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5))
+        }
+    elif model_type is ClassificationMethods.RANDOM_FOREST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
-            'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
             'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
+            'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
+            'warm_start': True
         }
 
     elif model_type is ClassificationMethods.LSTM.value:
@@ -129,3 +140,15 @@ def retrieve_best_model(predictive_model, model_type, max_evaluations, target):
     best_candidate = trials.best_trial['result']
 
     return best_candidate['model'], best_candidate['config']
+
+'''
+elif model_type is ClassificationMethods.MLP.value:
+    return {
+        'activation': hp.choice('activation', ['tanh', 'relu']),
+        'optimizer': hp.choice('optimizer', ['adam', 'nadam']),
+        'nr_of_hidden_layers': hp.choice('nr_of_hidden_layers',[2,3,4]),
+        'nr_of_units': scope.int(hp.uniform('nr_of_units',32,256)),
+        'batch_size': scope.int(hp.uniform('batch_size',24,128)),
+        'epochs':scope.int(hp.uniform('epochs',5,50))
+    }
+'''

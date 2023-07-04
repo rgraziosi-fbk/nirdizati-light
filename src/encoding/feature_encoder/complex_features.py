@@ -1,7 +1,7 @@
 from functools import reduce
 
 from pandas import DataFrame
-from pm4py.objects.log.log import Trace, EventLog
+from pm4py.objects.log.obj import Trace, EventLog
 
 from src.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType, PrefixLengthStrategy
 from src.labeling.common import add_label_column
@@ -26,7 +26,7 @@ def complex_features(log: EventLog, prefix_length, padding, prefix_length_strate
                 encoded_data.append(_trace_to_row(trace, event_index, additional_columns, prefix_length_strategy, padding, columns, labeling_type))
         else:
             encoded_data.append(_trace_to_row(trace, trace_prefix_length, additional_columns, prefix_length_strategy, padding, columns, labeling_type))
-
+    #change prefiz_i to prefix and update feature lsit
     return DataFrame(columns=columns, data=encoded_data)
 
 
@@ -90,3 +90,7 @@ def _trace_to_row(trace: Trace, prefix_length: int, additional_columns, prefix_l
         trace_row += [0 for _ in range(len(trace_row), len(columns) - 1)]
     trace_row += [add_label_column(trace, labeling_type, prefix_length)]
     return trace_row
+
+#def _trace_to_row(trace: Trace, prefix_length: int, additional_columns, prefix_length_strategy: str, padding, columns: list, labeling_type) -> list:
+#def _row_to_trace(df: DataFrame, prefix_length: int, additional_columns, prefix_length_strategy: str, padding, columns: list, labeling_type) -> list:
+#    for row in df.iterrows():

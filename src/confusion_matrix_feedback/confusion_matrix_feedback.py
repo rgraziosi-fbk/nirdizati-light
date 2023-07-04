@@ -1,10 +1,9 @@
 import numpy as np
-import pandas as pd
 from pymining import itemmining
 
 from src.encoding.data_encoder import PADDING_VALUE
-from src.predictive_model.predictive_model import drop_columns
 from src.predictive_model.common import ClassificationMethods, get_tensor
+from src.predictive_model.predictive_model import drop_columns
 
 
 def compute_feedback(CONF, explanations, predictive_model, test_df, encoder, top_k=None):

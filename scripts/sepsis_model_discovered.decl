@@ -1,0 +1,114 @@
+activity 01hoofd180
+activity 01hoofd050
+activity other
+activity 08awb450512
+activity 11ahii040c
+activity 08awb450902
+activity 01hoofd530
+activity 01hoofd011
+activity 06vd0303
+activity 01hoofd550
+activity 07ops0602
+activity 01hoofd0302
+activity 01hoofd5802
+activity 11ahii040b
+activity 01hoofd0652
+activity 14vrij035
+activity 11ahii036
+activity 01hoofd4903
+activity 06vd0305a
+activity 01hoofd100
+activity 11ahii0372
+activity 01hoofd1101
+activity 01hoofd4905a
+activity 12ap0202
+activity 07ops055
+activity 01hoofd3502
+activity 14vrij0202
+activity 14vrij015
+activity 08awb45040
+activity 04bpt020
+activity 14vrij010
+activity 15ngv040
+activity 01hoofd012
+activity 01hoofd130
+activity 01hoofd4102
+activity 01hoofd040
+activity 06vd0602
+activity 05eind0301
+activity 01hoofd1102
+activity 05eind050
+activity 15ngv0202
+activity 05eind020
+activity 01hoofd020
+activity 01hoofd516
+activity 01hoofd055
+activity 11ahii0703a
+activity 14vrij0201
+activity 04bpt060
+activity 03gbh005
+activity 01hoofd810
+activity 06vd0302
+activity 01hoofd060
+activity 06vd0602a
+activity 01hoofd570
+activity 08awb450201
+activity 12ap050
+activity 01hoofd0650
+activity 01hoofd2102
+activity 01hoofd790
+activity 02drz010
+activity 01hoofd6002
+activity 05eind0302
+activity 05eind070
+activity 01hoofd0651
+activity 01hoofd540
+activity 14vrij011
+activity 01hoofd1902
+activity 01hoofd450
+activity 04bpt040
+activity 08awb450202
+activity 04bpt005
+activity 01hoofd460
+activity 04bpt050
+activity 16lgsv010
+activity 10uov0502
+activity 01hoofd090
+activity 01hoofd4905
+activity 10uov035
+activity 01hoofd110
+activity 01hoofd491
+activity 06vd010
+activity 01hoofd101
+activity 04bpt010
+activity 01hoofd800
+activity 05eind010
+activity 01hoofd5102
+activity 10uov030
+activity 08awb450703
+activity 01hoofd5102a
+activity 01hoofd015
+activity 07ops010
+activity 01hoofd061
+activity 01hoofd1100
+activity 01hoofd5104
+activity 08awb45150
+activity 04bpt030
+activity 01hoofd010
+activity 01hoofd0301
+activity 06vd0202
+activity 06vd070
+Existence1[01hoofd010] | |
+Absence2[01hoofd010] | |
+Exactly1[01hoofd010] | |
+Existence1[01hoofd020] | |
+Absence2[01hoofd020] | |
+Exactly1[01hoofd020] | |
+Choice[01hoofd010, 01hoofd020] | | |
+Choice[01hoofd020, 01hoofd010] | | |
+Responded Existence[01hoofd010, 01hoofd020] | | |
+Responded Existence[01hoofd020, 01hoofd010] | | |
+Not Chain Response[01hoofd010, 01hoofd020] | | |
+Not Chain Response[01hoofd020, 01hoofd010] | | |
+Not Chain Precedence[01hoofd010, 01hoofd020] | | |
+Not Chain Precedence[01hoofd020, 01hoofd010] | | |

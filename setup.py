@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name='LRP_CMF_integration',
-    version='0.2',
+    name='nirdizati_light',
+    version='0.1',
     packages=['src',
               'src.log',
               'src.encoding',
@@ -26,10 +26,5 @@ setup(
         'hyperopt',
         'pathlib',
         'tensorflow'
-    ],
-    url='https://github.com/PDI-FBK/LRP_CMF_integration',
-    license='',
-    author=['Williams Rizzi', 'Sven Weinzierl', 'Sandra Zilker'],
-    author_email='wrizzi@fbk.eu',
-    description='LRP CMF integration'
+    ]
 )

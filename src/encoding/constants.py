@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pm4py.objects.log.log import EventLog, Trace
+from pm4py.objects.log.obj import EventLog, Trace
 
 
 class EncodingType(Enum):
@@ -8,6 +8,8 @@ class EncodingType(Enum):
 	FREQUENCY = 'frequency'
 	COMPLEX = 'complex'
 	DECLARE = 'declare'
+	LORELEY = 'loreley'
+	LORELEY_COMPLEX = 'loreley_complex'
 
 
 class EncodingTypeAttribute(Enum):

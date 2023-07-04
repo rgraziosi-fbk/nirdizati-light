@@ -30,10 +30,10 @@ def run_full_pipeline(CONF=None):
         CONF = {  # This contains the configuration for the run
             'data':
                 {
-                    'TRAIN_DATA': '../input_data/' + 'd1_train_explainability_0-38.xes',
-                    'VALIDATE_DATA': '../input_data/' + 'd1_validation_explainability_38-40.xes',
-                    'FEEDBACK_DATA': '../input_data/' + 'd1_test_explainability_40-50.xes',
-                    'TEST_DATA': '../input_data/' + 'd1_test2_explainability_50-60.xes',
+                    'TRAIN_DATA': '../synthetic_data/' + 'd1_train_explainability_0-38.xes',
+                    'VALIDATE_DATA': '../synthetic_data/' + 'validate.xes',
+                    'FEEDBACK_DATA': '../synthetic_data/' + 'feedback.xes',
+                    'TEST_DATA': '../synthetic_data/' + 'test.xes',
                     'OUTPUT_DATA': '../output_data',
                 },
             'prefix_length': 5,
