@@ -12,6 +12,7 @@ from src.predictive_model.common import ClassificationMethods
 warnings.filterwarnings("ignore", category=UserWarning)
 import pm4py
 import os
+from declare4py.declare4py import Declare4Py
 from declare4py.enums import TraceState
 from scripts.dataset_confs import DatasetConfs
 from datetime import datetime
@@ -20,9 +21,6 @@ from datetime import datetime
 # figure out why timestamp_2 and 3 are not considered numeric
 #when switching to unknown, remember to change label_as, encoder is of train_df, and use cf_dataset as full
 #label_as = 'alphabet'
-#path_cf = 'conformance_cf_results_all_encs/'
-#path_results = 'conformance_eval_results_all_encs/'
-#path_cf = '../counterfactual_results/'
 path_results = '../cf_results/evaluation_query_conformance_complex/'
 #path_results = '../evaluation_query_conformance_loss/'
 model_path = '../process_models/process_models_complex/'
@@ -35,7 +33,7 @@ def dice_explain(CONF, predictive_model,cf_df,encoder,df,query_instances, featur
     features_names = cf_df.columns.values[:-1]
    # y_pred = predictive_model.model.predict(query_instances)
     feature_selection = CONF['feature_selection']
-    dataset = CONF['data']['TRAIN_DATA'].rpartition('/')[0].replace('../','')
+    dataset = CONF['data']['TRAIN_DATA'].rpartition('/')[0].replace('../dataset','')
     black_box = predictive_model.model_type
     categorical_features,continuous_features,cat_feature_index,cont_feature_index = split_features(cf_df.iloc[:,:-1], encoder)
     if CONF['feature_selection'] == 'loreley':
@@ -641,7 +639,7 @@ def decode_cfs(encoder,df,dice_result):
 
 
 def conformance_score(CONF,encoder,df,dataset,features_names,d4py,query_instance,model_path):
-    #d4py.parse_decl_model(model_path='process_models_prefix_length/'+dataset+'_'+str(CONF['prefix_length']-5)+'.decl')
+    d4py.parse_decl_model(model_path='process_models_prefix_length/'+dataset+'_'+str(CONF['prefix_length'])+'.decl')
     #d4py.parse_decl_model(model_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
     d4py.parse_decl_model(model_path=model_path+dataset+'.decl')
     dataset_confs = DatasetConfs(dataset, where_is_the_file='')
@@ -727,8 +725,8 @@ def model_discovery(CONF,encoder,df,dataset,features_names,d4py,model_path,suppo
     d4py.load_xes_log(event_log)
     d4py.compute_frequent_itemsets(min_support=0.9, len_itemset=2)
     d4py.discovery(consider_vacuity=True, max_declare_cardinality=2)
-    #discovered = d4py.filter_discovery(min_support=0.9, output_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
-    discovered = d4py.filter_discovery(min_support=0.8, output_path=model_path+dataset+'.decl')
+    discovered = d4py.filter_discovery(min_support=0.9, output_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
+    #discovered = d4py.filter_discovery(min_support=support, output_path=model_path+dataset+'.decl')
     return discovered
 
 columns = ['dataset','heuristic', 'model', 'method','prefix_length','idx', 'desired_nr_of_cfs','generated_cfs', 'time_train','time_test',
