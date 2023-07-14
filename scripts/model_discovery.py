@@ -1,40 +1,26 @@
 import logging
-import numpy as np
-import sys
-from DiCE import dice_ml as dice_ml
-import sys
-import os
-import pickle
-from src.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor, shape_label_df
-import pandas as pd
-import numpy as np
-from scipy.spatial.distance import cdist, pdist
-from scipy.spatial.distance import _validate_vector
-from scipy.stats import median_abs_deviation
-from datetime import datetime
-import warnings
-from src.encoding.common import get_encoded_df, EncodingType
-from src.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
-from src.encoding.time_encoding import TimeEncodingType
-from src.evaluation.common import evaluate_classifier
-from src.explanation.common import ExplainerType, explain
-from src.explanation.wrappers.dice_wrapper import plausibility
-from src.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from src.labeling.common import LabelTypes
-from src.log.common import get_log
-import pm4py
-from declare4py.src.declare4py.declare4py import Declare4Py
-from declare4py.src.declare4py.enums import TraceState
-from dataset_confs import DatasetConfs
-from src.predictive_model.common import ClassificationMethods, get_tensor
-from src.predictive_model.predictive_model import PredictiveModel, drop_columns
-from src.explanation.visualizations.plot import line_plot,bar_plot
-from DiCE import dice_ml
-import pandas as pd
-from dice_ml.utils import helpers
-logger = logging.getLogger(__name__)
 import warnings
 import itertools
+from datetime import datetime
+import numpy as np
+import os
+import pandas as pd
+import numpy as np
+import pm4py
+from declare4py.declare4py import Declare4Py
+
+from dataset_confs import DatasetConfs
+from nirdizati_light.explanation.common import ExplainerType
+from nirdizati_light.predictive_model.common import ClassificationMethods
+from nirdizati_light.encoding.common import get_encoded_df, EncodingType
+from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
+from nirdizati_light.encoding.time_encoding import TimeEncodingType
+from nirdizati_light.hyperparameter_optimisation.common import HyperoptTarget
+from nirdizati_light.labeling.common import LabelTypes
+from nirdizati_light.log.common import get_log
+from nirdizati_light.predictive_model.common import ClassificationMethods
+
+logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 def model_discovery(encoder,df,dataset,features_names,prefix_length):

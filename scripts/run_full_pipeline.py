@@ -2,17 +2,17 @@ import itertools
 import logging
 import numpy as np
 
-from src.encoding.common import get_encoded_df, EncodingType
-from src.encoding.constants import EncodingTypeAttribute
-from src.evaluation.common import evaluate_classifier
-from src.explanation.common import explain, ExplainerType
-from src.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback
-from src.confusion_matrix_feedback.randomise_features import randomise_features
-from src.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from src.labeling.common import LabelTypes
-from src.log.common import get_log
-from src.predictive_model.common import ClassificationMethods, get_tensor
-from src.predictive_model.predictive_model import PredictiveModel, drop_columns
+from nirdizati_light.encoding.common import get_encoded_df, EncodingType
+from nirdizati_light.encoding.constants import EncodingTypeAttribute
+from nirdizati_light.evaluation.common import evaluate_classifier
+from nirdizati_light.explanation.common import explain, ExplainerType
+from nirdizati_light.confusion_matrix_feedback.confusion_matrix_feedback import compute_feedback
+from nirdizati_light.confusion_matrix_feedback.randomise_features import randomise_features
+from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
+from nirdizati_light.labeling.common import LabelTypes
+from nirdizati_light.log.common import get_log
+from nirdizati_light.predictive_model.common import ClassificationMethods, get_tensor
+from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
 
 logger = logging.getLogger(__name__)
 

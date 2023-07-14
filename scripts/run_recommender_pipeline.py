@@ -1,17 +1,17 @@
 import logging
 
-from src.encoding.common import get_encoded_df, EncodingType
-from src.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
-from src.encoding.time_encoding import TimeEncodingType
-from src.evaluation.common import evaluate_recommender
-from src.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from src.labeling.common import LabelTypes
-from src.log.common import get_log
-from src.predictive_model.common import ClassificationMethods, RegressionMethods
-from src.predictive_model.predictive_model import PredictiveModel, drop_columns
-from src.recommender_model.classifier_and_regressor.classifier_and_regressor import RecommenderModelInstantiation
-from src.recommender_model.common import RecommendationMethods
-from src.recommender_model.recommender_model import RecommenderModel
+from nirdizati_light.encoding.common import get_encoded_df, EncodingType
+from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
+from nirdizati_light.encoding.time_encoding import TimeEncodingType
+from nirdizati_light.evaluation.common import evaluate_recommender
+from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
+from nirdizati_light.labeling.common import LabelTypes
+from nirdizati_light.log.common import get_log
+from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods
+from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
+from nirdizati_light.recommender_model.classifier_and_regressor.classifier_and_regressor import RecommenderModelInstantiation
+from nirdizati_light.recommender_model.common import RecommendationMethods
+from nirdizati_light.recommender_model.recommender_model import RecommenderModel
 
 logger = logging.getLogger(__name__)
 
