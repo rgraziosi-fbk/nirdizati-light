@@ -2,16 +2,16 @@ import logging
 import numpy as np
 import pandas as pd
 
-from src.encoding.common import get_encoded_df, EncodingType
-from src.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
-from src.encoding.time_encoding import TimeEncodingType
-from src.evaluation.common import evaluate_classifier
-from src.explanation.common import ExplainerType
-from src.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from src.labeling.common import LabelTypes
-from src.log.common import get_log
-from src.predictive_model.common import ClassificationMethods, get_tensor
-from src.predictive_model.predictive_model import PredictiveModel, drop_columns
+from nirdizati_light.encoding.common import get_encoded_df, EncodingType
+from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
+from nirdizati_light.encoding.time_encoding import TimeEncodingType
+from nirdizati_light.evaluation.common import evaluate_classifier
+from nirdizati_light.explanation.common import ExplainerType
+from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
+from nirdizati_light.labeling.common import LabelTypes
+from nirdizati_light.log.common import get_log
+from nirdizati_light.predictive_model.common import ClassificationMethods, get_tensor
+from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
 
 logger = logging.getLogger(__name__)
 

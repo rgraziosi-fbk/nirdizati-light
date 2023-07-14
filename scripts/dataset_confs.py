@@ -1,6 +1,3 @@
-import os
-
-
 class DatasetConfs:
 
     def __init__(self, dataset_name, where_is_the_file='',data=False):

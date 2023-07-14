@@ -1,7 +1,12 @@
-build/
 .idea/
-
+*.egg-info/
 __pycache__/
+build/
+dist/
+/venv/
+
+.DS_Store
+
 /BPIC11_f1/
 /BPIC11_f2/
 /BPIC11_f3/
@@ -43,4 +48,3 @@ __pycache__/
 /synthetic_data/
 /test_plots/
 /traffic_fines_1/
-/venv/
