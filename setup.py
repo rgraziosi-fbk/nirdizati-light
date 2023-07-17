@@ -18,7 +18,6 @@ setup(
         'dateparser~=1.1.8',
         'holidays~=0.28',
         'funcy~=2.0.0',
-        'xgboost~=1.7.6',
-        'pdpbox~=0.2.1'
+        'xgboost~=1.7.6'
     ]
 )
