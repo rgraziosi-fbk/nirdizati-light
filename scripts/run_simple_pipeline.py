@@ -53,12 +53,10 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         if train_size + val_size + test_size != 1.0:
             raise Exception('Train-val-test split does not sum up to 1')
 
-
+        #Train test split, works by splitting first in train_size (e.g. 60%), then the remaining 40% in val_size and test_size
+        #70% - 15% - 15% is the default
         train_df,val_df,test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
 
-        #train_df, tmp_df = train_test_split(full_df, test_size=val_size + test_size, random_state=CONF['seed'])
-        #val_df, test_df = train_test_split(tmp_df, test_size=test_size / (val_size + test_size),
-        #                                   random_state=CONF['seed'])
 
         predictive_model = PredictiveModel(CONF, CONF['predictive_model'], train_df, val_df)
         predictive_model.model, predictive_model.config = retrieve_best_model(
@@ -132,6 +130,7 @@ if __name__ == '__main__':
         # 'bpic2012_O_CANCELLED-COMPLETE',
         # 'traffic_fines_1',
         'sepsis_cases_1',
+        'legal_complaints'
     ]
     prefix_lengths = [0.2, 0.4, 0.6, 0.8, 1]
 

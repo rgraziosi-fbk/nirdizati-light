@@ -649,10 +649,10 @@ def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_in
     event_log = convert_to_event_log(long_data_sorted)
     query_log = convert_to_event_log(long_query_instance_sorted)
     d4py.load_xes_log(event_log)
-    model_check_res = d4py.conformance_checking(consider_vacuity=True)
+    model_check_res = d4py.conformance_checking(consider_vacuity=False)
     # conformant_traces = [key[0] for key,trace in model_check_res.items() if all(constraint.state == TraceState.SATISFIED for constraint in trace.values())]
     d4py.load_xes_log(query_log)
-    model_check_query = d4py.conformance_checking(consider_vacuity=True)
+    model_check_query = d4py.conformance_checking(consider_vacuity=False)
     query_patterns = {
         constraint
         for trace, patts in model_check_query.items()
