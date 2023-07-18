@@ -14,7 +14,8 @@ class ExplainerType(Enum):
 
 
 def explain(CONF, predictive_model, encoder, cf_df=None, test_df=None, df=None, query_instances=None, target_trace_id=None,
-            features_to_vary=None, method=None, optimization=None, heuristic=None, support=0.99, timestamp_col_name=None):
+            features_to_vary=None, method=None, optimization=None, heuristic=None, support=0.99, timestamp_col_name=None,
+            model_path=None):
     explainer = CONF['explanator']
     if explainer is ExplainerType.SHAP.value:
         return shap_explain(CONF, predictive_model, test_df,encoder, target_trace_id=target_trace_id)
@@ -25,4 +26,4 @@ def explain(CONF, predictive_model, encoder, cf_df=None, test_df=None, df=None, 
     elif explainer is ExplainerType.DICE.value:
         return dice_explain(CONF, predictive_model, encoder=encoder, cf_df=cf_df, df=df, query_instances=query_instances,
                             features_to_vary=features_to_vary, method=method, optimization=optimization,
-                            heuristic=heuristic, support=support, timestamp_col_name=timestamp_col_name)
+                            heuristic=heuristic, support=support, timestamp_col_name=timestamp_col_name,model_path=model_path)
