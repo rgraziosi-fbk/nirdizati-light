@@ -15,7 +15,7 @@ from nirdizati_light.predictive_model.common import ClassificationMethods
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-path_results = '../cf_results/evaluation_query_conformance'
+path_results = '../experiments/cf_results/evaluation_query_conformance'
 path_cf = '../cf_results/conformance_cf_results_all_encs/'
 single_prefix = ['loreley','loreley_complex']
 
@@ -119,12 +119,10 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                 desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
 
                 desired_cfs_all.extend(*desired_cfs)
-
-        #filename_results = path_results + 'cfeval_%s_%s_dice_%s.csv' % (dataset, black_box,feature_selection)
         try:
-            if not os.path.exists(path_results):
-                os.makedirs(path_results)
-                print("Directory '%s' created successfully" % path_results)
+            if not os.path.exists(path_results+'_'+str(support)+'/'):
+                os.makedirs(path_results+'_'+str(support)+'/')
+                print("Directory '%s' created successfully" % path_results+'_'+str(support)+'/')
         except OSError as error:
             print("Directory '%s' can not be created" % path_results)
         filename_results = path_results + 'cfeval_%s_%s_dice_%s_%s.csv' % (dataset, black_box,optimization,feature_selection)
