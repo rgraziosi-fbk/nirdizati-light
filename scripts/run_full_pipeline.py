@@ -51,6 +51,7 @@ def run_full_pipeline(CONF=None):
         }
 
     logger.debug('LOAD DATA')
+    full_log = get(filepath=CONF['data']['FULL_DATA'])
     train_log = get_log(filepath=CONF['data']['TRAIN_DATA'])
     validate_log = get_log(filepath=CONF['data']['VALIDATE_DATA'])
     feedback_log = get_log(filepath=CONF['data']['FEEDBACK_DATA'])
@@ -58,9 +59,14 @@ def run_full_pipeline(CONF=None):
 
     logger.debug('ENCODE DATA')
 
+    encoder, full_df = get_encoded_df(
+        log=full_log,
+        CONF=CONF
+    )
     encoder, train_df = get_encoded_df(
         log=train_log,
-        CONF=CONF
+        CONF=CONF,
+        encoder=encoder
     )
     encoder, validate_df = get_encoded_df(
         log=validate_log,

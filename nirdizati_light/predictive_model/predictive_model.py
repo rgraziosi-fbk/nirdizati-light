@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def drop_columns(df: DataFrame) -> DataFrame:
-    df = df.drop(['trace_id', 'label'],1)
+    df = df.drop(['trace_id', 'label'],axis=1)
     return df
 
 class PredictiveModel:
@@ -152,10 +152,6 @@ class PredictiveModel:
             probabilities = model.predict(self.validate_tensor)
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
-        #elif self.model_type is ClassificationMethods.MLP.value:
-        #    probabilities = model.predict(self.validate_df)
-        #    predicted = [1 if prob > 0.5 else 0 for prob in probabilities]
-        #    scores = np.amax(probabilities, axis=1)
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             predicted = model.predict(self.validate_df)
             scores = model.predict_proba(self.validate_df)[:, 1]

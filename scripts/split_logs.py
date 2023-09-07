@@ -52,12 +52,6 @@ logs = [
 # 'IRENE/sepsis_cases_2',
 # 'IRENE/sepsis_cases_4',
 # 'IRENE/traffic_fines_1',
-
-    # 'DONADELLO_KR/sepsis_95',
-    # 'DONADELLO_KR/xray'
-    #'../synthetic_bank_accepted/',
-    #'../synthetic_bank_cancelled/',
-    #'../synthetic_bank_declined/',
 ]
 
 output_files = [

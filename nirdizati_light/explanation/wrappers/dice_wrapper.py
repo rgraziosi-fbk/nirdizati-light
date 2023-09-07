@@ -15,15 +15,13 @@ from nirdizati_light.predictive_model.common import ClassificationMethods
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-path_results = '../experiments/cf_results/evaluation_query_conformance'
+path_results = '../experiments/updated_cf_results/evaluation_query_conformance'
 path_cf = '../cf_results/conformance_cf_results_all_encs/'
 single_prefix = ['loreley','loreley_complex']
 
-def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
-                 features_to_vary, method, optimization, heuristic, support,
+def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances, method, optimization, heuristic, support,
                  timestamp_col_name,model_path):
     features_names = cf_df.columns.values[:-1]
-   # y_pred = predictive_model.model.predict(query_instances)
     feature_selection = CONF['feature_selection']
     dataset = CONF['data'].rpartition('/')[0].replace('../datasets/','')
     black_box = predictive_model.model_type
@@ -70,7 +68,13 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
-                                                                           features_to_vary=features_to_vary,
+                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                           model_path=model_path, optimization=optimization,
+                                                                           heuristic=heuristic)
+            elif method == 'multi_objective_genetic':
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
                                                                            heuristic=heuristic)
@@ -78,7 +82,6 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
-                                                                           features_to_vary=features_to_vary,
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']))
             # function to decode cf from train_df and show it decoded before adding to list
             generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
@@ -90,9 +93,6 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                                       query_instances=query_instances,continuous_features=continuous_features,
                                       categorical_features=categorical_features,ratio_cont=ratio_cont
                                       )
-            df_conf = pd.DataFrame(data=cf_list[:, :-1], columns=features_names)
-            sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
-                                          d4py=d4py, query_instance=x, model_path=model_path, timestamp_col_name=timestamp_col_name)
 
             x_eval['dataset'] = dataset
             x_eval['idx'] = i+1
@@ -114,6 +114,12 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                     cf_list = cf_list[:, :-1]
                 elif method == 'genetic_conformance':
                     cf_list = cf_list[:, :-1]
+                elif method == 'multi_objective_genetic':
+                    cf_list = cf_list[:, :-1]
+                df_conf = pd.DataFrame(data=cf_list, columns=features_names)
+                sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
+                                              d4py=d4py, query_instance=x, model_path=model_path,
+                                              timestamp_col_name=timestamp_col_name)
                 x_eval['sat_score'] = sat_score
                 cf_list_all.extend(cf_list[:5])
                 desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
@@ -129,7 +135,6 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
         if len(cf_list_all) > 0:
             df_cf = pd.DataFrame(data=cf_list_all, columns=features_names)
             encoder.decode(df_cf)
-
             if CONF['feature_selection'] in single_prefix:
                 if all(df['prefix'] == '0'):
                     cols = ['prefix_' + str(i+1) for i in range(CONF['prefix_length'])]
