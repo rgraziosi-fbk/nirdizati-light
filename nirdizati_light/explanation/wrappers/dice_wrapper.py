@@ -15,25 +15,15 @@ from nirdizati_light.predictive_model.common import ClassificationMethods
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-#if ALL_IN_ONE task generation, use dice without MAD because it will make it 0 anyway
-# figure out why timestamp_2 and 3 are not considered numeric
-#when switching to unknown, remember to change label_as, encoder is of train_df, and use cf_dataset as full
-#label_as = 'alphabet'
-path_results = '../cf_results/evaluation_query_conformance_complex/'
-#path_results = '../evaluation_query_conformance_loss/'
-model_path = '../process_models/process_models_complex/'
+path_results = '../experiments/updated_cf_results/evaluation_query_conformance'
 path_cf = '../cf_results/conformance_cf_results_all_encs/'
-#path_results = 'genetic_conformance_filtering/'
 single_prefix = ['loreley','loreley_complex']
-deviance_mining = True
 
-def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
-                 features_to_vary, method, optimization, heuristic, support,
-                 timestamp_col_name):
+def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances, method, optimization, heuristic, support,
+                 timestamp_col_name,model_path):
     features_names = cf_df.columns.values[:-1]
-   # y_pred = predictive_model.model.predict(query_instances)
     feature_selection = CONF['feature_selection']
-    dataset = CONF['data'].rpartition('/')[0].replace('../','')
+    dataset = CONF['data'].rpartition('/')[0].replace('../datasets/','')
     black_box = predictive_model.model_type
     categorical_features,continuous_features,cat_feature_index,cont_feature_index = split_features(cf_df.iloc[:,:-1], encoder)
     if CONF['feature_selection'] == 'loreley':
@@ -43,12 +33,13 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
     else:
         ratio_cont = len(continuous_features)/len(categorical_features)
     time_start = datetime.now()
-    query_instances_for_cf = query_instances.iloc[11:15,:-1]
+    query_instances_for_cf = query_instances.iloc[:15,:-1]
     d = dice_ml.Data(dataframe=cf_df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method,encoder)
     time_train = (datetime.now() - time_start).total_seconds()
     index_test_instances = range(len(query_instances_for_cf))
+    model_path = model_path +'_' + str(support) + '/'
     try:
         if not os.path.exists(model_path):
             os.makedirs(model_path)
@@ -57,15 +48,12 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
         print("Directory '%s' can not be created" % model_path)
     d4py = Declare4Py()
     try:
-        #if not os.path.exists(model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl'):
-        if not os.path.exists(model_path+dataset+'.decl'):
-            #discovery = model_discovery(CONF, encoder, df, dataset, features_names,
-            #                            d4py, model_path, timestamp_col_name)
-            full_discovery =  model_discovery(CONF, encoder, df, dataset, features_names,
+        if not os.path.exists(model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl'):
+            print('Do model discovery')
+            model_discovery(CONF, encoder, df, dataset, features_names,
                                               d4py, model_path, support, timestamp_col_name)
     except OSError as error:
-        #print("File '%s' can not be created" % (model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl'))
-        print("File '%s' can not be created" % (model_path+dataset+'.decl'))
+        print("File '%s' can not be created" % (model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl'))
     for test_id,i in enumerate(index_test_instances):
         print(datetime.now(), dataset, black_box, test_id, len(index_test_instances),
               '%.2f' % (test_id+1 / len(index_test_instances)))
@@ -80,7 +68,13 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
-                                                                           features_to_vary=features_to_vary,
+                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                           model_path=model_path, optimization=optimization,
+                                                                           heuristic=heuristic)
+            elif method == 'multi_objective_genetic':
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
                                                                            heuristic=heuristic)
@@ -88,7 +82,6 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
-                                                                           features_to_vary=features_to_vary,
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']))
             # function to decode cf from train_df and show it decoded before adding to list
             generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
@@ -100,9 +93,6 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                                       query_instances=query_instances,continuous_features=continuous_features,
                                       categorical_features=categorical_features,ratio_cont=ratio_cont
                                       )
-            df_conf = pd.DataFrame(data=cf_list[:, :-1], columns=features_names)
-            sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
-                                          d4py=d4py, query_instance=x, model_path=model_path, timestamp_col_name=timestamp_col_name)
 
             x_eval['dataset'] = dataset
             x_eval['idx'] = i+1
@@ -124,24 +114,27 @@ def dice_explain(CONF, predictive_model, cf_df, encoder, df, query_instances,
                     cf_list = cf_list[:, :-1]
                 elif method == 'genetic_conformance':
                     cf_list = cf_list[:, :-1]
+                elif method == 'multi_objective_genetic':
+                    cf_list = cf_list[:, :-1]
+                df_conf = pd.DataFrame(data=cf_list, columns=features_names)
+                sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
+                                              d4py=d4py, query_instance=x, model_path=model_path,
+                                              timestamp_col_name=timestamp_col_name)
                 x_eval['sat_score'] = sat_score
                 cf_list_all.extend(cf_list[:5])
                 desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
 
                 desired_cfs_all.extend(*desired_cfs)
-
-        #filename_results = path_results + 'cfeval_%s_%s_dice_%s.csv' % (dataset, black_box,feature_selection)
         try:
-            if not os.path.exists(path_results):
-                os.makedirs(path_results)
-                print("Directory '%s' created successfully" % path_results)
+            if not os.path.exists(path_results+'_'+str(support)+'/'):
+                os.makedirs(path_results+'_'+str(support)+'/')
+                print("Directory '%s' created successfully" % path_results+'_'+str(support)+'/')
         except OSError as error:
             print("Directory '%s' can not be created" % path_results)
         filename_results = path_results + 'cfeval_%s_%s_dice_%s_%s.csv' % (dataset, black_box,optimization,feature_selection)
         if len(cf_list_all) > 0:
             df_cf = pd.DataFrame(data=cf_list_all, columns=features_names)
             encoder.decode(df_cf)
-
             if CONF['feature_selection'] in single_prefix:
                 if all(df['prefix'] == '0'):
                     cols = ['prefix_' + str(i+1) for i in range(CONF['prefix_length'])]
@@ -625,9 +618,8 @@ def plausibility(query_instance, predictive_model, cf_list,nr_of_cfs, query_inst
     return sum_dist
 
 def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_instance, model_path, timestamp_col_name):
-    d4py.parse_decl_model(model_path='process_models_complex/'+dataset+'_'+str(CONF['prefix_length'])+'.decl')
-    #d4py.parse_decl_model(model_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
-    d4py.parse_decl_model(model_path=model_path+dataset+'.decl')
+    d4py.parse_decl_model(model_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
+    #d4py.parse_decl_model(model_path=model_path+dataset+'.decl')
     df = pd.DataFrame(df, columns=features_names)
     query_instance_to_decode = pd.DataFrame(np.array(query_instance, dtype=float),
                                             columns=features_names)
@@ -660,10 +652,10 @@ def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_in
     event_log = convert_to_event_log(long_data_sorted)
     query_log = convert_to_event_log(long_query_instance_sorted)
     d4py.load_xes_log(event_log)
-    model_check_res = d4py.conformance_checking(consider_vacuity=True)
+    model_check_res = d4py.conformance_checking(consider_vacuity=False)
     # conformant_traces = [key[0] for key,trace in model_check_res.items() if all(constraint.state == TraceState.SATISFIED for constraint in trace.values())]
     d4py.load_xes_log(query_log)
-    model_check_query = d4py.conformance_checking(consider_vacuity=True)
+    model_check_query = d4py.conformance_checking(consider_vacuity=False)
     query_patterns = {
         constraint
         for trace, patts in model_check_query.items()
@@ -706,11 +698,9 @@ def model_discovery(CONF, encoder, df, dataset, features_names, d4py, model_path
     long_data_sorted.replace(0, 'other', inplace=True)
     event_log = convert_to_event_log(long_data_sorted)
     d4py.load_xes_log(event_log)
-    d4py.compute_frequent_itemsets(min_support=0.9, len_itemset=2)
+    d4py.compute_frequent_itemsets(min_support=support, len_itemset=2)
     d4py.discovery(consider_vacuity=True, max_declare_cardinality=2)
-    discovered = d4py.filter_discovery(min_support=0.9, output_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
-    #discovered = d4py.filter_discovery(min_support=support, output_path=model_path+dataset+'.decl')
-    return discovered
+    discovered = d4py.filter_discovery(min_support=support, output_path=model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl')
 
 columns = ['dataset','heuristic', 'model', 'method','prefix_length','idx', 'desired_nr_of_cfs','generated_cfs', 'time_train','time_test',
            'runtime','distance_l2', 'distance_mad', 'distance_j', 'distance_h','distance_l1j', 'distance_l2j', 'distance_mh',

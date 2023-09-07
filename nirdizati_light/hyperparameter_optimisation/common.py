@@ -125,7 +125,7 @@ def _get_space(model_type) -> dict:
         raise Exception('Unsupported model_type')
 
 
-def retrieve_best_model(predictive_model, model_type, max_evaluations, target):
+def retrieve_best_model(predictive_model, model_type, max_evaluations, target,seed=None):
 
     space = _get_space(model_type)
     trials = Trials()
@@ -135,7 +135,7 @@ def retrieve_best_model(predictive_model, model_type, max_evaluations, target):
         space,
         algo=hyperopt.tpe.suggest,
         max_evals=max_evaluations,
-        trials=trials
+        trials=trials,rstate=seed
     )
     best_candidate = trials.best_trial['result']
 
