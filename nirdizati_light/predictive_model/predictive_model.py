@@ -124,12 +124,12 @@ class PredictiveModel:
 
     def _fit_model(self, model, config=None):
         if self.model_type is ClassificationMethods.LSTM.value:
-            MAX_NUM_EPOCHS = 1000
+            MAX_NUM_EPOCHS = 500
 
             train_tensor = torch.tensor(self.train_tensor, dtype=torch.float32)
             validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
 
-            early_stopper = EarlyStopper(patience=10, min_delta=0.01)
+            early_stopper = EarlyStopper(patience=5, min_delta=0.01)
 
             for _ in range(MAX_NUM_EPOCHS):
                 # training
