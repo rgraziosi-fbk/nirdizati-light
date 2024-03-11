@@ -1,5 +1,5 @@
 from enum import Enum
-
+import torch
 import numpy as np
 from funcy import flatten
 from pandas import DataFrame
@@ -21,8 +21,7 @@ class RegressionMethods(Enum):
 
 
 def get_tensor(CONF, df: DataFrame):
-
-    trace_attributes = [att for att in df.columns if '_' not in att]
+    trace_attributes = [att for att in df.columns if 'prefix_' not in att]
     event_attributes = [att[:-2] for att in df.columns if att[-2:] == '_1']
 
     reshaped_data = {
@@ -50,10 +49,10 @@ def get_tensor(CONF, df: DataFrame):
         flattened_features      # features x single time step (trace and event attributes)
     ))
 
-    for trace_index in reshaped_data:  # prefix
-        for prefix_index in reshaped_data[trace_index]:  # steps of the prefix
+    for i, trace_index in enumerate(reshaped_data):  # prefix
+        for j, prefix_index in enumerate(reshaped_data[trace_index]):  # steps of the prefix
             for single_flattened_value in range(len(reshaped_data[trace_index][prefix_index])):
-                tensor[trace_index, prefix_index - 1, single_flattened_value] = reshaped_data[trace_index][prefix_index][single_flattened_value]
+                tensor[i, j, single_flattened_value] = reshaped_data[trace_index][prefix_index][single_flattened_value]
 
     return tensor
 
@@ -65,3 +64,32 @@ def shape_label_df(df: DataFrame):
         labels[int(label_idx), int(label_val)] = 1
 
     return labels
+
+# General purpose class to wrap a lambda function as a torch module
+class LambdaModule(torch.nn.Module):
+    def __init__(self, lambd):
+        super().__init__()
+        import types
+        assert type(lambd) is types.LambdaType
+        self.lambd = lambd
+
+    def forward(self, x):
+        return self.lambd(x)
+    
+# Class for early stopping
+class EarlyStopper:
+    def __init__(self, patience=1, min_delta=0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.min_validation_loss = float('inf')
+
+    def early_stop(self, validation_loss):
+        if validation_loss < self.min_validation_loss:
+            self.min_validation_loss = validation_loss
+            self.counter = 0
+        elif validation_loss > (self.min_validation_loss + self.min_delta):
+            self.counter += 1
+            if self.counter >= self.patience:
+                return True
+        return False

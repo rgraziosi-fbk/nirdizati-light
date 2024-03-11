@@ -1,5 +1,5 @@
 from enum import Enum
-
+import torch
 import hyperopt
 import numpy as np
 from hyperopt import Trials, hp, fmin
@@ -86,9 +86,9 @@ def _get_space(model_type) -> dict:
 
     elif model_type is ClassificationMethods.LSTM.value:
         return {
-            'activation': hp.choice('activation', ['linear', 'tanh', 'relu']),
-            'kernel_initializer': hp.choice('kernel_initializer', ['glorot_uniform']),
-            'optimizer': hp.choice('optimizer', ['adam', 'nadam', 'rmsprop'])
+            'lr': hp.uniform('lr', 0.0001, 0.1),
+            'lstm_hidden_size': hp.choice('lstm_hidden_size', np.arange(50, 200, dtype=int)),
+            'lstm_num_layers': hp.choice('lstm_num_layers', np.arange(1, 3, dtype=int)),
         }
 
     else:

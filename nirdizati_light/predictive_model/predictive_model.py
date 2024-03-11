@@ -1,8 +1,6 @@
 import logging
-
-# import tensorflow as tf
 import numpy as np
-# import tensorflow.python.keras.models
+import torch
 from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
 from sklearn.calibration import CalibratedClassifierCV
@@ -14,7 +12,7 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
 from nirdizati_light.evaluation.common import evaluate_classifier, evaluate_regressor
-from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor, shape_label_df
+from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor, shape_label_df, LambdaModule, EarlyStopper
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +55,7 @@ class PredictiveModel:
     def train_and_evaluate_configuration(self, config, target):
         try:
             model = self._instantiate_model(config)
-            self._fit_model(model)
+            self._fit_model(model, config)
             actual = self.full_validate_df['label']
             
             if self.model_type is ClassificationMethods.LSTM.value:
@@ -97,7 +95,7 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
         elif self.model_type == ClassificationMethods.PERCEPTRON.value:
-            #added CalibratedClassifier to get predict_proba from perceptron model
+            # added CalibratedClassifier to get predict_proba from perceptron model
             model = Perceptron(**config)
             model = CalibratedClassifierCV(model, cv=10, method='isotonic')
         elif self.model_type is ClassificationMethods.MLP.value:
@@ -108,50 +106,57 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.SVM.value:
             model = SVC(**config,probability=True)
         elif self.model_type is ClassificationMethods.LSTM.value:
-            # input layer
-            main_input = tf.keras.layers.Input(shape=(self.train_tensor.shape[1], self.train_tensor.shape[2]),
-                                               name='main_input')
-
-            # hidden layer
-            b1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(100,
-                                                                    use_bias=True,
-                                                                    implementation=1,
-                                                                    activation=config['activation'],
-                                                                    kernel_initializer=config['kernel_initializer'],
-                                                                    return_sequences=False,
-                                                                    dropout=0.2))(main_input)
-
-            # output layer
-            output = tf.keras.layers.Dense(self.train_label.shape[1],
-                                           activation='softmax',
-                                           name='output',
-                                           kernel_initializer=config['kernel_initializer'])(b1)
-
-            model = tf.keras.models.Model(inputs=[main_input], outputs=[output])
-            model.compile(loss={'output': 'categorical_crossentropy'}, optimizer=config['optimizer'])
-            model.summary()
+            model = torch.nn.Sequential(
+                torch.nn.LSTM(
+                    input_size=self.train_tensor.shape[2],
+                    hidden_size=int(config['lstm_hidden_size']),
+                    num_layers=int(config['lstm_num_layers']),
+                    batch_first=True
+                ),
+                LambdaModule(lambda x: x[0][:,-1,:]),
+                torch.nn.Linear(int(config['lstm_hidden_size']), self.train_label.shape[1]),
+                torch.nn.Softmax(dim=1),
+            ).to(torch.float32)
         else:
             raise Exception('unsupported model_type')
+        
         return model
 
-    def _fit_model(self, model,config=None):
+    def _fit_model(self, model, config=None):
         if self.model_type is ClassificationMethods.LSTM.value:
-            early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
-            lr_reducer = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, verbose=0,
-                                                              mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
+            MAX_NUM_EPOCHS = 1000
 
-            model.fit(self.train_tensor, {'output': self.train_label},
-                      validation_split=0.1,
-                      verbose=1,
-                      callbacks=[early_stopping, lr_reducer],
-                      batch_size=64,
-                      epochs=1)
+            train_tensor = torch.tensor(self.train_tensor, dtype=torch.float32)
+            validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
+
+            early_stopper = EarlyStopper(patience=10, min_delta=0.01)
+
+            for _ in range(MAX_NUM_EPOCHS):
+                # training
+                model.train()
+                optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
+                criterion = torch.nn.CrossEntropyLoss()
+                optimizer.zero_grad()
+                output = model(train_tensor)
+                loss = criterion(output, torch.tensor(self.train_label, dtype=torch.float32))
+                loss.backward()
+                optimizer.step()
+                
+                # validation
+                model.eval()
+                validate_loss = criterion(model(validate_tensor), torch.tensor(self.validate_label, dtype=torch.float32))
+                print(f'validate_loss: {validate_loss}, counter: {early_stopper.counter}')
+                if early_stopper.early_stop(validate_loss):             
+                    break
+
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             model.fit(self.train_df.values, self.full_train_df['label'])
 
     def _output_model(self, model):
         if self.model_type is ClassificationMethods.LSTM.value:
-            probabilities = model.predict(self.validate_tensor)
+            validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
+
+            probabilities = model(validate_tensor).detach().numpy()
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
         elif self.model_type not in (ClassificationMethods.LSTM.value):

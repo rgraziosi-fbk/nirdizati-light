@@ -14,11 +14,11 @@ setup(
         'shap~=0.41.0',
         'numpy~=1.23.3',
         'hyperopt~=0.2.7',
-        'tensorflow~=2.13.0',
         'dateparser~=1.1.8',
         'holidays~=0.28',
         'funcy~=2.0.0',
         'xgboost~=1.7.6',
-        'pymoo~=0.6.0'
+        'pymoo~=0.6.0',
+        'torch~=2.2.1'
     ]
 )
