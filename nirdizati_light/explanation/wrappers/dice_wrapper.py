@@ -692,6 +692,7 @@ def model_discovery(CONF, encoder, df, dataset, features_names, d4py, model_path
     columns_to_rename = {'Case ID': 'case:concept:name'}
     columns_to_rename.update({'prefix': 'concept:name'})
     long_data_sorted.rename(columns=columns_to_rename, inplace=True)
+    long_data_sorted['case:concept:name'] = long_data_sorted['case:concept:name'].astype('str')
     long_data_sorted['label'].replace({'regular': 'false', 'deviant': 'true'}, inplace=True)
     long_data_sorted.replace('0', 'other', inplace=True)
     long_data_sorted.replace(0.0, 'other', inplace=True)

@@ -24,9 +24,17 @@ def drop_columns(df: DataFrame) -> DataFrame:
     return df
 
 class PredictiveModel:
+    """
+    A class representing a predictive model
+
+    Constructor parameters:
+        CONF: configuration dictionary (the only required attribute is 'prefix_length')
+        model_type: type of predictive model (can be one of predictive_model.common.ClassificationMethods)
+        train_df: training data to train model as a pandas dataframe
+        validate_df: validation data to evaluate model as a pandas dataframe
+    """
 
     def __init__(self, CONF, model_type, train_df, validate_df):
-        self.CONF = CONF
         self.model_type = model_type
         self.config = None
         self.model = None
@@ -45,15 +53,14 @@ class PredictiveModel:
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()
+    
     def train_and_evaluate_configuration(self, config, target):
         try:
             model = self._instantiate_model(config)
-            #if self.CONF['predictive_model'] is ClassificationMethods.MLP.value:
-            #    self._fit_model(model,config)
-            #else:
             self._fit_model(model)
             actual = self.full_validate_df['label']
-            if self.CONF['predictive_model'] is ClassificationMethods.LSTM.value:
+            
+            if self.model_type is ClassificationMethods.LSTM.value:
                 actual = np.array(actual.to_list())
 
             if self.model_type in [item.value for item in ClassificationMethods]:
@@ -128,8 +135,6 @@ class PredictiveModel:
         return model
 
     def _fit_model(self, model,config=None):
-
-
         if self.model_type is ClassificationMethods.LSTM.value:
             early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
             lr_reducer = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, verbose=0,
@@ -141,9 +146,6 @@ class PredictiveModel:
                       callbacks=[early_stopping, lr_reducer],
                       batch_size=64,
                       epochs=1)
-        #elif self.model_type is ClassificationMethods.MLP.value:
-        #    model.fit(self.train_df.values, self.full_train_df['label'],
-        #              epochs=config['epochs'],batch_size=config['batch_size'])
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             model.fit(self.train_df.values, self.full_train_df['label'])
 
@@ -159,22 +161,3 @@ class PredictiveModel:
             raise Exception('Unsupported model_type')
 
         return predicted, scores
-
-
-
-'''
-elif self.model_type is ClassificationMethods.MLP.value:
-    inputs = tf.keras.Input(shape=(len(self.train_df.iloc[1, :])))
-    for i in range(config['nr_of_hidden_layers']):
-        x = tf.keras.layers.Dense(config['nr_of_units'], activation="relu")(inputs)
-        x = tf.keras.layers.Dropout(0.5)(x)
-    if self.train_label < 3:
-        output = tf.keras.layers.Dense(1, activation="sigmoid")(x)
-        model = tf.keras.Model(inputs, output)
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
-    else:
-        output = tf.keras.layers.Dense(self.train_label, activation="softmax")(x)
-        model = tf.keras.Model(inputs, output)
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
-    model.summary()
-'''

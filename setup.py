@@ -9,7 +9,7 @@ setup(
         'declare4py @ git+https://github.com/abuliga/declare4py.git@main',
         'pymining==0.2',
         'pandas~=1.5.3',
-        'pm4py~=2.2.21',
+        'pm4py~=2.7.10.3',
         'scikit-learn~=1.3.0',
         'shap~=0.41.0',
         'numpy~=1.23.3',

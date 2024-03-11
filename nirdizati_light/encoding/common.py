@@ -34,7 +34,6 @@ class EncodingTypeAttribute(Enum):
 TRACE_TO_DF = {
     EncodingType.SIMPLE.value : simple_features,
     EncodingType.FREQUENCY.value : frequency_features,
-    # EncodingType.FREQUENCY.value : frequency_features,
     EncodingType.COMPLEX.value : complex_features,
     # EncodingType.DECLARE.value : declare_features,
     EncodingType.LORELEY.value: loreley_features,
@@ -43,7 +42,20 @@ TRACE_TO_DF = {
 }
 
 
-def get_encoded_df(log: EventLog, CONF: dict=None, encoder: Encoder=None, train_cols: DataFrame=None, train_df=None) -> (Encoder, DataFrame):
+def get_encoded_df(
+        log: EventLog, CONF: dict=None, encoder: Encoder=None, 
+        train_cols: DataFrame=None, train_df=None) -> (Encoder, DataFrame):
+    """
+    Encode log with the configuration provided in the CONF dictionary.
+
+    Params:
+        log: EventLog object of the log
+        CONF: dictionary for configuring the encoding
+        encoder: if an encoder is provided, that encoder will be used instead of creating a new one
+
+    Return: a tuple containing the encoder and the encoded log as a Pandas dataframe
+    """
+
     logger.debug('SELECT FEATURES')
     df = TRACE_TO_DF[CONF['feature_selection']](
         log,
