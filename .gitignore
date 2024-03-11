@@ -4,8 +4,9 @@ __pycache__/
 build/
 dist/
 /venv/
+.ipynb_checkpoints/
 
-.DS_Store
+**.DS_Store
 
 /BPIC11_f1/
 /BPIC11_f2/
