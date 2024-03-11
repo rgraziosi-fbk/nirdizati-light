@@ -11,7 +11,6 @@ from nirdizati_light.predictive_model.common import ClassificationMethods
 class HyperoptTarget(Enum):
     AUC = 'auc'
     F1 = 'f1_score'
-    MAE = 'mae'
 
 
 def _get_space(model_type) -> dict:
@@ -96,30 +95,41 @@ def _get_space(model_type) -> dict:
         raise Exception('Unsupported model_type')
 
 
-def retrieve_best_model(predictive_model, model_type, max_evaluations, target, seed=None):
+def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
     """
     Perform hyperparameter optimization on the given model
 
     Parameters:
-    predictive_model: the model to perform optimization on (must be of class PredictiveModel)
-    model_type: type of predictive model (can be one of predictive_model.common.ClassificationMethods)
+    predictive_models: list of models to perform optimization on (each model must be of class PredictiveModel)
     max_evaluations: maximum number of hyperparameter configurations to try
     target: which target score to optimize for (can be on of hyperparameter_optimisation.common.HyperoptTarget)
     seed: optional seed value for reproducibility
 
-    Return: a tuple containing both the best model and the best hyperparameter configuration
+    Return: a tuple containing the best model index, the best model and the best hyperparameter configuration
     """
 
-    space = _get_space(model_type)
-    trials = Trials()
+    best_candidates = []
+    best_target_per_model = []
 
-    fmin(
-        lambda x: predictive_model.train_and_evaluate_configuration(config=x, target=target),
-        space,
-        algo=hyperopt.tpe.suggest,
-        max_evals=max_evaluations,
-        trials=trials,rstate=seed
-    )
-    best_candidate = trials.best_trial['result']
+    for predictive_model in predictive_models:
+        print(f'Running hyperparameter optimization on model {predictive_model.model_type}...')
 
-    return best_candidate['model'], best_candidate['config']
+        space = _get_space(predictive_model.model_type)
+        trials = Trials()
+
+        fmin(
+            lambda x: predictive_model.train_and_evaluate_configuration(config=x, target=target),
+            space,
+            algo=hyperopt.tpe.suggest,
+            max_evals=max_evaluations,
+            trials=trials,rstate=seed
+        )
+        best_candidate = trials.best_trial['result']
+
+        best_candidates.append(best_candidate)
+        best_target_per_model.append(best_candidate['result'][target])
+
+    # Find the best performing model
+    best_model_idx = best_target_per_model.index(max(best_target_per_model))
+
+    return best_model_idx, best_candidates[best_model_idx]['model'], best_candidates[best_model_idx]['config']
