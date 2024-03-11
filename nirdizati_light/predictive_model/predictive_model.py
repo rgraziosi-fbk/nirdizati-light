@@ -145,7 +145,6 @@ class PredictiveModel:
                 # validation
                 model.eval()
                 validate_loss = criterion(model(validate_tensor), torch.tensor(self.validate_label, dtype=torch.float32))
-                print(f'validate_loss: {validate_loss}, counter: {early_stopper.counter}')
                 if early_stopper.early_stop(validate_loss):             
                     break
 
