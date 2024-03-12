@@ -29,7 +29,7 @@ def get_tensor(CONF, df: DataFrame):
                 prefix_index:
                     list(flatten(
                         feat_values if isinstance(feat_values, tuple) else [feat_values]
-                        for feat_name, feat_values in trace.iteritems()
+                        for feat_name, feat_values in trace.items()
                         if feat_name in trace_attributes + [event_attribute + '_' + str(prefix_index) for event_attribute in event_attributes]
                     ))
                 for prefix_index in range(1, CONF['prefix_length'] + 1)

@@ -80,7 +80,7 @@ class Encoder:
 
     def decode_row(self, row) -> np.array:
         decoded_row = []
-        for column, value in row.iteritems():
+        for column, value in row.items():
             if column != 'trace_id':
                 if column in self._label_encoder:
                      decoded_row += [self._label_dict_decoder[column].get(value, PADDING_VALUE)]

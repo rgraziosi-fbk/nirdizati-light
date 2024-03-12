@@ -19,7 +19,7 @@ def randomise_features(feedback, train_df) -> DataFrame:
                         column:
                             random.choice(possible_values[column]) if column in target_columns
                             else value
-                        for column, value in row.iteritems()
+                        for column, value in row.items()
                     }),
                 axis=1
             )
