@@ -54,18 +54,18 @@ class PredictiveModel:
     
     def train_and_evaluate_configuration(self, config, target):
         try:
-            model = self._instantiate_model(config)
-            self._fit_model(model, config)
+            self.model = self._instantiate_model(config)
+            self._fit_model(self.model, config)
             actual = self.full_validate_df['label']
             
             if self.model_type is ClassificationMethods.LSTM.value:
                 actual = np.array(actual.to_list())
 
             if self.model_type in [item.value for item in ClassificationMethods]:
-                predicted, scores = self._output_model(model=model)
+                predicted, scores = self.predict()
                 result = evaluate_classifier(actual, predicted, scores, loss=target)
             elif self.model_type in [item.value for item in RegressionMethods]:
-                predicted = model.predict(self.validate_df)
+                predicted = self.model.predict(self.validate_df)
                 result = evaluate_regressor(actual, predicted, loss=target)
             else:
                 raise Exception('Unsupported model_type')
@@ -75,7 +75,7 @@ class PredictiveModel:
                 'loss': - result['loss'],  # we are using fmin for hyperopt
                 'exception': None,
                 'config': config,
-                'model': model,
+                'model': self.model,
                 'result': result,
             }
         except Exception as e:
@@ -151,16 +151,19 @@ class PredictiveModel:
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             model.fit(self.train_df.values, self.full_train_df['label'])
 
-    def _output_model(self, model):
+    def predict(self):
+        """
+        Perform predictions with the model and return them
+        """
         if self.model_type is ClassificationMethods.LSTM.value:
             validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
 
-            probabilities = model(validate_tensor).detach().numpy()
+            probabilities = self.model(validate_tensor).detach().numpy()
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
         elif self.model_type not in (ClassificationMethods.LSTM.value):
-            predicted = model.predict(self.validate_df)
-            scores = model.predict_proba(self.validate_df)[:, 1]
+            predicted = self.model.predict(self.validate_df)
+            scores = self.model.predict_proba(self.validate_df)[:, 1]
         else:
             raise Exception('Unsupported model_type')
 
