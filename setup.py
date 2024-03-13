@@ -18,7 +18,7 @@ setup(
         'holidays~=0.28',
         'funcy~=2.0.0',
         'xgboost~=1.7.6',
-        'pymoo~=0.6.0',
+        'pymoo~=0.6.0.1',
         'torch~=2.2.1'
     ]
 )
