@@ -11,6 +11,7 @@ from nirdizati_light.predictive_model.common import ClassificationMethods
 class HyperoptTarget(Enum):
     AUC = 'auc'
     F1 = 'f1_score'
+    MAE = 'mae'
 
 
 def _get_space(model_type) -> dict:
