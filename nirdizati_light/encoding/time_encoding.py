@@ -24,12 +24,14 @@ class TimeEncodingType(Enum):
 
 
 def time_encoding(df: DataFrame, encoding_type) -> DataFrame:
-    """Entry point for time encoding
-    Encodes the columns of string of the given DataFrame if they are date or duration
-
-    :param df:
-    :return:
     """
+    Encodes the columns of string of the given DataFrame if they are date or duration.
+
+    :param pandas.Dataframe df: the dataframe to encode
+    :param str encoding_type: the type of encoding to perform
+    :return pandas.DataFrame:
+    """
+    
     last_time = [None] * len(df)
     df_output = DataFrame()
 

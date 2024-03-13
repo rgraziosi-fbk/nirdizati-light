@@ -25,11 +25,10 @@ class PredictiveModel:
     """
     A class representing a predictive model
 
-    Constructor parameters:
-        CONF: configuration dictionary (the only required attribute is 'prefix_length')
-        model_type: type of predictive model (can be one of predictive_model.common.ClassificationMethods)
-        train_df: training data to train model as a pandas dataframe
-        validate_df: validation data to evaluate model as a pandas dataframe
+    :param dict CONF: configuration dictionary (the only required attribute is 'prefix_length')
+    :param nirdizati_light.predictive_model.common.ClassificationMethods model_type: type of predictive model
+    :param pandas.DataFrame train_df: training data to train model
+    :param pandas.DataFrame validate_df: validation data to evaluate model
     """
 
     def __init__(self, CONF, model_type, train_df, validate_df):

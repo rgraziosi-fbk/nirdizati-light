@@ -8,11 +8,10 @@ def get_log(filepath, separator=';'):
     """
     Read a xes or csv log
     
-    Parameters:
-        filepath: path to the log
-        separator: in case of csv logs, the separator character used in the csv log
+    :param str filepath: path to the log
+    :param str separator: in case of csv logs, the separator character used in the csv log
 
-    Return: a pm4py EventLog object
+    :return: a pm4py EventLog object
     """
     if filepath.endswith('.xes'):
         log = pm4py.read_xes(filepath)

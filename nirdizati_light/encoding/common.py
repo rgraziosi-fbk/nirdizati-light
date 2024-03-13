@@ -48,12 +48,11 @@ def get_encoded_df(
     """
     Encode log with the configuration provided in the CONF dictionary.
 
-    Params:
-        log: EventLog object of the log
-        CONF: dictionary for configuring the encoding
-        encoder: if an encoder is provided, that encoder will be used instead of creating a new one
+    :param EventLog log: EventLog object of the log
+    :param dict CONF: dictionary for configuring the encoding
+    :param nirdizati_light.encoding.data_encoder.Encoder: if an encoder is provided, that encoder will be used instead of creating a new one
 
-    Return: a tuple containing the encoder and the encoded log as a Pandas dataframe
+    :return: A tuple containing the encoder and the encoded log as a Pandas dataframe
     """
 
     logger.debug('SELECT FEATURES')

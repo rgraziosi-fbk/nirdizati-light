@@ -99,13 +99,12 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
     """
     Perform hyperparameter optimization on the given model
 
-    Parameters:
-    predictive_models: list of models to perform optimization on (each model must be of class PredictiveModel)
-    max_evaluations: maximum number of hyperparameter configurations to try
-    target: which target score to optimize for (can be on of hyperparameter_optimisation.common.HyperoptTarget)
-    seed: optional seed value for reproducibility
+    :param list predictive_models: list of models to perform optimization on (each model must be of class PredictiveModel)
+    :param int max_evaluations: maximum number of hyperparameter configurations to try
+    :param nirdizati_light.hyperparameter_optimisation.common.HyperoptTarget target: which target score to optimize for
+    :param int seed: optional seed value for reproducibility
 
-    Return: a tuple containing the best model index, the best model and the best hyperparameter configuration
+    :return: a tuple containing the best model index, the best model and the best hyperparameter configuration
     """
 
     best_candidates = []
