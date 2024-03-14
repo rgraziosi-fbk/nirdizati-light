@@ -23,8 +23,8 @@ single_prefix = ['loreley','loreley_complex']
 
 
 def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
-                 timestamp_col_name,model_path,case_ids=None,random_seed=None,adapted=None,filtering=None,loreley_encoder=None,
-                 loreley_df=None,loreley_conf=None):
+                 timestamp_col_name,model_path,random_seed=None,adapted=None,filtering=None
+                 ):
     features_names = df.columns.values[:-1]
     feature_selection = CONF['feature_selection']
     dataset = CONF['data'].rpartition('/')[0].rpartition('/')[-1]
@@ -47,7 +47,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
     query_instances_for_cf = query_instances.iloc[:15,:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
-    dice_query_instance = dice_ml.Dice(d, m, method, encoder)
+    dice_query_instance = dice_ml.Dice(d, m, method, encode)
     time_train = (datetime.now() - time_start).total_seconds()
     index_test_instances = range(len(query_instances_for_cf))
     #model_path = model_path +'_' + str(support) + '/'
@@ -123,71 +123,11 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
             cf_list = np.array(generated_cfs).astype('float64')
             y_pred = predictive_model.model.predict(x.values.reshape(1, -1))[0]
             time_test = (datetime.now() - time_start_i).total_seconds()
-
-            if CONF['feature_selection'] in single_prefix:
-                df = pd.DataFrame(data=cf_list[:, :-1], columns=features_names)
-
-                encoder.decode(df)
-                loreley_x = x.copy()
-                encoder.decode(loreley_x)
-
-                query_instances_for_eval = query_instances.copy()
-                encoder.decode(query_instances_for_eval)
-                if all(df['prefix'] == '0'):
-                    cols = ['prefix_' + str(i + 1) for i in range(CONF['prefix_length'])]
-                    df[cols] = 0
-                    simple_trace_df[cols] = 0
-                    query_instances_for_eval[cols] = 0
-                    loreley_x[cols] = 0
-                else:
-                    df = pd.concat([df, pd.DataFrame(
-                        df['prefix'].str.split(",", expand=True).fillna(value='0')).rename(
-                        columns=lambda x: f"prefix_{int(x) + 1}")], axis=1)
-                    df = df.replace('\[', '', regex=True)
-                    df = df.replace(']', '', regex=True)
-                    loreley_x = pd.concat([loreley_x, pd.DataFrame(
-                        loreley_x['prefix'].str.split(",", expand=True).fillna(value='0')).rename(
-                        columns=lambda x: f"prefix_{int(x) + 1}")], axis=1)
-                    loreley_x = loreley_x.replace('\[', '', regex=True)
-                    loreley_x = loreley_x.replace(']', '', regex=True)
-                    query_instances_loreley = pd.concat([query_instances_for_eval, pd.DataFrame(
-                        query_instances_for_eval['prefix'].str.split(",", expand=True).fillna(value='0')).rename(
-                        columns=lambda x: f"prefix_{int(x) + 1}")], axis=1)
-                    query_instances_loreley = query_instances_loreley.replace('\[', '', regex=True)
-                    query_instances_loreley = query_instances_loreley.replace(']', '', regex=True)
-                for i, col in enumerate(df.columns):
-                    if 'prefix' in col:
-                        df.iloc[:, i] = df.iloc[:, i].str.replace("'", '').str.lstrip()
-                for i, col in enumerate(loreley_x.columns):
-                    if 'prefix' in col:
-                        loreley_x.iloc[:, i] = loreley_x.iloc[:, i].str.replace("'", '').str.lstrip()
-                for i, col in enumerate(query_instances_loreley.columns):
-                    if 'prefix' in col:
-                        query_instances_loreley.iloc[:, i] = query_instances_loreley.iloc[:, i].str.replace("'", '').str.lstrip()
-                df = df.drop(columns=['prefix'])
-                loreley_x = loreley_x.drop(columns=['prefix'])
-                col_list = list(set().union(loreley_x.columns, df.columns))
-                loreley_x = loreley_x.reindex(columns=col_list, fill_value=0)
-                df = df.reindex(columns=col_list, fill_value=0)
-                query_instances_loreley = query_instances_loreley.drop(columns=['prefix'])
-                loreley_encoder.encode(df)
-                loreley_encoder.encode(loreley_x)
-                loreley_encoder.encode(query_instances_loreley)
-                df_array = np.array(df)
-                eval_categorical_features, eval_continuous_features, eval_cat_feature_index, eval_cont_feature_index = split_features(
-                    df, loreley_encoder)
-                eval_ratio_cont = len(eval_continuous_features) / len(eval_categorical_features)
-                x_eval = evaluate_cf_list(df_array, loreley_x.values.reshape(1,-1), eval_cont_feature_index, eval_cat_feature_index, df=loreley_df,
-                                      nr_of_cfs=k,y_pred=y_pred,predictive_model=predictive_model,
-                                      query_instances=query_instances_loreley,continuous_features=eval_continuous_features,
-                                      categorical_features=eval_categorical_features,ratio_cont=eval_ratio_cont
-                                      )
-            else:
-                x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
-                                      nr_of_cfs=k,y_pred=y_pred,predictive_model=predictive_model,
-                                      query_instances=query_instances,continuous_features=continuous_features,
-                                      categorical_features=categorical_features,ratio_cont=ratio_cont
-                                      )
+            x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
+                                  nr_of_cfs=k,y_pred=y_pred,predictive_model=predictive_model,
+                                  query_instances=query_instances,continuous_features=continuous_features,
+                                  categorical_features=categorical_features,ratio_cont=ratio_cont
+                                  )
 
             x_eval['dataset'] = dataset
             x_eval['idx'] = test_id+1
@@ -213,15 +153,10 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
                 elif method == 'multi_objective_genetic':
                     cf_list = cf_list[:, :-1]
                 df_conf = pd.DataFrame(data=cf_list, columns=features_names)
-                if loreley_conf:
-                    sat_score = conformance_score(loreley_conf, loreley_encoder, df=df, dataset=dataset,
-                                                  features_names=eval_continuous_features+eval_categorical_features,
-                                                  d4py=d4py, query_instance=loreley_x, model_path=model_path,
-                                                  timestamp_col_name=timestamp_col_name)
-                else:
-                    sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
-                                              d4py=d4py, query_instance=x, model_path=model_path,
-                                              timestamp_col_name=timestamp_col_name)
+
+                sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
+                                          d4py=d4py, query_instance=x, model_path=model_path,
+                                          timestamp_col_name=timestamp_col_name)
                 x_eval['sat_score'] = sat_score
                 cf_list_all.extend(cf_list[:5])
                 desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
@@ -249,11 +184,8 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
                     df_cf = df_cf.replace(']', '', regex=True)
                 df_cf = df_cf.drop(columns=['prefix'])
             df_cf['desired_cfs'] = desired_cfs_all
-            if case_ids:
-                df_cf['case_id'] = case_ids[i]
-            else:
-                df_cf['idx'] = test_id+1 * len(cf_list_all)
-            #df_cf['method']= method
+            df_cf['idx'] = test_id+1 * len(cf_list_all)
+            df_cf['method']= method
             df_cf['test_id'] = np.arange(0, len(cf_list_all))
             df_cf['dataset'] = [dataset] * len(cf_list_all)
             df_cf['black_box'] = [black_box] * len(cf_list_all)
