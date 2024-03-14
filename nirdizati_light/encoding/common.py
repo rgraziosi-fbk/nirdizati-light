@@ -10,6 +10,7 @@ from nirdizati_light.encoding.feature_encoder.frequency_features import frequenc
 from nirdizati_light.encoding.feature_encoder.loreley_complex_features import loreley_complex_features
 from nirdizati_light.encoding.feature_encoder.loreley_features import loreley_features
 from nirdizati_light.encoding.feature_encoder.simple_features import simple_features
+from nirdizati_light.encoding.feature_encoder.binary_features import binary_features
 from nirdizati_light.encoding.feature_encoder.simple_trace_features import simple_trace_features
 # from src.encoding.feature_encoder.declare_features.declare_features import declare_features
 from nirdizati_light.encoding.time_encoding import time_encoding
