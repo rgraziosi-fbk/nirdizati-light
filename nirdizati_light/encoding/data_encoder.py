@@ -21,30 +21,32 @@ class Encoder:
         for column in df:
             if column != 'trace_id':
                 if not is_numeric_dtype(df[column].dtype):#or (is_numeric_dtype(df[column].dtype) and np.any(df[column] < 0)):
-                    #if column == 'prefix':
-                    #    print('column:', column)
-                    #else:
-                    #    print('column:', column, 'considered NOT number, set values are:', set(tuple(row) for row in df[column]))
                     if attribute_encoding == 'label':
-                        self._label_encoder[column] = LabelEncoder().fit(
-                            sorted(pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])))
-                        classes = self._label_encoder[column].classes_
-                        transforms = self._label_encoder[column].transform(classes)
-                        self._label_dict[column] = dict(zip(classes, transforms))
-                        self._label_dict_decoder[column] = dict(zip(transforms, classes))
-                    elif attribute_encoding == "onehot":
                         if column == 'label':
                             self._label_encoder[column] = LabelEncoder().fit(
-                                sorted(
-                                    pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])))
+                                sorted(df[column].apply(lambda x: str(x))))
                             classes = self._label_encoder[column].classes_
                             transforms = self._label_encoder[column].transform(classes)
                             self._label_dict[column] = dict(zip(classes, transforms))
                             self._label_dict_decoder[column] = dict(zip(transforms, classes))
                         else:
-                            #padded_values = pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])
-                            #label_enc = pd.DataFrame(LabelEncoder().fit_transform(sorted(padded_values)))
-                            self._label_encoder[column] = OneHotEncoder(sparse=False).fit(df[column].astype(str).values.reshape(-1,1))
+                            self._label_encoder[column] = LabelEncoder().fit(
+                                sorted(pd.concat([pd.Series([str(PADDING_VALUE)]), df[column].apply(lambda x: str(x))])))
+                            classes = self._label_encoder[column].classes_
+                            transforms = self._label_encoder[column].transform(classes)
+                            self._label_dict[column] = dict(zip(classes, transforms))
+                            self._label_dict_decoder[column] = dict(zip(transforms, classes))
+                    elif attribute_encoding == "onehot":
+                        if column == 'label':
+                            self._label_encoder[column] = LabelEncoder().fit(
+                                sorted(df[column].apply(lambda x: str(x))))
+                            classes = self._label_encoder[column].classes_
+                            transforms = self._label_encoder[column].transform(classes)
+                            self._label_dict[column] = dict(zip(classes, transforms))
+                            self._label_dict_decoder[column] = dict(zip(transforms, classes))
+                        else:
+                            self._label_encoder[column] = OneHotEncoder(drop='if_binary', sparse_output=False,
+                                       handle_unknown='ignore').fit(df[column].astype(str).values.reshape(-1,1))
                             categories = self._label_encoder[column].categories_[0].reshape(-1, 1)
                             transforms = [tuple(enc) for enc in self._label_encoder[column].transform(categories)]
                             classes = list(categories.flatten())
@@ -65,9 +67,15 @@ class Encoder:
         for column in df:
             if column != 'trace_id':
                 if column in self._label_encoder:
-                    df[column] = df[column].apply(lambda x: self._label_dict[column].get(str(x), PADDING_VALUE))
+                    try:
+                        df[column] = df[column].apply(lambda x: self._label_dict[column].get(str(x), PADDING_VALUE))
+                    except:
+                        print('Error')
                 else:
-                    df[column] = self._numeric_encoder[column].transform(df[column].values.reshape(-1,1)).flatten()
+                    try:
+                        df[column] = self._numeric_encoder[column].transform(df[column].values.reshape(-1,1)).flatten()
+                    except:
+                        print('Error')
 
 
     def decode(self, df: DataFrame) -> None:
