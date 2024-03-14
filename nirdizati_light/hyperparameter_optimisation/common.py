@@ -54,7 +54,7 @@ def _get_space(model_type) -> dict:
             'fit_intercept': hp.choice('fit_intercept', [True, False]),
             'tol': hp.uniform('tol', 1e-3, 0.5),
             'shuffle': hp.choice('shuffle', [True, False]),
-            'eta0': hp.quniform('eta0', 0, 2),
+            'eta0': hp.quniform('eta0', 0, 5, 1),
             # 'early_stopping': hp.choice('early_stopping', [True, False]), #needs to be false with partial_fit
             'validation_fraction': 0.1,
             'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 1, 30, 5))
