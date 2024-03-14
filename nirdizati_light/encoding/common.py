@@ -25,6 +25,7 @@ class EncodingType(Enum):
     LORELEY = 'loreley'
     LORELEY_COMPLEX = 'loreley_complex'
     SIMPLE_TRACE = 'simple_trace'
+    BINARY = 'binary'
 
 class EncodingTypeAttribute(Enum):
     LABEL = 'label'
@@ -38,7 +39,9 @@ TRACE_TO_DF = {
     # EncodingType.DECLARE.value : declare_features,
     EncodingType.LORELEY.value: loreley_features,
     EncodingType.LORELEY_COMPLEX.value: loreley_complex_features,
-    EncodingType.SIMPLE_TRACE.value: simple_trace_features
+    EncodingType.SIMPLE_TRACE.value: simple_trace_features,
+    EncodingType.BINARY.value: binary_features,
+
 }
 
 
