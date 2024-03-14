@@ -5,13 +5,14 @@ import numpy as np
 from hyperopt import Trials, hp, fmin
 from hyperopt.pyll import scope
 
-from nirdizati_light.predictive_model.common import ClassificationMethods
+from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods
 
 
 class HyperoptTarget(Enum):
     AUC = 'auc'
     F1 = 'f1_score'
     MAE = 'mae'
+    ACCURACY = 'accuracy'
 
 
 def _get_space(model_type) -> dict:
@@ -19,11 +20,19 @@ def _get_space(model_type) -> dict:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
             'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
-            'max_features': hp.choice('max_features', ['sqrt', 'log2', 'auto', None]),
+            'max_features': hp.choice('max_features', ['sqrt', 'log2', None]),
             'criterion': hp.choice('criterion',['gini','entropy']),
             'warm_start': True
         }
+    elif model_type is ClassificationMethods.DT.value:
+        return {
+            'max_depth': hp.choice('max_depth', range(1, 6)),
+            'max_features': hp.choice('max_features', range(7, 50)),
+            'criterion': hp.choice('criterion', ["gini", "entropy"]),
+            'min_samples_split': hp.choice('min_samples_split', range(2, 10)),
+            'min_samples_leaf': hp.choice('min_samples_leaf', range(1, 10)),
 
+        }
     elif model_type is ClassificationMethods.KNN.value:
         return {
             'n_neighbors': hp.choice('n_neighbors', np.arange(1, 20, dtype=int)),
@@ -122,7 +131,7 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
             space,
             algo=hyperopt.tpe.suggest,
             max_evals=max_evaluations,
-            trials=trials,rstate=seed
+            trials=trials,rstate=np.random.default_rng(seed)
         )
         best_candidate = trials.best_trial['result']
 
