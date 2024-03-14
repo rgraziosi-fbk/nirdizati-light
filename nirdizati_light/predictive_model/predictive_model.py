@@ -5,12 +5,12 @@ from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.tree import DecisionTreeClassifier,DecisionTreeRegressor
 from sklearn.linear_model import SGDClassifier, Perceptron
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
-from xgboost import XGBClassifier
-
+from xgboost import XGBClassifier,XGBRegressor
 from nirdizati_light.evaluation.common import evaluate_classifier, evaluate_regressor
 from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods, get_tensor, shape_label_df, LambdaModule, EarlyStopper
 
@@ -87,6 +87,8 @@ class PredictiveModel:
     def _instantiate_model(self, config):
         if self.model_type is ClassificationMethods.RANDOM_FOREST.value:
             model = RandomForestClassifier(**config)
+        elif self.model_type is ClassificationMethods.DT.value:
+            model = DecisionTreeClassifier(**config)
         elif self.model_type == ClassificationMethods.KNN.value:
             model = KNeighborsClassifier(**config)
         elif self.model_type == ClassificationMethods.XGBOOST.value:
