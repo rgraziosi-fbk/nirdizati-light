@@ -17,7 +17,7 @@ setup(
         'dateparser~=1.1.8',
         'holidays~=0.28',
         'funcy~=2.0.0',
-        'xgboost~=1.7.6',
+        'xgboost~=2.0.3',
         'pymoo~=0.6.0.1',
         'torch~=2.2.1'
     ]
