@@ -14,6 +14,7 @@ class ClassificationMethods(Enum):
     LSTM = 'lstm'
     MLP = 'mlp'
     SVM = 'svc'
+    DT = 'DecisionTree'
 
 
 class RegressionMethods(Enum):
