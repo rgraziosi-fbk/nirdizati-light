@@ -59,13 +59,8 @@ CONF = {
     
     'predictive_models': [                                          # list of predictive models to train
         ClassificationMethods.RANDOM_FOREST.value,
-        # ClassificationMethods.KNN.value,
-        # ClassificationMethods.LSTM.value,
-        # ClassificationMethods.MLP.value,
-        # ClassificationMethods.PERCEPTRON.value,
-        # ClassificationMethods.SGDCLASSIFIER.value,
-        # ClassificationMethods.SVM.value,
-        # ClassificationMethods.XGBOOST.value,
+        ClassificationMethods.KNN.value,
+        ClassificationMethods.LSTM.value,
     ],
     
     'hyperparameter_optimisation_target': HyperoptTarget.F1.value,  # which metric to optimize hyperparameters for
@@ -82,8 +77,6 @@ log = get_log(filepath=CONF['data'])
 
 print('Encoding traces...')
 encoder, full_df = get_encoded_df(log=log, CONF=CONF)
-
-full_df.iloc[:, -1] -= 1 # change label values (WHY???)
 
 print('Splitting in train, validation and test...')
 train_size, val_size, test_size = CONF['train_val_test_split']

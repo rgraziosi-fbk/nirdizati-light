@@ -125,13 +125,8 @@ nirdizati_light    </h1>
 
     <span class="s1">&#39;predictive_models&#39;</span><span class="p">:</span> <span class="p">[</span>                                          <span class="c1"># list of predictive models to train</span>
         <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">RANDOM_FOREST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-        <span class="c1"># ClassificationMethods.KNN.value,</span>
-        <span class="c1"># ClassificationMethods.LSTM.value,</span>
-        <span class="c1"># ClassificationMethods.MLP.value,</span>
-        <span class="c1"># ClassificationMethods.PERCEPTRON.value,</span>
-        <span class="c1"># ClassificationMethods.SGDCLASSIFIER.value,</span>
-        <span class="c1"># ClassificationMethods.SVM.value,</span>
-        <span class="c1"># ClassificationMethods.XGBOOST.value,</span>
+        <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">KNN</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">LSTM</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">],</span>
 
     <span class="s1">&#39;hyperparameter_optimisation_target&#39;</span><span class="p">:</span> <span class="n">HyperoptTarget</span><span class="o">.</span><span class="n">F1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>  <span class="c1"># which metric to optimize hyperparameters for</span>
@@ -148,8 +143,6 @@ nirdizati_light    </h1>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Encoding traces...&#39;</span><span class="p">)</span>
 <span class="n">encoder</span><span class="p">,</span> <span class="n">full_df</span> <span class="o">=</span> <span class="n">get_encoded_df</span><span class="p">(</span><span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span> <span class="n">CONF</span><span class="o">=</span><span class="n">CONF</span><span class="p">)</span>
-
-<span class="n">full_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span> <span class="c1"># change label values (WHY???)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Splitting in train, validation and test...&#39;</span><span class="p">)</span>
 <span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">,</span> <span class="n">test_size</span> <span class="o">=</span> <span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;train_val_test_split&#39;</span><span class="p">]</span>
