@@ -161,6 +161,10 @@ class PredictiveModel:
     def predict(self, test=True):
         """
         Perform predictions with the model and return them
+
+        :param bool test: whether to perform predictions on test set (test=True) or on validation set (test=False)
+
+        :return tuple: A tuple with predicted values and scores for predictions
         """
 
         data = self.test_df if test else self.validate_df

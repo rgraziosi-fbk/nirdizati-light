@@ -87,7 +87,7 @@ train_size, val_size, test_size = CONF['train_val_test_split']
 train_df, val_df, test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
 
 print('Instantiating predictive models...')
-predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df) for predictive_model in CONF['predictive_models']]
+predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df) for predictive_model in CONF['predictive_models']]
 
 print('Running hyperparameter optimization...')
 best_model_idx, best_model_model, best_model_config = retrieve_best_model(
@@ -102,7 +102,7 @@ best_model.config = best_model_config
 print(f'Best model is {best_model.model_type}')
 
 print('Evaluating best model...')
-predicted, scores = best_model.predict()
+predicted, scores = best_model.predict(test=True)
 actual = test_df['label']
 
 initial_result = evaluate_classifier(actual, predicted, scores)

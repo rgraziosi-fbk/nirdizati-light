@@ -20,6 +20,7 @@ setup(
         'xgboost~=2.0.3',
         'pymoo~=0.6.0.1',
         'torch~=2.2.1',
-        'PDPbox~=0.3.0'
+        'PDPbox~=0.3.0',
+        'seaborn~=0.13.2'
     ]
 )
