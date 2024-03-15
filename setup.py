@@ -19,6 +19,7 @@ setup(
         'funcy~=2.0.0',
         'xgboost~=2.0.3',
         'pymoo~=0.6.0.1',
-        'torch~=2.2.1'
+        'torch~=2.2.1',
+        'PDPbox~=0.3.0'
     ]
 )
