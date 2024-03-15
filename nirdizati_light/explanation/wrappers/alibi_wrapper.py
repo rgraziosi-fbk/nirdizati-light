@@ -1,9 +1,9 @@
-# import numpy as np
+import numpy as np
 
-# # Select one of the below classifiers.
-# # clf = XGBClassifier(min_child_weight=0.5, max_depth=3, gamma=0.2)
-# # clf = LogisticRegression(C=10)
-# # clf = DecisionTreeClassifier(max_depth=10, min_samples_split=5)
+ # Select one of the below classifiers.
+ # clf = XGBClassifier(min_child_weight=0.5, max_depth=3, gamma=0.2)
+ # clf = LogisticRegression(C=10)
+ # clf = DecisionTreeClassifier(max_depth=10, min_samples_split=5)
 
 
 # # Define prediction function.

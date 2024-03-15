@@ -141,4 +141,4 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
     # Find the best performing model
     best_model_idx = best_target_per_model.index(max(best_target_per_model))
 
-    return best_model_idx, best_candidates[best_model_idx]['model'], best_candidates[best_model_idx]['config']
+    return best_candidates,best_model_idx, best_candidates[best_model_idx]['model'], best_candidates[best_model_idx]['config']

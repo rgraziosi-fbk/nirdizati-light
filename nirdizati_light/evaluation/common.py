@@ -3,7 +3,14 @@ from math import sqrt
 import numpy as np
 from sklearn.metrics import f1_score, roc_auc_score, precision_score, recall_score, accuracy_score, mean_absolute_error, \
     mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pandas import DataFrame
 
+
+def drop_columns(df: DataFrame) -> DataFrame:
+    df = df.drop(['trace_id', 'label'],axis=1)
+    return df
 
 def evaluate_classifier(y_true, y_pred, scores, loss=None) -> dict:
     evaluation = {}
@@ -99,3 +106,52 @@ def evaluate_recommender(y_true, y_pred):
         evaluation.update({'recall': None})
 
     return evaluation
+
+
+def evaluate_classifiers(candidates, test_df,actual):
+    results = {}
+    test_df = drop_columns(test_df)
+    for candidate in candidates:
+        predicted = candidate['model'].predict(test_df)
+        scores = candidate['model'].predict_proba(test_df)
+        result = evaluate_classifier(actual, predicted, scores)
+        results[str(candidate['model'])] = result
+    return results
+
+def plot_model_comparison(models_data):
+    # Create lists to store data
+    model_names = []
+    f1_scores = []
+    accuracies = []
+    precisions = []
+    recalls = []
+
+    # Extract data from the input dictionary
+    for model, metrics in models_data.items():
+        model_names.append(str(model).split('(')[0])
+        f1_scores.append(metrics['f1_score'])
+        accuracies.append(metrics['accuracy'])
+        precisions.append(metrics['precision'])
+        recalls.append(metrics['recall'])
+
+    # Create the bubble plot
+    plt.figure(figsize=(12, 8))
+    plt.scatter(accuracies, precisions, s=[f1_score * 3000 for f1_score in f1_scores], c=recalls, cmap='viridis', alpha=0.7)
+
+    # Add labels and title
+    plt.title('Model Comparison')
+    plt.xlabel('Accuracy')
+    plt.ylabel('Precision')
+
+    # Add color bar
+    cbar = plt.colorbar()
+    cbar.set_label('Recall')
+
+    # Add text annotations for model names
+    for i, txt in enumerate(model_names):
+        plt.annotate(txt, (accuracies[i], precisions[i]), textcoords="offset points", xytext=(0,10), ha='center')
+
+    # Show plot
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
