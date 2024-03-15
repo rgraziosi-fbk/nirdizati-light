@@ -31,6 +31,9 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="function" href="#get_intercase_attributes">get_intercase_attributes</a>
+            </li>
+            <li>
                     <a class="class" href="#LabelTypes">LabelTypes</a>
                             <ul class="memberlist">
                         <li>
@@ -38,6 +41,30 @@
                         </li>
                         <li>
                                 <a class="variable" href="#LabelTypes.ATTRIBUTE_STRING">ATTRIBUTE_STRING</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LabelTypes.REMAINING_TIME">REMAINING_TIME</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LabelTypes.DURATION">DURATION</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LabelTypes.NO_LABEL">NO_LABEL</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ThresholdTypes">ThresholdTypes</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#ThresholdTypes.THRESHOLD_MEAN">THRESHOLD_MEAN</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ThresholdTypes.THRESHOLD_CUSTOM">THRESHOLD_CUSTOM</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ThresholdTypes.NONE">NONE</a>
                         </li>
                 </ul>
 
@@ -70,38 +97,99 @@
                         <label class="view-source-button" for="mod-common-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="k">class</span> <span class="nc">LabelTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>    <span class="n">NEXT_ACTIVITY</span> <span class="o">=</span> <span class="s1">&#39;next_activity&#39;</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>    <span class="n">ATTRIBUTE_STRING</span> <span class="o">=</span> <span class="s1">&#39;label_attribute_string&#39;</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">add_label_column</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">labeling_type</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO COMMENT ME</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="k">if</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">NEXT_ACTIVITY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>        <span class="k">return</span> <span class="n">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">)</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>        <span class="k">return</span> <span class="n">trace</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Label not set please select one of LabelTypes(Enum) values!&#39;</span><span class="p">)</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="k">def</span> <span class="nf">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the event event_name at prefix length or 0 if out of range.</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="k">if</span> <span class="n">prefix_length</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="p">):</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="n">next_event</span> <span class="o">=</span> <span class="n">trace</span><span class="p">[</span><span class="n">prefix_length</span><span class="p">]</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">next_event</span><span class="p">[</span><span class="s1">&#39;concept:name&#39;</span><span class="p">]</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="k">return</span> <span class="n">name</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="k">return</span> <span class="mi">0</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.utils.log_metrics</span> <span class="kn">import</span> <span class="n">events_by_date</span><span class="p">,</span> <span class="n">resources_by_date</span><span class="p">,</span> <span class="n">new_trace_start</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.utils.time_metrics</span> <span class="kn">import</span> <span class="n">elapsed_time_id</span><span class="p">,</span> <span class="n">remaining_time_id</span><span class="p">,</span> <span class="n">count_on_event_day</span><span class="p">,</span> <span class="n">duration</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">pm4py.objects.log.obj</span> <span class="kn">import</span> <span class="n">EventLog</span><span class="p">,</span> <span class="n">Trace</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">def</span> <span class="nf">get_intercase_attributes</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict of kwargs</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">    These intercase attributes are expensive operations!!!</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="c1"># Expensive operations</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="n">executed_events</span> <span class="o">=</span> <span class="n">events_by_date</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span><span class="o">.</span><span class="n">add_executed_events</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="n">resources_used</span> <span class="o">=</span> <span class="n">resources_by_date</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span><span class="o">.</span><span class="n">add_resources_used</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="n">new_traces</span> <span class="o">=</span> <span class="n">new_trace_start</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span><span class="o">.</span><span class="n">add_new_traces</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;executed_events&#39;</span><span class="p">:</span> <span class="n">executed_events</span><span class="p">,</span> <span class="s1">&#39;resources_used&#39;</span><span class="p">:</span> <span class="n">resources_used</span><span class="p">,</span> <span class="s1">&#39;new_traces&#39;</span><span class="p">:</span> <span class="n">new_traces</span><span class="p">}</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="c1"># &#39;label&#39;: label}  TODO: is it really necessary to add this field in the dict?</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="k">return</span> <span class="n">kwargs</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">class</span> <span class="nc">LabelTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">NEXT_ACTIVITY</span> <span class="o">=</span> <span class="s1">&#39;next_activity&#39;</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">ATTRIBUTE_STRING</span> <span class="o">=</span> <span class="s1">&#39;label_attribute_string&#39;</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">REMAINING_TIME</span> <span class="o">=</span> <span class="s1">&#39;remaining_time&#39;</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">DURATION</span> <span class="o">=</span> <span class="s1">&#39;duration&#39;</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">NO_LABEL</span> <span class="o">=</span> <span class="s1">&#39;no_label&#39;</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="k">class</span> <span class="nc">ThresholdTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">THRESHOLD_MEAN</span> <span class="o">=</span> <span class="s1">&#39;threshold_mean&#39;</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">THRESHOLD_CUSTOM</span> <span class="o">=</span> <span class="s1">&#39;threshold_custom&#39;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">NONE</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="k">def</span> <span class="nf">add_label_column</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">labeling_type</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO COMMENT ME</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="k">if</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">NEXT_ACTIVITY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="k">return</span> <span class="n">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">)</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="n">trace</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">REMAINING_TIME</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="k">return</span> <span class="n">remaining_time_id</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">)</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">DURATION</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="n">duration</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">NO_LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="k">return</span> <span class="mi">0</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Label not set please select one of LabelTypes(Enum) values!&#39;</span><span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="k">def</span> <span class="nf">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the event event_name at prefix length or 0 if out of range.</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="k">if</span> <span class="n">prefix_length</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="p">):</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="n">next_event</span> <span class="o">=</span> <span class="n">trace</span><span class="p">[</span><span class="n">prefix_length</span><span class="p">]</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">next_event</span><span class="p">[</span><span class="s1">&#39;concept:name&#39;</span><span class="p">]</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">name</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="k">return</span> <span class="mi">0</span>
 </span></pre></div>
 
 
             </section>
+                <section id="get_intercase_attributes">
+                            <input id="get_intercase_attributes-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_intercase_attributes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">log</span>, </span><span class="param"><span class="n">encoding</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="get_intercase_attributes-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#get_intercase_attributes"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_intercase_attributes-7"><a href="#get_intercase_attributes-7"><span class="linenos"> 7</span></a><span class="k">def</span> <span class="nf">get_intercase_attributes</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+</span><span id="get_intercase_attributes-8"><a href="#get_intercase_attributes-8"><span class="linenos"> 8</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict of kwargs</span>
+</span><span id="get_intercase_attributes-9"><a href="#get_intercase_attributes-9"><span class="linenos"> 9</span></a><span class="sd">    These intercase attributes are expensive operations!!!</span>
+</span><span id="get_intercase_attributes-10"><a href="#get_intercase_attributes-10"><span class="linenos">10</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_intercase_attributes-11"><a href="#get_intercase_attributes-11"><span class="linenos">11</span></a>    <span class="c1"># Expensive operations</span>
+</span><span id="get_intercase_attributes-12"><a href="#get_intercase_attributes-12"><span class="linenos">12</span></a>    <span class="n">executed_events</span> <span class="o">=</span> <span class="n">events_by_date</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span><span class="o">.</span><span class="n">add_executed_events</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="get_intercase_attributes-13"><a href="#get_intercase_attributes-13"><span class="linenos">13</span></a>    <span class="n">resources_used</span> <span class="o">=</span> <span class="n">resources_by_date</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span><span class="o">.</span><span class="n">add_resources_used</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="get_intercase_attributes-14"><a href="#get_intercase_attributes-14"><span class="linenos">14</span></a>    <span class="n">new_traces</span> <span class="o">=</span> <span class="n">new_trace_start</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">if</span> <span class="n">encoding</span><span class="o">.</span><span class="n">add_new_traces</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="get_intercase_attributes-15"><a href="#get_intercase_attributes-15"><span class="linenos">15</span></a>    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;executed_events&#39;</span><span class="p">:</span> <span class="n">executed_events</span><span class="p">,</span> <span class="s1">&#39;resources_used&#39;</span><span class="p">:</span> <span class="n">resources_used</span><span class="p">,</span> <span class="s1">&#39;new_traces&#39;</span><span class="p">:</span> <span class="n">new_traces</span><span class="p">}</span>
+</span><span id="get_intercase_attributes-16"><a href="#get_intercase_attributes-16"><span class="linenos">16</span></a>    <span class="c1"># &#39;label&#39;: label}  TODO: is it really necessary to add this field in the dict?</span>
+</span><span id="get_intercase_attributes-17"><a href="#get_intercase_attributes-17"><span class="linenos">17</span></a>    <span class="k">return</span> <span class="n">kwargs</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Dict of kwargs
+These intercase attributes are expensive operations!!!</p>
+</div>
+
+
+                </section>
                 <section id="LabelTypes">
                             <input id="LabelTypes-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
@@ -113,9 +201,12 @@
 
     </div>
     <a class="headerlink" href="#LabelTypes"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LabelTypes-5"><a href="#LabelTypes-5"><span class="linenos">5</span></a><span class="k">class</span> <span class="nc">LabelTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-</span><span id="LabelTypes-6"><a href="#LabelTypes-6"><span class="linenos">6</span></a>    <span class="n">NEXT_ACTIVITY</span> <span class="o">=</span> <span class="s1">&#39;next_activity&#39;</span>
-</span><span id="LabelTypes-7"><a href="#LabelTypes-7"><span class="linenos">7</span></a>    <span class="n">ATTRIBUTE_STRING</span> <span class="o">=</span> <span class="s1">&#39;label_attribute_string&#39;</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LabelTypes-19"><a href="#LabelTypes-19"><span class="linenos">19</span></a><span class="k">class</span> <span class="nc">LabelTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="LabelTypes-20"><a href="#LabelTypes-20"><span class="linenos">20</span></a>    <span class="n">NEXT_ACTIVITY</span> <span class="o">=</span> <span class="s1">&#39;next_activity&#39;</span>
+</span><span id="LabelTypes-21"><a href="#LabelTypes-21"><span class="linenos">21</span></a>    <span class="n">ATTRIBUTE_STRING</span> <span class="o">=</span> <span class="s1">&#39;label_attribute_string&#39;</span>
+</span><span id="LabelTypes-22"><a href="#LabelTypes-22"><span class="linenos">22</span></a>    <span class="n">REMAINING_TIME</span> <span class="o">=</span> <span class="s1">&#39;remaining_time&#39;</span>
+</span><span id="LabelTypes-23"><a href="#LabelTypes-23"><span class="linenos">23</span></a>    <span class="n">DURATION</span> <span class="o">=</span> <span class="s1">&#39;duration&#39;</span>
+</span><span id="LabelTypes-24"><a href="#LabelTypes-24"><span class="linenos">24</span></a>    <span class="n">NO_LABEL</span> <span class="o">=</span> <span class="s1">&#39;no_label&#39;</span>
 </span></pre></div>
 
 
@@ -147,12 +238,117 @@
     
 
                             </div>
+                            <div id="LabelTypes.REMAINING_TIME" class="classattr">
+                                <div class="attr variable">
+            <span class="name">REMAINING_TIME</span>        =
+<span class="default_value">&lt;<a href="#LabelTypes.REMAINING_TIME">LabelTypes.REMAINING_TIME</a>: &#39;remaining_time&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LabelTypes.REMAINING_TIME"></a>
+    
+    
+
+                            </div>
+                            <div id="LabelTypes.DURATION" class="classattr">
+                                <div class="attr variable">
+            <span class="name">DURATION</span>        =
+<span class="default_value">&lt;<a href="#LabelTypes.DURATION">LabelTypes.DURATION</a>: &#39;duration&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LabelTypes.DURATION"></a>
+    
+    
+
+                            </div>
+                            <div id="LabelTypes.NO_LABEL" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NO_LABEL</span>        =
+<span class="default_value">&lt;<a href="#LabelTypes.NO_LABEL">LabelTypes.NO_LABEL</a>: &#39;no_label&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LabelTypes.NO_LABEL"></a>
+    
+    
+
+                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>enum.Enum</dt>
                                 <dd id="LabelTypes.name" class="variable">name</dd>
                 <dd id="LabelTypes.value" class="variable">value</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ThresholdTypes">
+                            <input id="ThresholdTypes-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ThresholdTypes</span><wbr>(<span class="base">enum.Enum</span>):
+
+                <label class="view-source-button" for="ThresholdTypes-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ThresholdTypes"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ThresholdTypes-26"><a href="#ThresholdTypes-26"><span class="linenos">26</span></a><span class="k">class</span> <span class="nc">ThresholdTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="ThresholdTypes-27"><a href="#ThresholdTypes-27"><span class="linenos">27</span></a>    <span class="n">THRESHOLD_MEAN</span> <span class="o">=</span> <span class="s1">&#39;threshold_mean&#39;</span>
+</span><span id="ThresholdTypes-28"><a href="#ThresholdTypes-28"><span class="linenos">28</span></a>    <span class="n">THRESHOLD_CUSTOM</span> <span class="o">=</span> <span class="s1">&#39;threshold_custom&#39;</span>
+</span><span id="ThresholdTypes-29"><a href="#ThresholdTypes-29"><span class="linenos">29</span></a>    <span class="n">NONE</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>An enumeration.</p>
+</div>
+
+
+                            <div id="ThresholdTypes.THRESHOLD_MEAN" class="classattr">
+                                <div class="attr variable">
+            <span class="name">THRESHOLD_MEAN</span>        =
+<span class="default_value">&lt;<a href="#ThresholdTypes.THRESHOLD_MEAN">ThresholdTypes.THRESHOLD_MEAN</a>: &#39;threshold_mean&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ThresholdTypes.THRESHOLD_MEAN"></a>
+    
+    
+
+                            </div>
+                            <div id="ThresholdTypes.THRESHOLD_CUSTOM" class="classattr">
+                                <div class="attr variable">
+            <span class="name">THRESHOLD_CUSTOM</span>        =
+<span class="default_value">&lt;<a href="#ThresholdTypes.THRESHOLD_CUSTOM">ThresholdTypes.THRESHOLD_CUSTOM</a>: &#39;threshold_custom&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ThresholdTypes.THRESHOLD_CUSTOM"></a>
+    
+    
+
+                            </div>
+                            <div id="ThresholdTypes.NONE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NONE</span>        =
+<span class="default_value">&lt;<a href="#ThresholdTypes.NONE">ThresholdTypes.NONE</a>: &#39;none&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ThresholdTypes.NONE"></a>
+    
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>enum.Enum</dt>
+                                <dd id="ThresholdTypes.name" class="variable">name</dd>
+                <dd id="ThresholdTypes.value" class="variable">value</dd>
 
             </div>
                                 </dl>
@@ -169,15 +365,21 @@
 
     </div>
     <a class="headerlink" href="#add_label_column"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="add_label_column-10"><a href="#add_label_column-10"><span class="linenos">10</span></a><span class="k">def</span> <span class="nf">add_label_column</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">labeling_type</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="add_label_column-11"><a href="#add_label_column-11"><span class="linenos">11</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO COMMENT ME</span>
-</span><span id="add_label_column-12"><a href="#add_label_column-12"><span class="linenos">12</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="add_label_column-13"><a href="#add_label_column-13"><span class="linenos">13</span></a>    <span class="k">if</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">NEXT_ACTIVITY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-</span><span id="add_label_column-14"><a href="#add_label_column-14"><span class="linenos">14</span></a>        <span class="k">return</span> <span class="n">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">)</span>
-</span><span id="add_label_column-15"><a href="#add_label_column-15"><span class="linenos">15</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-</span><span id="add_label_column-16"><a href="#add_label_column-16"><span class="linenos">16</span></a>        <span class="k">return</span> <span class="n">trace</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
-</span><span id="add_label_column-17"><a href="#add_label_column-17"><span class="linenos">17</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="add_label_column-18"><a href="#add_label_column-18"><span class="linenos">18</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Label not set please select one of LabelTypes(Enum) values!&#39;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="add_label_column-32"><a href="#add_label_column-32"><span class="linenos">32</span></a><span class="k">def</span> <span class="nf">add_label_column</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">labeling_type</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="add_label_column-33"><a href="#add_label_column-33"><span class="linenos">33</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO COMMENT ME</span>
+</span><span id="add_label_column-34"><a href="#add_label_column-34"><span class="linenos">34</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="add_label_column-35"><a href="#add_label_column-35"><span class="linenos">35</span></a>    <span class="k">if</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">NEXT_ACTIVITY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="add_label_column-36"><a href="#add_label_column-36"><span class="linenos">36</span></a>        <span class="k">return</span> <span class="n">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">)</span>
+</span><span id="add_label_column-37"><a href="#add_label_column-37"><span class="linenos">37</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="add_label_column-38"><a href="#add_label_column-38"><span class="linenos">38</span></a>        <span class="k">return</span> <span class="n">trace</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+</span><span id="add_label_column-39"><a href="#add_label_column-39"><span class="linenos">39</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">REMAINING_TIME</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="add_label_column-40"><a href="#add_label_column-40"><span class="linenos">40</span></a>        <span class="k">return</span> <span class="n">remaining_time_id</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">)</span>
+</span><span id="add_label_column-41"><a href="#add_label_column-41"><span class="linenos">41</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">DURATION</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="add_label_column-42"><a href="#add_label_column-42"><span class="linenos">42</span></a>        <span class="k">return</span> <span class="n">duration</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span><span id="add_label_column-43"><a href="#add_label_column-43"><span class="linenos">43</span></a>    <span class="k">elif</span> <span class="n">labeling_type</span> <span class="o">==</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">NO_LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+</span><span id="add_label_column-44"><a href="#add_label_column-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="mi">0</span>
+</span><span id="add_label_column-45"><a href="#add_label_column-45"><span class="linenos">45</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="add_label_column-46"><a href="#add_label_column-46"><span class="linenos">46</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Label not set please select one of LabelTypes(Enum) values!&#39;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -197,16 +399,16 @@
 
     </div>
     <a class="headerlink" href="#next_event_name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="next_event_name-21"><a href="#next_event_name-21"><span class="linenos">21</span></a><span class="k">def</span> <span class="nf">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="next_event_name-22"><a href="#next_event_name-22"><span class="linenos">22</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the event event_name at prefix length or 0 if out of range.</span>
-</span><span id="next_event_name-23"><a href="#next_event_name-23"><span class="linenos">23</span></a>
-</span><span id="next_event_name-24"><a href="#next_event_name-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="next_event_name-25"><a href="#next_event_name-25"><span class="linenos">25</span></a>    <span class="k">if</span> <span class="n">prefix_length</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="p">):</span>
-</span><span id="next_event_name-26"><a href="#next_event_name-26"><span class="linenos">26</span></a>        <span class="n">next_event</span> <span class="o">=</span> <span class="n">trace</span><span class="p">[</span><span class="n">prefix_length</span><span class="p">]</span>
-</span><span id="next_event_name-27"><a href="#next_event_name-27"><span class="linenos">27</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">next_event</span><span class="p">[</span><span class="s1">&#39;concept:name&#39;</span><span class="p">]</span>
-</span><span id="next_event_name-28"><a href="#next_event_name-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="n">name</span>
-</span><span id="next_event_name-29"><a href="#next_event_name-29"><span class="linenos">29</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="next_event_name-30"><a href="#next_event_name-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="mi">0</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="next_event_name-51"><a href="#next_event_name-51"><span class="linenos">51</span></a><span class="k">def</span> <span class="nf">next_event_name</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="next_event_name-52"><a href="#next_event_name-52"><span class="linenos">52</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the event event_name at prefix length or 0 if out of range.</span>
+</span><span id="next_event_name-53"><a href="#next_event_name-53"><span class="linenos">53</span></a>
+</span><span id="next_event_name-54"><a href="#next_event_name-54"><span class="linenos">54</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="next_event_name-55"><a href="#next_event_name-55"><span class="linenos">55</span></a>    <span class="k">if</span> <span class="n">prefix_length</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="p">):</span>
+</span><span id="next_event_name-56"><a href="#next_event_name-56"><span class="linenos">56</span></a>        <span class="n">next_event</span> <span class="o">=</span> <span class="n">trace</span><span class="p">[</span><span class="n">prefix_length</span><span class="p">]</span>
+</span><span id="next_event_name-57"><a href="#next_event_name-57"><span class="linenos">57</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">next_event</span><span class="p">[</span><span class="s1">&#39;concept:name&#39;</span><span class="p">]</span>
+</span><span id="next_event_name-58"><a href="#next_event_name-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="n">name</span>
+</span><span id="next_event_name-59"><a href="#next_event_name-59"><span class="linenos">59</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="next_event_name-60"><a href="#next_event_name-60"><span class="linenos">60</span></a>        <span class="k">return</span> <span class="mi">0</span>
 </span></pre></div>
 
 

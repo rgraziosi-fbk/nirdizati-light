@@ -28,6 +28,13 @@
 
 
 
+            <h2>API Documentation</h2>
+                <ul class="memberlist">
+            <li>
+                    <a class="function" href="#ice_explain">ice_explain</a>
+            </li>
+    </ul>
+
 
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
@@ -47,48 +54,95 @@
 
                         <label class="view-source-button" for="mod-ice_wrapper-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="c1"># from pdpbox import info_plots</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># from pdpbox.utils import _get_grids</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="c1"># #from src.encoding.common import get_encoded_df</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="c1"># #from src.encoding.models import ValueEncodings</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="c1"># #from src.explanation.models import Explanation</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">pdpbox</span> <span class="kn">import</span> <span class="n">info_plots</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1">#from pdpbox.utils import _get_grids</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">sklearn.inspection</span> <span class="kn">import</span> <span class="n">PartialDependenceDisplay</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="c1">#from src.encoding.common import get_encoded_df</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="c1">#from src.encoding.models import ValueEncodings</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="c1">#from src.explanation.models import Explanation</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="c1"># def ice_explain(CONF, predictive_model, encoder, target_df,explanation_target= None):</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="c1">#     if explanation_target is None:</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="c1">#         explanation_target = &#39;AMOUNT_REQ&#39;</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="c1">#     else:</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="c1">#         explanation_target = explanation_target</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="c1">#     target_df = target_df.drop([&#39;trace_id&#39;], 1)</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="c1">#     feature_grids, percentile_info = _get_grids(</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="c1">#         feature_values=target_df[explanation_target].values, num_grid_points=10, grid_type=None,</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="c1">#         percentile_range=&#39;percentile&#39;, grid_range=None)</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="c1">#     #custom_grids = [x for x in range(int(feature_grids.min()), int(feature_grids.max()))]</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="c1">#     fig, axes, summary_df = info_plots.target_plot(</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="c1">#         df = target_df,</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="c1">#         feature = explanation_target,</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="c1">#         feature_name = explanation_target,</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="c1">#         #cust_grid_points = custom_grids,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="c1">#         target = &#39;label&#39;,</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="c1">#         show_percentile = False</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="c1">#     )</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="c1">#     lists = list(target_df[explanation_target].values)</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="c1">#     indexs = [lists.index(x) for x in range(int(feature_grids.min()), int(feature_grids.max()))]</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="c1">#     encoder.decode(target_df)</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="c1">#     values = target_df[explanation_target].values</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="c1">#     lst = []</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="c1">#     for x in range(len(indexs) - 1):</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="c1">#         lst.append({&#39;value&#39;: values[indexs[x]],</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="c1">#                     &#39;label&#39;: summary_df[&#39;label&#39;][x],</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="c1">#                     &#39;count&#39;: int(summary_df[&#39;count&#39;][x]),</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="c1">#                     })</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="c1">#     return lst,fig,axes</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">ice_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">target_df</span><span class="p">,</span><span class="n">explanation_target</span><span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="k">if</span> <span class="n">explanation_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>        <span class="n">explanation_target</span> <span class="o">=</span> <span class="s1">&#39;AMOUNT_REQ&#39;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>        <span class="n">explanation_target</span> <span class="o">=</span> <span class="n">explanation_target</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">target_df</span> <span class="o">=</span> <span class="n">target_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">feature_grids</span><span class="p">,</span> <span class="n">percentile_info</span> <span class="o">=</span> <span class="n">_get_grids</span><span class="p">(</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>        <span class="n">feature_values</span><span class="o">=</span><span class="n">target_df</span><span class="p">[</span><span class="n">explanation_target</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">num_grid_points</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">grid_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="n">percentile_range</span><span class="o">=</span><span class="s1">&#39;percentile&#39;</span><span class="p">,</span> <span class="n">grid_range</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">custom_grids</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">feature_grids</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">feature_grids</span><span class="o">.</span><span class="n">max</span><span class="p">()))]</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">summary_df</span> <span class="o">=</span> <span class="n">info_plots</span><span class="o">.</span><span class="n">target_plot</span><span class="p">(</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="n">df</span> <span class="o">=</span> <span class="n">target_df</span><span class="p">,</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>        <span class="n">feature</span> <span class="o">=</span> <span class="n">explanation_target</span><span class="p">,</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>        <span class="n">feature_name</span> <span class="o">=</span> <span class="n">explanation_target</span><span class="p">,</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="n">cust_grid_points</span> <span class="o">=</span> <span class="n">custom_grids</span><span class="p">,</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="n">target</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="n">show_percentile</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="p">)</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">lists</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">target_df</span><span class="p">[</span><span class="n">explanation_target</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="n">indexs</span> <span class="o">=</span> <span class="p">[</span><span class="n">lists</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]]</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">encoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">target_df</span><span class="p">)</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">values</span> <span class="o">=</span> <span class="n">target_df</span><span class="p">[</span><span class="n">explanation_target</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">values</span><span class="p">[</span><span class="n">indexs</span><span class="p">[</span><span class="n">x</span><span class="p">]],</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>                    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">],</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>                    <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]),</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>                    <span class="p">})</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="k">return</span> <span class="n">lst</span><span class="p">,</span><span class="n">fig</span><span class="p">,</span><span class="n">axes</span>
 </span></pre></div>
 
 
             </section>
+                <section id="ice_explain">
+                            <input id="ice_explain-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">ice_explain</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">CONF</span>, </span><span class="param"><span class="n">predictive_model</span>, </span><span class="param"><span class="n">encoder</span>, </span><span class="param"><span class="n">target_df</span>, </span><span class="param"><span class="n">explanation_target</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="ice_explain-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ice_explain"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ice_explain-10"><a href="#ice_explain-10"><span class="linenos">10</span></a><span class="k">def</span> <span class="nf">ice_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">target_df</span><span class="p">,</span><span class="n">explanation_target</span><span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+</span><span id="ice_explain-11"><a href="#ice_explain-11"><span class="linenos">11</span></a>    <span class="k">if</span> <span class="n">explanation_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="ice_explain-12"><a href="#ice_explain-12"><span class="linenos">12</span></a>        <span class="n">explanation_target</span> <span class="o">=</span> <span class="s1">&#39;AMOUNT_REQ&#39;</span>
+</span><span id="ice_explain-13"><a href="#ice_explain-13"><span class="linenos">13</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="ice_explain-14"><a href="#ice_explain-14"><span class="linenos">14</span></a>        <span class="n">explanation_target</span> <span class="o">=</span> <span class="n">explanation_target</span>
+</span><span id="ice_explain-15"><a href="#ice_explain-15"><span class="linenos">15</span></a>    <span class="n">target_df</span> <span class="o">=</span> <span class="n">target_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span>
+</span><span id="ice_explain-16"><a href="#ice_explain-16"><span class="linenos">16</span></a>    <span class="n">feature_grids</span><span class="p">,</span> <span class="n">percentile_info</span> <span class="o">=</span> <span class="n">_get_grids</span><span class="p">(</span>
+</span><span id="ice_explain-17"><a href="#ice_explain-17"><span class="linenos">17</span></a>        <span class="n">feature_values</span><span class="o">=</span><span class="n">target_df</span><span class="p">[</span><span class="n">explanation_target</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">num_grid_points</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">grid_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="ice_explain-18"><a href="#ice_explain-18"><span class="linenos">18</span></a>        <span class="n">percentile_range</span><span class="o">=</span><span class="s1">&#39;percentile&#39;</span><span class="p">,</span> <span class="n">grid_range</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="ice_explain-19"><a href="#ice_explain-19"><span class="linenos">19</span></a>    <span class="n">custom_grids</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">feature_grids</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">feature_grids</span><span class="o">.</span><span class="n">max</span><span class="p">()))]</span>
+</span><span id="ice_explain-20"><a href="#ice_explain-20"><span class="linenos">20</span></a>    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">summary_df</span> <span class="o">=</span> <span class="n">info_plots</span><span class="o">.</span><span class="n">target_plot</span><span class="p">(</span>
+</span><span id="ice_explain-21"><a href="#ice_explain-21"><span class="linenos">21</span></a>        <span class="n">df</span> <span class="o">=</span> <span class="n">target_df</span><span class="p">,</span>
+</span><span id="ice_explain-22"><a href="#ice_explain-22"><span class="linenos">22</span></a>        <span class="n">feature</span> <span class="o">=</span> <span class="n">explanation_target</span><span class="p">,</span>
+</span><span id="ice_explain-23"><a href="#ice_explain-23"><span class="linenos">23</span></a>        <span class="n">feature_name</span> <span class="o">=</span> <span class="n">explanation_target</span><span class="p">,</span>
+</span><span id="ice_explain-24"><a href="#ice_explain-24"><span class="linenos">24</span></a>        <span class="n">cust_grid_points</span> <span class="o">=</span> <span class="n">custom_grids</span><span class="p">,</span>
+</span><span id="ice_explain-25"><a href="#ice_explain-25"><span class="linenos">25</span></a>        <span class="n">target</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
+</span><span id="ice_explain-26"><a href="#ice_explain-26"><span class="linenos">26</span></a>        <span class="n">show_percentile</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="ice_explain-27"><a href="#ice_explain-27"><span class="linenos">27</span></a>    <span class="p">)</span>
+</span><span id="ice_explain-28"><a href="#ice_explain-28"><span class="linenos">28</span></a>    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+</span><span id="ice_explain-29"><a href="#ice_explain-29"><span class="linenos">29</span></a>    <span class="n">lists</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">target_df</span><span class="p">[</span><span class="n">explanation_target</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span id="ice_explain-30"><a href="#ice_explain-30"><span class="linenos">30</span></a>    <span class="n">indexs</span> <span class="o">=</span> <span class="p">[</span><span class="n">lists</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]]</span>
+</span><span id="ice_explain-31"><a href="#ice_explain-31"><span class="linenos">31</span></a>    <span class="n">encoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">target_df</span><span class="p">)</span>
+</span><span id="ice_explain-32"><a href="#ice_explain-32"><span class="linenos">32</span></a>    <span class="n">values</span> <span class="o">=</span> <span class="n">target_df</span><span class="p">[</span><span class="n">explanation_target</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+</span><span id="ice_explain-33"><a href="#ice_explain-33"><span class="linenos">33</span></a>    <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="ice_explain-34"><a href="#ice_explain-34"><span class="linenos">34</span></a>    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+</span><span id="ice_explain-35"><a href="#ice_explain-35"><span class="linenos">35</span></a>        <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">values</span><span class="p">[</span><span class="n">indexs</span><span class="p">[</span><span class="n">x</span><span class="p">]],</span>
+</span><span id="ice_explain-36"><a href="#ice_explain-36"><span class="linenos">36</span></a>                    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">],</span>
+</span><span id="ice_explain-37"><a href="#ice_explain-37"><span class="linenos">37</span></a>                    <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]),</span>
+</span><span id="ice_explain-38"><a href="#ice_explain-38"><span class="linenos">38</span></a>                    <span class="p">})</span>
+</span><span id="ice_explain-39"><a href="#ice_explain-39"><span class="linenos">39</span></a>    <span class="k">return</span> <span class="n">lst</span><span class="p">,</span><span class="n">fig</span><span class="p">,</span><span class="n">axes</span>
+</span></pre></div>
+
+
+    
+
+                </section>
     </main>
 <script>
     function escapeHTML(html) {
