@@ -31,7 +31,7 @@ class PredictiveModel:
     :param pandas.DataFrame validate_df: validation data to evaluate model
     """
 
-    def __init__(self, CONF, model_type, train_df, validate_df):
+    def __init__(self, CONF, model_type, train_df, validate_df, test_df):
         self.model_type = model_type
         self.config = None
         self.model = None
@@ -41,15 +41,21 @@ class PredictiveModel:
         self.full_validate_df = validate_df
         self.validate_df = drop_columns(validate_df)
         self.validate_df_shaped = None
+        self.full_test_df = test_df
+        self.test_df = drop_columns(test_df)
+        self.test_df_shaped = None
 
         if model_type is ClassificationMethods.LSTM.value:
             self.train_tensor = get_tensor(CONF, self.train_df)
             self.validate_tensor = get_tensor(CONF, self.validate_df)
+            self.test_tensor = get_tensor(CONF, self.test_df)
             self.train_label = shape_label_df(self.full_train_df)
             self.validate_label = shape_label_df(self.full_validate_df)
+            self.test_label = shape_label_df(self.full_test_df)
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()
+            self.test_label = self.full_test_df['label'].unique()
     
     def train_and_evaluate_configuration(self, config, target):
         try:
@@ -61,7 +67,7 @@ class PredictiveModel:
                 actual = np.array(actual.to_list())
 
             if self.model_type in [item.value for item in ClassificationMethods]:
-                predicted, scores = self.predict()
+                predicted, scores = self.predict(test=False)
                 result = evaluate_classifier(actual, predicted, scores, loss=target)
             elif self.model_type in [item.value for item in RegressionMethods]:
                 predicted = self.model.predict(self.validate_df)
@@ -152,19 +158,22 @@ class PredictiveModel:
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             model.fit(self.train_df.values, self.full_train_df['label'])
 
-    def predict(self):
+    def predict(self, test=True):
         """
         Perform predictions with the model and return them
         """
-        if self.model_type is ClassificationMethods.LSTM.value:
-            validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
 
-            probabilities = self.model(validate_tensor).detach().numpy()
+        data = self.test_df if test else self.validate_df
+
+        if self.model_type is ClassificationMethods.LSTM.value:
+            data_tensor = torch.tensor(self.test_tensor if test else self.validate_tensor, dtype=torch.float32)
+
+            probabilities = self.model(data_tensor).detach().numpy()
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
         elif self.model_type not in (ClassificationMethods.LSTM.value):
-            predicted = self.model.predict(self.validate_df)
-            scores = self.model.predict_proba(self.validate_df)[:, 1]
+            predicted = self.model.predict(data)
+            scores = self.model.predict_proba(data)[:, 1]
         else:
             raise Exception('Unsupported model_type')
 
