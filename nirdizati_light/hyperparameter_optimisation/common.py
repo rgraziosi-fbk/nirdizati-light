@@ -114,7 +114,7 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
     :param nirdizati_light.hyperparameter_optimisation.common.HyperoptTarget target: which target score to optimize for
     :param int seed: optional seed value for reproducibility
 
-    :return: a tuple containing the best model index, the best model and the best hyperparameter configuration
+    :return: a tuple containing the best candidates, the best model index, the best model and the best hyperparameter configuration
     """
 
     best_candidates = []
@@ -141,4 +141,4 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
     # Find the best performing model
     best_model_idx = best_target_per_model.index(max(best_target_per_model))
 
-    return best_candidates,best_model_idx, best_candidates[best_model_idx]['model'], best_candidates[best_model_idx]['config']
+    return best_candidates, best_model_idx, best_candidates[best_model_idx]['model'], best_candidates[best_model_idx]['config']

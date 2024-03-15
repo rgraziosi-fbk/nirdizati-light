@@ -64,7 +64,12 @@ CONF = {
     'predictive_models': [                                          # list of predictive models to train
         ClassificationMethods.RANDOM_FOREST.value,
         ClassificationMethods.KNN.value,
-        ClassificationMethods.LSTM.value,
+        # ClassificationMethods.LSTM.value,
+        # ClassificationMethods.MLP.value,
+        # ClassificationMethods.PERCEPTRON.value,
+        # ClassificationMethods.SGDCLASSIFIER.value,
+        # ClassificationMethods.SVM.value,
+        # ClassificationMethods.XGBOOST.value,
     ],
     
     'hyperparameter_optimisation_target': HyperoptTarget.F1.value,  # which metric to optimize hyperparameters for
@@ -90,7 +95,7 @@ print('Instantiating predictive models...')
 predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df) for predictive_model in CONF['predictive_models']]
 
 print('Running hyperparameter optimization...')
-best_model_idx, best_model_model, best_model_config = retrieve_best_model(
+_, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
     predictive_models,
     max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
     target=CONF['hyperparameter_optimisation_target']

@@ -131,7 +131,12 @@ nirdizati_light    </h1>
     <span class="s1">&#39;predictive_models&#39;</span><span class="p">:</span> <span class="p">[</span>                                          <span class="c1"># list of predictive models to train</span>
         <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">RANDOM_FOREST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">KNN</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-        <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">LSTM</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="c1"># ClassificationMethods.LSTM.value,</span>
+        <span class="c1"># ClassificationMethods.MLP.value,</span>
+        <span class="c1"># ClassificationMethods.PERCEPTRON.value,</span>
+        <span class="c1"># ClassificationMethods.SGDCLASSIFIER.value,</span>
+        <span class="c1"># ClassificationMethods.SVM.value,</span>
+        <span class="c1"># ClassificationMethods.XGBOOST.value,</span>
     <span class="p">],</span>
 
     <span class="s1">&#39;hyperparameter_optimisation_target&#39;</span><span class="p">:</span> <span class="n">HyperoptTarget</span><span class="o">.</span><span class="n">F1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>  <span class="c1"># which metric to optimize hyperparameters for</span>
@@ -157,7 +162,7 @@ nirdizati_light    </h1>
 <span class="n">predictive_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">PredictiveModel</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">)</span> <span class="k">for</span> <span class="n">predictive_model</span> <span class="ow">in</span> <span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;predictive_models&#39;</span><span class="p">]]</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running hyperparameter optimization...&#39;</span><span class="p">)</span>
-<span class="n">best_model_idx</span><span class="p">,</span> <span class="n">best_model_model</span><span class="p">,</span> <span class="n">best_model_config</span> <span class="o">=</span> <span class="n">retrieve_best_model</span><span class="p">(</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">best_model_idx</span><span class="p">,</span> <span class="n">best_model_model</span><span class="p">,</span> <span class="n">best_model_config</span> <span class="o">=</span> <span class="n">retrieve_best_model</span><span class="p">(</span>
     <span class="n">predictive_models</span><span class="p">,</span>
     <span class="n">max_evaluations</span><span class="o">=</span><span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;hyperparameter_optimisation_evaluations&#39;</span><span class="p">],</span>
     <span class="n">target</span><span class="o">=</span><span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;hyperparameter_optimisation_target&#39;</span><span class="p">]</span>
