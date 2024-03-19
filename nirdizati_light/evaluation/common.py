@@ -108,9 +108,8 @@ def evaluate_recommender(y_true, y_pred):
     return evaluation
 
 
-def evaluate_classifiers(candidates, test_df,actual):
+def evaluate_classifiers(candidates,actual):
     results = {}
-    test_df = drop_columns(test_df)
     for candidate in candidates:
         predicted,scores = candidate['model'].predict(test=True)
         result = evaluate_classifier(actual, predicted, scores)

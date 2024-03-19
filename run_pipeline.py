@@ -38,14 +38,14 @@ CONF = {
     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,             # 
     
     'predictive_models': [                                          # list of predictive models to train
-         ClassificationMethods.RANDOM_FOREST.value,
+        # ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
-        # ClassificationMethods.LSTM.value,
-         ClassificationMethods.MLP.value,
-         ClassificationMethods.PERCEPTRON.value,
-         ClassificationMethods.SGDCLASSIFIER.value,
+         ClassificationMethods.LSTM.value,
+        # ClassificationMethods.MLP.value,
+        # ClassificationMethods.PERCEPTRON.value,
+        # ClassificationMethods.SGDCLASSIFIER.value,
         # ClassificationMethods.SVM.value,
-         ClassificationMethods.XGBOOST.value,
+        # ClassificationMethods.XGBOOST.value,
     ],
     
     'hyperparameter_optimisation_target': HyperoptTarget.F1.value,  # which metric to optimize hyperparameters for
@@ -84,7 +84,7 @@ print(f'Best model is {best_model.model_type}')
 
 
 print('Evaluating best model...')
-predicted, scores = best_model.predict()
+predicted, scores = best_model.predict(test=True)
 actual = test_df['label']
 
 initial_result = evaluate_classifier(actual, predicted, scores)

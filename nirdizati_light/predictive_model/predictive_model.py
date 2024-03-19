@@ -65,7 +65,6 @@ class PredictiveModel:
             
             if self.model_type is ClassificationMethods.LSTM.value:
                 actual = np.array(actual.to_list())
-
             if self.model_type in [item.value for item in ClassificationMethods]:
                 predicted, scores = self.predict(test=False)
                 result = evaluate_classifier(actual, predicted, scores, loss=target)
