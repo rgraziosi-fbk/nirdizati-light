@@ -112,8 +112,7 @@ def evaluate_classifiers(candidates, test_df,actual):
     results = {}
     test_df = drop_columns(test_df)
     for candidate in candidates:
-        predicted = candidate['model'].predict(test_df)
-        scores = candidate['model'].predict_proba(test_df)
+        predicted,scores = candidate['model'].predict(test=True)
         result = evaluate_classifier(actual, predicted, scores)
         results[str(candidate['model'])] = result
     return results
