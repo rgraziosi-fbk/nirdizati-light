@@ -38,10 +38,10 @@ CONF = {
     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,             # 
     
     'predictive_models': [                                          # list of predictive models to train
-        # ClassificationMethods.RANDOM_FOREST.value,
+         ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
-         ClassificationMethods.LSTM.value,
-        # ClassificationMethods.MLP.value,
+        # ClassificationMethods.LSTM.value,
+         ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
         # ClassificationMethods.SVM.value,
@@ -68,7 +68,7 @@ train_size, val_size, test_size = CONF['train_val_test_split']
 train_df, val_df, test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
 
 print('Instantiating predictive models...')
-predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df) for predictive_model in CONF['predictive_models']]
+predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df,test_df) for predictive_model in CONF['predictive_models']]
 
 print('Running hyperparameter optimization...')
 best_candidates,best_model_idx, best_model_model, best_model_config = retrieve_best_model(
@@ -88,9 +88,9 @@ predicted, scores = best_model.predict(test=True)
 actual = test_df['label']
 
 initial_result = evaluate_classifier(actual, predicted, scores)
-results = evaluate_classifiers(best_candidates, test_df,actual)
+results = evaluate_classifiers(predictive_models,actual)
 plot_model_comparison(results)
-print(f'Evaluation: {initial_result}')
+print(f'Evaluation: {initial_rexsult}')
 
 print('Computing explanation...')
 test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] == 0)]

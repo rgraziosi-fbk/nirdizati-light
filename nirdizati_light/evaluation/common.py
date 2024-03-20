@@ -111,9 +111,9 @@ def evaluate_recommender(y_true, y_pred):
 def evaluate_classifiers(candidates,actual):
     results = {}
     for candidate in candidates:
-        predicted,scores = candidate['model'].predict(test=True)
+        predicted,scores = candidate.predict(test=True)
         result = evaluate_classifier(actual, predicted, scores)
-        results[str(candidate['model'])] = result
+        results[str(candidate.model_type)] = result
     return results
 
 def plot_model_comparison(models_data):
