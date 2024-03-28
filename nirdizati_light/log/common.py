@@ -4,7 +4,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-def get_log(filepath, separator=';'):
+def get_log(filepath, separator=';', case_id_key='case:concept:name'):
     """
     Read a xes or csv log
     
@@ -21,4 +21,4 @@ def get_log(filepath, separator=';'):
     else:
         raise ValueError("Unsupported file extension")
     
-    return pm4py.convert_to_event_log(log)
+    return pm4py.convert_to_event_log(log, case_id_key=case_id_key)
