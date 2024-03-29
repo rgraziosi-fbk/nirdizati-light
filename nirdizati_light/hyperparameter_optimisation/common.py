@@ -120,6 +120,9 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
     best_candidates = []
     best_target_per_model = []
 
+    if type(predictive_models) is not list:
+        predictive_models = [predictive_models]
+
     for predictive_model in predictive_models:
         print(f'Running hyperparameter optimization on model {predictive_model.model_type}...')
 
