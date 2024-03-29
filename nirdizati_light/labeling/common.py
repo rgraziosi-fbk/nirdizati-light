@@ -34,7 +34,10 @@ def add_label_column(trace, labeling_type, prefix_length: int):
     if labeling_type == LabelTypes.NEXT_ACTIVITY.value:
         return next_event_name(trace, prefix_length)
     elif labeling_type == LabelTypes.ATTRIBUTE_STRING.value:
-        return trace.attributes['label']
+        try:
+            return trace.attributes['label']
+        except KeyError:
+            return trace[0]['label']
     elif labeling_type == LabelTypes.REMAINING_TIME.value:
         return remaining_time_id(trace, prefix_length)
     elif labeling_type == LabelTypes.DURATION.value:
