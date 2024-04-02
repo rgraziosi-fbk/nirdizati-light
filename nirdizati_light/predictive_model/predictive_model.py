@@ -155,7 +155,7 @@ class PredictiveModel:
                     break
 
         elif self.model_type not in (ClassificationMethods.LSTM.value):
-            model.fit(self.train_df.values, self.full_train_df['label'])
+            model.fit(self.train_df, self.full_train_df['label'])
 
     def predict(self, test=True):
         """
