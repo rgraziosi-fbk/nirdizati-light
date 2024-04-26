@@ -18,7 +18,7 @@ SEED = 1234
 random.seed(SEED)
 np.random.seed(SEED)
 
-LOG_NAME = 'bpic2012_O_ACCEPTED-COMPLETE'
+LOG_NAME = 'synthetic_data'
 
 CONF = {
     'data': os.path.join('..','datasets', LOG_NAME, 'full.xes'),         # path to log
@@ -27,7 +27,7 @@ CONF = {
     'output': 'output_data',                                        # path to output folder
 
     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,     #
-    'prefix_length': 20,                                            # 
+    'prefix_length': 6,                                            #
 
     'padding': True,                                                # whether to use padding or not in encoding
     'feature_selection': EncodingType.SIMPLE_TRACE.value,           # which encoding to use
@@ -41,7 +41,7 @@ CONF = {
          ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
         # ClassificationMethods.LSTM.value,
-         ClassificationMethods.MLP.value,
+         #ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
         # ClassificationMethods.SVM.value,
@@ -90,7 +90,7 @@ actual = test_df['label']
 initial_result = evaluate_classifier(actual, predicted, scores)
 results = evaluate_classifiers(predictive_models,actual)
 plot_model_comparison(results)
-print(f'Evaluation: {initial_rexsult}')
+print(f'Evaluation: {initial_result}')
 
 print('Computing explanation...')
 test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] == 0)]
@@ -101,7 +101,7 @@ cf_dataset.loc[len(cf_dataset)] = 0
 explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         query_instances=test_df_correct.iloc[:, 1:],
         method='multi_objective_genetic', optimization='multiobjective',
-        heuristic='heuristic_2', support=0.95,
+        heuristic='heuristic_2', support=0.7,
         timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
         model_path='./experiments/process_models/process_models',
         random_seed=CONF['seed'], adapted=True, filtering=False)

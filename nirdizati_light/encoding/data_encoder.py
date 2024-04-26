@@ -67,15 +67,9 @@ class Encoder:
         for column in df:
             if column != 'trace_id':
                 if column in self._label_encoder:
-                    try:
-                        df[column] = df[column].apply(lambda x: self._label_dict[column].get(str(x), PADDING_VALUE))
-                    except:
-                        print('Error')
+                    df[column] = df[column].apply(lambda x: self._label_dict[column].get(str(x), PADDING_VALUE))
                 else:
-                    try:
-                        df[column] = self._numeric_encoder[column].transform(df[column].values.reshape(-1,1)).flatten()
-                    except:
-                        print('Error')
+                    df[column] = self._numeric_encoder[column].transform(df[column].values.reshape(-1,1)).flatten()
 
 
     def decode(self, df: DataFrame) -> None:

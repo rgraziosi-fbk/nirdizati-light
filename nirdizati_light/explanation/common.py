@@ -1,6 +1,7 @@
 from enum import Enum
 
 from nirdizati_light.explanation.wrappers.dice_wrapper import dice_explain
+from nirdizati_light.explanation.wrappers.dice_augmentation import dice_augmentation
 from nirdizati_light.explanation.wrappers.ice_wrapper import ice_explain
 from nirdizati_light.explanation.wrappers.shap_wrapper import shap_explain
 
@@ -8,6 +9,7 @@ class ExplainerType(Enum):
     SHAP = 'shap'
     ICE = 'ice'
     DICE = 'dice'
+    DICE_AUGMENTATION = 'dice_augmentation'
 
 
 def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instances=None, target_trace_id=None,
@@ -46,3 +48,6 @@ def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instan
                             method=method, optimization=optimization,
                             heuristic=heuristic, support=support, timestamp_col_name=timestamp_col_name,model_path=model_path,
                             random_seed=random_seed,adapted=adapted,filtering=filtering)
+    elif explainer is ExplainerType.DICE_AUGMENTATION.value:
+        return dice_augmentation(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
+                 timestamp_col_name,model_path)
