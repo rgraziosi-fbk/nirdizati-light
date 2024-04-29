@@ -16,7 +16,7 @@ from nirdizati_light.log.common import get_log
 from nirdizati_light.predictive_model.common import ClassificationMethods, get_tensor, RegressionMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
 import random
-from pm4py import convert_to_event_log,write_xes
+from pm4py import convert_to_event_log, write_xes
 from dataset_confs import DatasetConfs
 
 logger = logging.getLogger(__name__)

@@ -1,0 +1,303 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text></text>
+    </name>
+    <page id="n0">
+      <place id="exi_node_0ac7c5cc-3071-4520-babe-f2701a120944">
+        <name>
+          <text>exi_node_0ac7c5cc-3071-4520-babe-f2701a120944</text>
+        </name>
+      </place>
+      <place id="ent_node_d5249e24-359f-4f88-888a-61851230f140">
+        <name>
+          <text>ent_node_d5249e24-359f-4f88-888a-61851230f140</text>
+        </name>
+      </place>
+      <place id="ent_node_9536963c-c11d-41e6-b583-3b4da81c0349">
+        <name>
+          <text>ent_node_9536963c-c11d-41e6-b583-3b4da81c0349</text>
+        </name>
+      </place>
+      <place id="ent_node_78d11d00-5a41-4399-8614-d0de8c64d35b">
+        <name>
+          <text>ent_node_78d11d00-5a41-4399-8614-d0de8c64d35b</text>
+        </name>
+      </place>
+      <place id="ent_node_2e8bd812-2ab3-4340-aaaf-10522b10c986">
+        <name>
+          <text>ent_node_2e8bd812-2ab3-4340-aaaf-10522b10c986</text>
+        </name>
+      </place>
+      <place id="exi_node_17df8cab-f4f1-49d1-81af-9dea65f182d9">
+        <name>
+          <text>exi_node_17df8cab-f4f1-49d1-81af-9dea65f182d9</text>
+        </name>
+      </place>
+      <place id="exi_node_8b45aa15-9b7c-47c4-b047-c07231156129">
+        <name>
+          <text>exi_node_8b45aa15-9b7c-47c4-b047-c07231156129</text>
+        </name>
+      </place>
+      <place id="ent_node_88474ba9-a464-4706-bf1e-e528f0481e6c">
+        <name>
+          <text>ent_node_88474ba9-a464-4706-bf1e-e528f0481e6c</text>
+        </name>
+      </place>
+      <place id="ent_node_9eaf1eaf-6230-427b-b857-856dd44bbc08">
+        <name>
+          <text>ent_node_9eaf1eaf-6230-427b-b857-856dd44bbc08</text>
+        </name>
+      </place>
+      <place id="exi_node_8bb065a2-4d15-474a-b494-8d4c1a4f603a">
+        <name>
+          <text>exi_node_8bb065a2-4d15-474a-b494-8d4c1a4f603a</text>
+        </name>
+      </place>
+      <place id="exi_node_c055e8d5-fe68-4e8e-8f76-df746374f3fd">
+        <name>
+          <text>exi_node_c055e8d5-fe68-4e8e-8f76-df746374f3fd</text>
+        </name>
+      </place>
+      <place id="exi_node_0ba5398c-f25a-4da9-8887-652d0d93c9d3">
+        <name>
+          <text>exi_node_0ba5398c-f25a-4da9-8887-652d0d93c9d3</text>
+        </name>
+      </place>
+      <place id="exi_node_fd0c7e95-1397-426d-8639-5781a27a2a38">
+        <name>
+          <text>exi_node_fd0c7e95-1397-426d-8639-5781a27a2a38</text>
+        </name>
+      </place>
+      <place id="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393">
+        <name>
+          <text>ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393</text>
+        </name>
+      </place>
+      <place id="exi_node_5d82021f-8ddd-4012-8b98-bd2f440a9d4f">
+        <name>
+          <text>exi_node_5d82021f-8ddd-4012-8b98-bd2f440a9d4f</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="exi_node_4e06dc42-436a-4e09-b857-ca7157242916">
+        <name>
+          <text>exi_node_4e06dc42-436a-4e09-b857-ca7157242916</text>
+        </name>
+      </place>
+      <transition id="node_005d9306-ce38-4482-a7b6-19493c16a4b2">
+        <name>
+          <text>Release A</text>
+        </name>
+      </transition>
+      <transition id="sfl_node_230dd7a9-7585-437d-be5f-a7f1b9740a96">
+        <name>
+          <text>sfl_node_230dd7a9-7585-437d-be5f-a7f1b9740a96</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="372cb44e-fa47-402c-8433-54fa7b06fa45"/>
+      </transition>
+      <transition id="sfl_node_c752d581-3b04-4d67-b7db-29624b11e610">
+        <name>
+          <text>sfl_node_c752d581-3b04-4d67-b7db-29624b11e610</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="3672675f-68da-4422-8f8b-65d65c09b864"/>
+      </transition>
+      <transition id="node_49c66936-90e6-4cbf-971e-38a26ebd0393">
+        <name>
+          <text>node_49c66936-90e6-4cbf-971e-38a26ebd0393</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="8e7020cb-cde0-4f3a-b7ac-eab75a893e41"/>
+      </transition>
+      <transition id="sfl_node_219db237-ed8f-4248-bf0f-a5085e3bb8cb">
+        <name>
+          <text>sfl_node_219db237-ed8f-4248-bf0f-a5085e3bb8cb</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="45ff4b1a-2414-46cb-818b-813630a7b813"/>
+      </transition>
+      <transition id="sfl_node_dc06fc34-f9c0-4c63-bf00-d4cef07ac665">
+        <name>
+          <text>sfl_node_dc06fc34-f9c0-4c63-bf00-d4cef07ac665</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="18dcb07d-7f63-41e7-bfcf-a055fa06b017"/>
+      </transition>
+      <transition id="node_1bba4755-da4f-42bd-b214-19475695eb95">
+        <name>
+          <text>Admission IC</text>
+        </name>
+      </transition>
+      <transition id="sfl_node_9ddab448-b23f-47ca-ad2e-a3333335c2ee">
+        <name>
+          <text>sfl_node_9ddab448-b23f-47ca-ad2e-a3333335c2ee</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="ed98c80c-7c72-41f7-a5a7-e9ac5f9a449f"/>
+      </transition>
+      <transition id="sfl_node_b7380d3e-9fa9-4abe-a1c1-89c510db0eab">
+        <name>
+          <text>sfl_node_b7380d3e-9fa9-4abe-a1c1-89c510db0eab</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="9e6322f9-f02a-42f5-a6ef-9bfb1edc9cba"/>
+      </transition>
+      <transition id="node_3ed118b1-196e-49aa-b79b-6c7717090215">
+        <name>
+          <text>ER Registration</text>
+        </name>
+      </transition>
+      <transition id="node_a541e554-1f5f-4bdb-8f71-5c1fb63b275c">
+        <name>
+          <text>Release C</text>
+        </name>
+      </transition>
+      <transition id="sfl_node_e21a0380-eb2e-4033-8ba5-d2e95c90205e">
+        <name>
+          <text>sfl_node_e21a0380-eb2e-4033-8ba5-d2e95c90205e</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="70acf15d-e9b0-4394-a331-c48253c3549f"/>
+      </transition>
+      <transition id="node_c7a1ce17-57ed-4952-b9c3-6d04cd73eb7c">
+        <name>
+          <text>CRP</text>
+        </name>
+      </transition>
+      <transition id="node_e013627e-5a28-466e-8550-6ba08d02f465">
+        <name>
+          <text>Admission NC</text>
+        </name>
+      </transition>
+      <transition id="sfl_node_87927a26-cceb-4467-8698-f3b09dbbaaaa">
+        <name>
+          <text>sfl_node_87927a26-cceb-4467-8698-f3b09dbbaaaa</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="0b29b7b5-9e8b-4439-874a-9263b6c3700d"/>
+      </transition>
+      <transition id="node_d5249e24-359f-4f88-888a-61851230f140">
+        <name>
+          <text>ER Sepsis Triage</text>
+        </name>
+      </transition>
+      <transition id="ab52560e-1c26-40f9-bba5-ccb5fb0fbe1a">
+        <name>
+          <text>ab52560e-1c26-40f9-bba5-ccb5fb0fbe1a</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="e194937c-90a4-4fd7-8f27-9b7c652d1db0"/>
+      </transition>
+      <transition id="node_ba218e32-32f2-4e74-94f3-d8e50c2d43a8">
+        <name>
+          <text>Release B</text>
+        </name>
+      </transition>
+      <transition id="node_b1623197-ccfa-47ed-a331-7a8b0ab16978">
+        <name>
+          <text>IV Liquid</text>
+        </name>
+      </transition>
+      <transition id="node_1c1d62ed-4a69-4053-87c4-ad7acb5b9c2e">
+        <name>
+          <text>Leucocytes</text>
+        </name>
+      </transition>
+      <transition id="node_9eaf1eaf-6230-427b-b857-856dd44bbc08">
+        <name>
+          <text>IV Antibiotics</text>
+        </name>
+      </transition>
+      <transition id="node_fb4cef2e-22b1-4ac0-ae74-5dde67cfd104">
+        <name>
+          <text>LacticAcid</text>
+        </name>
+      </transition>
+      <transition id="node_7d96fbbd-5349-43af-b979-e1dcc8ff250c">
+        <name>
+          <text>Release D</text>
+        </name>
+      </transition>
+      <transition id="node_3e307883-2814-4f45-9183-edc71ee0787c">
+        <name>
+          <text>ER Triage</text>
+        </name>
+      </transition>
+      <transition id="node_0a09d917-288c-4482-8b57-0645598c41b6">
+        <name>
+          <text>other</text>
+        </name>
+      </transition>
+      <transition id="sfl_node_2e2a5ffd-5175-4225-8c2c-2570a4850ee3">
+        <name>
+          <text>sfl_node_2e2a5ffd-5175-4225-8c2c-2570a4850ee3</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="de750fea-95a9-4a90-8e12-9204c7f2b4f0"/>
+      </transition>
+      <arc id="140615635347200" source="node_0a09d917-288c-4482-8b57-0645598c41b6" target="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393"/>
+      <arc id="140615635348736" source="ent_node_9536963c-c11d-41e6-b583-3b4da81c0349" target="node_1c1d62ed-4a69-4053-87c4-ad7acb5b9c2e"/>
+      <arc id="140615635325952" source="sfl_node_87927a26-cceb-4467-8698-f3b09dbbaaaa" target="ent_node_78d11d00-5a41-4399-8614-d0de8c64d35b"/>
+      <arc id="140615635327488" source="node_a541e554-1f5f-4bdb-8f71-5c1fb63b275c" target="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393"/>
+      <arc id="140615635346432" source="node_1bba4755-da4f-42bd-b214-19475695eb95" target="ent_node_9536963c-c11d-41e6-b583-3b4da81c0349"/>
+      <arc id="140615635347968" source="node_1c1d62ed-4a69-4053-87c4-ad7acb5b9c2e" target="exi_node_c055e8d5-fe68-4e8e-8f76-df746374f3fd"/>
+      <arc id="140615635328256" source="node_ba218e32-32f2-4e74-94f3-d8e50c2d43a8" target="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393"/>
+      <arc id="140615635349024" source="exi_node_fd0c7e95-1397-426d-8639-5781a27a2a38" target="node_0a09d917-288c-4482-8b57-0645598c41b6"/>
+      <arc id="140615635326240" source="node_3ed118b1-196e-49aa-b79b-6c7717090215" target="ent_node_2e8bd812-2ab3-4340-aaaf-10522b10c986"/>
+      <arc id="140615635239456" source="exi_node_c055e8d5-fe68-4e8e-8f76-df746374f3fd" target="sfl_node_2e2a5ffd-5175-4225-8c2c-2570a4850ee3"/>
+      <arc id="140615635348256" source="exi_node_8bb065a2-4d15-474a-b494-8d4c1a4f603a" target="node_ba218e32-32f2-4e74-94f3-d8e50c2d43a8"/>
+      <arc id="140615635347488" source="ab52560e-1c26-40f9-bba5-ccb5fb0fbe1a" target="exi_node_0ac7c5cc-3071-4520-babe-f2701a120944"/>
+      <arc id="140615635328064" source="sfl_node_219db237-ed8f-4248-bf0f-a5085e3bb8cb" target="ent_node_2e8bd812-2ab3-4340-aaaf-10522b10c986"/>
+      <arc id="140615635347008" source="node_3e307883-2814-4f45-9183-edc71ee0787c" target="ent_node_d5249e24-359f-4f88-888a-61851230f140"/>
+      <arc id="140615635348544" source="exi_node_17df8cab-f4f1-49d1-81af-9dea65f182d9" target="node_a541e554-1f5f-4bdb-8f71-5c1fb63b275c"/>
+      <arc id="140615635327296" source="sfl_node_230dd7a9-7585-437d-be5f-a7f1b9740a96" target="ent_node_88474ba9-a464-4706-bf1e-e528f0481e6c"/>
+      <arc id="140615635328832" source="node_d5249e24-359f-4f88-888a-61851230f140" target="exi_node_4e06dc42-436a-4e09-b857-ca7157242916"/>
+      <arc id="140615550672704" source="ent_node_d5249e24-359f-4f88-888a-61851230f140" target="node_d5249e24-359f-4f88-888a-61851230f140"/>
+      <arc id="140615635346240" source="node_005d9306-ce38-4482-a7b6-19493c16a4b2" target="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393"/>
+      <arc id="140615635349312" source="ent_node_88474ba9-a464-4706-bf1e-e528f0481e6c" target="node_b1623197-ccfa-47ed-a331-7a8b0ab16978"/>
+      <arc id="140615635347296" source="node_e013627e-5a28-466e-8550-6ba08d02f465" target="exi_node_0ba5398c-f25a-4da9-8887-652d0d93c9d3"/>
+      <arc id="140615635266912" source="exi_node_5d82021f-8ddd-4012-8b98-bd2f440a9d4f" target="sfl_node_9ddab448-b23f-47ca-ad2e-a3333335c2ee"/>
+      <arc id="140615635348832" source="ent_node_78d11d00-5a41-4399-8614-d0de8c64d35b" target="node_c7a1ce17-57ed-4952-b9c3-6d04cd73eb7c"/>
+      <arc id="140615550747744" source="exi_node_4e06dc42-436a-4e09-b857-ca7157242916" target="sfl_node_230dd7a9-7585-437d-be5f-a7f1b9740a96"/>
+      <arc id="140615635297376" source="exi_node_5d82021f-8ddd-4012-8b98-bd2f440a9d4f" target="sfl_node_c752d581-3b04-4d67-b7db-29624b11e610"/>
+      <arc id="140615635348064" source="sfl_node_dc06fc34-f9c0-4c63-bf00-d4cef07ac665" target="exi_node_5d82021f-8ddd-4012-8b98-bd2f440a9d4f"/>
+      <arc id="140615635328352" source="node_9eaf1eaf-6230-427b-b857-856dd44bbc08" target="exi_node_8b45aa15-9b7c-47c4-b047-c07231156129"/>
+      <arc id="140615635345760" source="sfl_node_c752d581-3b04-4d67-b7db-29624b11e610" target="exi_node_8bb065a2-4d15-474a-b494-8d4c1a4f603a"/>
+      <arc id="140615635348352" source="exi_node_8b45aa15-9b7c-47c4-b047-c07231156129" target="node_1bba4755-da4f-42bd-b214-19475695eb95"/>
+      <arc id="140615635346048" source="node_b1623197-ccfa-47ed-a331-7a8b0ab16978" target="ent_node_9eaf1eaf-6230-427b-b857-856dd44bbc08"/>
+      <arc id="140615635349120" source="exi_node_8b45aa15-9b7c-47c4-b047-c07231156129" target="node_e013627e-5a28-466e-8550-6ba08d02f465"/>
+      <arc id="140615635345568" source="sfl_node_e21a0380-eb2e-4033-8ba5-d2e95c90205e" target="ent_node_9536963c-c11d-41e6-b583-3b4da81c0349"/>
+      <arc id="140615635265184" source="exi_node_c055e8d5-fe68-4e8e-8f76-df746374f3fd" target="sfl_node_dc06fc34-f9c0-4c63-bf00-d4cef07ac665"/>
+      <arc id="140615635297952" source="exi_node_0ba5398c-f25a-4da9-8887-652d0d93c9d3" target="sfl_node_b7380d3e-9fa9-4abe-a1c1-89c510db0eab"/>
+      <arc id="140615635348640" source="exi_node_8bb065a2-4d15-474a-b494-8d4c1a4f603a" target="node_7d96fbbd-5349-43af-b979-e1dcc8ff250c"/>
+      <arc id="140615635242912" source="exi_node_17df8cab-f4f1-49d1-81af-9dea65f182d9" target="sfl_node_87927a26-cceb-4467-8698-f3b09dbbaaaa"/>
+      <arc id="140615550645920" source="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393" target="node_49c66936-90e6-4cbf-971e-38a26ebd0393"/>
+      <arc id="140615550719648" source="exi_node_0ac7c5cc-3071-4520-babe-f2701a120944" target="sfl_node_219db237-ed8f-4248-bf0f-a5085e3bb8cb"/>
+      <arc id="140615635349408" source="exi_node_0ac7c5cc-3071-4520-babe-f2701a120944" target="node_3ed118b1-196e-49aa-b79b-6c7717090215"/>
+      <arc id="140615635328928" source="node_c7a1ce17-57ed-4952-b9c3-6d04cd73eb7c" target="ent_node_9536963c-c11d-41e6-b583-3b4da81c0349"/>
+      <arc id="140615550718880" source="ent_node_9eaf1eaf-6230-427b-b857-856dd44bbc08" target="node_9eaf1eaf-6230-427b-b857-856dd44bbc08"/>
+      <arc id="140615635348928" source="ent_node_2e8bd812-2ab3-4340-aaaf-10522b10c986" target="node_3e307883-2814-4f45-9183-edc71ee0787c"/>
+      <arc id="140615550589632" source="source" target="ab52560e-1c26-40f9-bba5-ccb5fb0fbe1a"/>
+      <arc id="140615635348160" source="node_49c66936-90e6-4cbf-971e-38a26ebd0393" target="sink"/>
+      <arc id="140615635325376" source="sfl_node_b7380d3e-9fa9-4abe-a1c1-89c510db0eab" target="ent_node_78d11d00-5a41-4399-8614-d0de8c64d35b"/>
+      <arc id="140615635326912" source="sfl_node_2e2a5ffd-5175-4225-8c2c-2570a4850ee3" target="exi_node_17df8cab-f4f1-49d1-81af-9dea65f182d9"/>
+      <arc id="140615635347392" source="sfl_node_9ddab448-b23f-47ca-ad2e-a3333335c2ee" target="exi_node_fd0c7e95-1397-426d-8639-5781a27a2a38"/>
+      <arc id="140615550720224" source="exi_node_0ba5398c-f25a-4da9-8887-652d0d93c9d3" target="sfl_node_e21a0380-eb2e-4033-8ba5-d2e95c90205e"/>
+      <arc id="140615635328736" source="node_fb4cef2e-22b1-4ac0-ae74-5dde67cfd104" target="ent_node_88474ba9-a464-4706-bf1e-e528f0481e6c"/>
+      <arc id="140615635348448" source="exi_node_fd0c7e95-1397-426d-8639-5781a27a2a38" target="node_005d9306-ce38-4482-a7b6-19493c16a4b2"/>
+      <arc id="140615635347680" source="node_7d96fbbd-5349-43af-b979-e1dcc8ff250c" target="ent_node_49c66936-90e6-4cbf-971e-38a26ebd0393"/>
+      <arc id="140615635349216" source="exi_node_4e06dc42-436a-4e09-b857-ca7157242916" target="node_fb4cef2e-22b1-4ac0-ae74-5dde67cfd104"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>
