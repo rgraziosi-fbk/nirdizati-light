@@ -21,13 +21,13 @@ single_prefix = ['loreley','loreley_complex']
 
 
 
-def dice_augmentation(CONF, predictive_model, cf_df, encoder, df, query_instances, method, optimization, heuristic, support,
+def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
                  timestamp_col_name,model_path,total_traces=None,minority_class=None,case_ids=None,random_seed=None):
-    features_names = cf_df.columns.values[:-1]
+    features_names = df.columns.values[:-1]
     feature_selection = CONF['feature_selection']
     dataset = CONF['data'].rpartition('/')[0].replace('../datasets/','')
     black_box = predictive_model.model_type
-    categorical_features,continuous_features,cat_feature_index,cont_feature_index = split_features(cf_df.iloc[:,:-1], encoder)
+    categorical_features,continuous_features,cat_feature_index,cont_feature_index = split_features(df.iloc[:,:-1], encoder)
     if CONF['feature_selection'] == 'loreley':
         query_instances = query_instances[query_instances['prefix'] != 0]
     if CONF['feature_selection'] == 'frequency':
@@ -36,9 +36,9 @@ def dice_augmentation(CONF, predictive_model, cf_df, encoder, df, query_instance
         ratio_cont = len(continuous_features)/len(categorical_features)
     time_start = datetime.now()
     query_instances_for_cf = query_instances.iloc[:,:-1]
-    d = dice_ml.Data(dataframe=cf_df, continuous_features=continuous_features, outcome_name='label')
+    d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
-    dice_query_instance = dice_ml.Dice(d, m, method,encoder)
+    dice_query_instance = dice_ml.Dice(d, m, method)
     time_train = (datetime.now() - time_start).total_seconds()
     index_test_instances = range(len(query_instances_for_cf))
     total_cfs = 0
@@ -56,7 +56,7 @@ def dice_augmentation(CONF, predictive_model, cf_df, encoder, df, query_instance
         predicted_outcome = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_start_i = datetime.now()
         if method == 'genetic_conformance':
-            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, #desired_class='opposite',
+            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
                                                                        verbose=False,
                                                                        posthoc_sparsity_algorithm='linear',
                                                                        total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
@@ -64,7 +64,7 @@ def dice_augmentation(CONF, predictive_model, cf_df, encoder, df, query_instance
                                                                        heuristic=heuristic,random_seed=random_seed
                                                                        )
         elif method == 'multi_objective_genetic':
-            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, #desired_class='opposite',
+            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
                                                                        verbose=False,
                                                                        posthoc_sparsity_algorithm='linear',
                                                                        total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
@@ -72,7 +72,7 @@ def dice_augmentation(CONF, predictive_model, cf_df, encoder, df, query_instance
                                                                        heuristic=heuristic,random_seed=random_seed
                                                                        )
         else:
-            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_range=[0.15, 0.25], #desired_class='opposite',
+            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
                                                                        verbose=False,
                                                                        posthoc_sparsity_algorithm='linear',
                                                                        total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length'])#stopping_threshold=0.7
@@ -83,7 +83,7 @@ def dice_augmentation(CONF, predictive_model, cf_df, encoder, df, query_instance
         y_pred = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_test = (datetime.now() - time_start_i).total_seconds()
         '''
-        x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=cf_df,
+        x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
                                   nr_of_cfs=5,y_pred=y_pred,predictive_model=predictive_model,
                                   query_instances=query_instances,continuous_features=continuous_features,
                                   categorical_features=categorical_features,ratio_cont=ratio_cont

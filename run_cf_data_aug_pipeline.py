@@ -59,7 +59,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     best_candidates, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
         predictive_models,
         max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
-        target=CONF['hyperparameter_optimisation_target']
+        target=CONF['hyperparameter_optimisation_target'],
+        seed=CONF['seed']
     )
     best_model = predictive_models[best_model_idx]
     best_model.model = best_model_model
@@ -67,33 +68,37 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     logger.debug('COMPUTE EXPLANATION')
     if CONF['explanator'] is ExplainerType.DICE_AUGMENTATION.value:
         # set test df just with correctly predicted labels and make sure it's minority class
-        minority_class = np.argmin(full_df['label'].value_counts())
+        minority_class = full_df['label'].value_counts().idxmin()
+        majority_class = full_df['label'].value_counts().idxmax()
+
         predicted_train = best_model.model.predict(drop_columns(train_df))
+        predicted= best_model.model.predict(drop_columns(test_df))
         if best_model.model_type in [item.value for item in ClassificationMethods]:
-            train_df_correct = train_df[(train_df['label'] == predicted_train) & (train_df['label'] != minority_class)]
-            test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] != minority_class)]
+            train_df_correct = train_df[(train_df['label'] == predicted_train) & (train_df['label'] == majority_class)]
+            test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] == majority_class)]
         else:
             train_df_correct = train_df
             test_df_correct = test_df
         cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
         full_df = pd.concat([train_df, val_df, test_df])
         cf_dataset.loc[len(cf_dataset)] = 0
+        augmentation_factor = CONF['augmentation_factor']
         #methods = ['genetic_conformance']
         #optimizations = ['filtering','loss_function']
-        total_traces = len(full_df[full_df['label']!=minority_class])-len(full_df[full_df['label']==minority_class])
+        ## TOTAL TRACES = HOW MANY TO GENERATE, ADD AUGMENTATION FACTOR INSTEAD
+        total_traces = augmentation_factor * len(full_df[full_df['label']==majority_class])
         method = 'genetic'
         optimization = 'baseline'
         heuristic = 'heuristic_2'
         model_path = '../experiments/process_models/process_models'
         support = 1.0
         import itertools
-        if encoding in ['simple','simple_trace']:
+        if CONF['feature_selection'] in ['simple','simple_trace']:
             cols = ['prefix']
-        elif encoding == 'complex':
+        elif CONF['feature_selection']:
             cols = [*dataset_confs.dynamic_num_cols.values(), *dataset_confs.dynamic_cat_cols.values()]
             cols = list(itertools.chain.from_iterable(cols))
             cols.append('time:timestamp')
-            cols.remove('Activity')
             cols.append('prefix')
             cols.append('lifecycle:transition')
         simulated_cfs = None
@@ -173,7 +178,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_df['label'] = predicted_simulated
             updated_train_df = simulated_df
         else:
-            df_cf = explain(CONF, best_model, encoder=encoder, cf_df=full_df.iloc[:, 1:],
+            df_cf = explain(CONF, best_model, encoder=encoder,
                             query_instances=train_df_correct,
                             method=method, df=full_df.iloc[:, 1:], optimization=optimization,
                             heuristic=heuristic, support=support,
@@ -188,18 +193,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             updated_df = pd.concat([train_df,df_cf,test_df,val_df], ignore_index=True)
             updated_df['trace_id'] = updated_df.index
             encoder.decode(updated_df)
-            #updated_df.drop(columns=['trace'], inplace=True)
-            #updated_df.insert(loc=0, column='follow_id', value=np.divmod(np.arange(len(updated_df)), 1)[0] + 1)
-            long_data = pd.wide_to_long(train_df, stubnames=cols, i='trace_id',
-                                        j='order', sep='_', suffix=r'\w+')
-            long_data_sorted = long_data.sort_values(['trace_id', 'order'], ).reset_index(drop=False)
-            long_data_sorted.drop(columns=['order'], inplace=True)
-            columns_to_rename = {'trace_id': 'case:concept:name'}
-            columns_to_rename.update({'prefix': 'concept:name'})
-            long_data_sorted.rename(columns=columns_to_rename, inplace=True)
-            long_data_sorted['label'].replace({'regular': 'false', 'deviant': 'true'}, inplace=True)
-            long_data_sorted.replace('0', 'other', inplace=True)
-            train_log = convert_to_event_log(long_data_sorted)
 
             encoder.decode(train_df)
             encoder.decode(df_cf)
@@ -212,78 +205,53 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             updated_train_df = pd.concat([train_df,df_cf], ignore_index=True)
             encoder.encode(updated_train_df)
 
-
-        predictive_model_new = PredictiveModel(CONF, CONF['predictive_model'], updated_train_df, val_df)
-        predictive_model_new.model, predictive_model_new.config = retrieve_best_model(
-            predictive_model_new,
-            CONF['predictive_model'],
-            max_evaluations=CONF['hyperparameter_optimisation_epochs'],
-            target=CONF['hyperparameter_optimisation_target'],seed=CONF['seed']
+        predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
+                             CONF['predictive_models']]
+        best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
+            predictive_models_new,
+            max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
+            target=CONF['hyperparameter_optimisation_target'],
+            seed=CONF['seed']
         )
-        if predictive_model_new.model_type is ClassificationMethods.LSTM.value:
-            probabilities = predictive_model_new.model.predict(get_tensor(CONF, drop_columns(test_df)))
-            predicted = np.argmax(probabilities, axis=1)
-            scores = np.amax(probabilities, axis=1)
-        elif (predictive_model.model_type in [item.value for item in ClassificationMethods]) & (
-                        predictive_model.model_type not in (ClassificationMethods.LSTM.value)):
-            predicted_new = predictive_model_new.model.predict(drop_columns(test_df))
-            scores_new = predictive_model_new.model.predict_proba(drop_columns(test_df))[:, 1]
-        elif predictive_model.model_type in [item.value for item in RegressionMethods]:
-            predicted_new = predictive_model_new.model.predict(drop_columns(test_df))
-            new_result = evaluate_regressor(actual, predicted_new)
-            print('initial result regressor', initial_result,'new result regressor',new_result)
-        if predictive_model_new.model_type is ClassificationMethods.LSTM.value:
-            actual = np.array(actual.to_list())
+
+        best_model_new = predictive_models_new[best_model_idx_new]
+        best_model.model = best_model_model_new
+        best_model.config = best_model_config_new
+
+        #print('Original model',initial_result,'\n','Updated model with original test set',new_result,'\n')
+        import json
+        if os.path.exists('model_performances.txt'):
+            with open('model_performances.txt', 'a') as data:
+                for id, _ in enumerate(best_candidates):
+                    data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
+                    data.write('Augmented results '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
+                    data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
+                data.close()
         else:
-            actual = test_df['label']
-
-        new_result = evaluate_classifier(actual, predicted_new, scores_new)
-
-        print('Original model',initial_result,'\n','Updated model with original test set',new_result,'\n')
-
+            with open('model_performances.txt', 'w') as data:
+                for id, _ in enumerate(best_candidates):
+                    print(best_candidates[id].get('result'))
+                    data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
+                    data.write('Augmented results '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
+                    data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
+                data.close()
 
     from sklearn.metrics import confusion_matrix
 
-    print("OLD RESULTS")
-    print(confusion_matrix(actual, predicted))
-    tn, fp, fn, tp = confusion_matrix(actual, predicted).ravel()
-    print("TN", tn, "FP", fp, "FN", fn, "TP", tp)
-
-
-    print("NEW RESULTS")
-    print(confusion_matrix(actual, predicted_new))
-    tn, fp, fn, tp = confusion_matrix(actual, predicted_new).ravel()
-    print("TN", tn, "FP", fp, "FN", fn, "TP", tp)
-
-    import matplotlib.pyplot as plt
-    forest_importances = pd.Series(predictive_model.model.feature_importances_, index=drop_columns(train_df).columns)
-
-    fig, ax = plt.subplots()
-    std = np.std([tree.feature_importances_ for tree in predictive_model.model.estimators_], axis=0)
-    ax.set_title("Feature importances using MDI")
-    ax.set_ylabel("Mean decrease in impurity")
-    fig.tight_layout()
-    forest_importances.plot.bar(yerr=std, ax=ax)
-
-    test_log = pm4py.filter_trace_attribute_values(log, 'concept:name', train_df['trace_id'].values, retain=True)
-    print(len(test_log), len(log))
-    pm4py.write_xes(test_log, os.path.join('..','experiments','test_log.xes'))
-    #pm4py.write_xes(test_log, os.path.join('..','output_data','test_log.xes'))
-
     logger.info('RESULT')
-    logger.info('INITIAL', initial_result)
+    #logger.info('INITIAL', initial_result)
     logger.info('Done, cheers!')
 
     #return {'initial_result', initial_result, 'predictive_model.config', predictive_model.config}
 
 
 if __name__ == '__main__':
-    dataset_list = [
+    dataset_list = {
         # 'hospital_billing_2',
         # 'hospital_billing_3'
          #'synthetic_data',
         #'bpi2012_W_One_TS',
-        'sepsis_cases_1_start',
+        'sepsis_cases_1_start_update':[5,7,9,11,13,15],
         #'BPIC15_1_f2',
         #'BPIC15_2_f2'
         #'BPIC15_3_f2',
@@ -298,28 +266,31 @@ if __name__ == '__main__':
         #'sepsis_cases_4',
         #'legal_complaints',
          #'BPIC17_O_ACCEPTED',
-    ]
-    for dataset in dataset_list:
-        CONF = {  # This contains the configuration for the run
-            'data': os.path.join('..', 'datasets', dataset, 'full.xes'),
-            'train_val_test_split': [0.7, 0.15, 0.15],
-            'output': os.path.join('..', 'output_data'),
-            'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
-            'prefix_length': 10,
-            'padding': True,  # TODO, why use of padding?
-            'feature_selection': EncodingType.COMPLEX.value,
-            'task_generation_type': TaskGenerationType.ONLY_THIS.value,
-            'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
-            'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-            'predictive_models': [ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
-            'explanator': ExplainerType.DICE_AUGMENTATION.value,  # SHAP, LRP, ICE, DICE
-            'threshold': 13,
-            'top_k': 10,
-            'hyperparameter_optimisation': False,  # TODO, this parameter is not used
-            'hyperparameter_optimisation_target': HyperoptTarget.MAE.value,
-            'hyperparameter_optimisation_evaluations': 20,
-            'time_encoding': TimeEncodingType.NONE.value,
-            'target_event': None,
-            'seed': 42,
-        }
-        run_simple_pipeline(CONF=CONF, dataset_name=dataset)
+    }
+    for dataset,prefix_lengths in dataset_list.items():
+        for prefix in prefix_lengths:
+            for augmentation_factor in [0.3,0.5,0.7]:
+                CONF = {  # This contains the configuration for the run
+                    'data': os.path.join('..', 'datasets', dataset, 'full.xes'),
+                    'train_val_test_split': [0.7, 0.15, 0.15],
+                    'output': os.path.join('..', 'output_data'),
+                    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+                    'prefix_length': prefix,
+                    'padding': True,  # TODO, why use of padding?
+                    'feature_selection': EncodingType.COMPLEX.value,
+                    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+                    'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
+                    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
+                    'predictive_models': [ClassificationMethods.XGBOOST.value,ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'explanator': ExplainerType.DICE_AUGMENTATION.value,
+                    'augmentation_factor':augmentation_factor,# SHAP, LRP, ICE, DICE
+                    'threshold': 13,
+                    'top_k': 10,
+                    'hyperparameter_optimisation': False,  # TODO, this parameter is not used
+                    'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
+                    'hyperparameter_optimisation_evaluations': 20,
+                    'time_encoding': TimeEncodingType.NONE.value,
+                    'target_event': None,
+                    'seed': 42,
+                }
+                run_simple_pipeline(CONF=CONF, dataset_name=dataset)
