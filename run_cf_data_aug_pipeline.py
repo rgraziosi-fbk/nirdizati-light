@@ -71,7 +71,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         # set test df just with correctly predicted labels and make sure it's minority class
         minority_class = full_df['label'].value_counts().idxmin()
         majority_class = full_df['label'].value_counts().idxmax()
-
         predicted_train = best_model.model.predict(drop_columns(train_df))
         if best_model.model_type in [item.value for item in ClassificationMethods]:
             train_df_correct = train_df[(train_df['label'] == predicted_train) & (train_df['label'] == majority_class)]
@@ -79,7 +78,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             train_df_correct = train_df
         full_df = pd.concat([train_df, val_df, test_df])
         augmentation_factor = CONF['augmentation_factor']
-        total_traces = augmentation_factor * len(full_df[full_df['label']==majority_class])
+        total_traces = augmentation_factor * len(train_df[train_df['label']==majority_class])
         model_path = '../experiments/process_models/process_models'
         support = 1.0
         import itertools
@@ -99,7 +98,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                         timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
                         model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces,
                         minority_class=minority_class
-                        # ,case_ids=case_ids
                         )
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
