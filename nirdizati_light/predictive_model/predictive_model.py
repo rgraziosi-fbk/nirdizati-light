@@ -52,6 +52,9 @@ class PredictiveModel:
             self.train_label = shape_label_df(self.full_train_df)
             self.validate_label = shape_label_df(self.full_validate_df)
             self.test_label = shape_label_df(self.full_test_df)
+        elif model_type is ClassificationMethods.XGBOOST.value:
+            prefix_columns = [col for col in self.train_df.columns if 'prefix' in col]
+            self.train_df[prefix_columns] = self.train_df[prefix_columns].astype('category')
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()
@@ -97,7 +100,8 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.KNN.value:
             model = KNeighborsClassifier(**config)
         elif self.model_type == ClassificationMethods.XGBOOST.value:
-            model = XGBClassifier(**config)
+            model = XGBClassifier(**config,enable_categorical=True,
+                                  tree_method='hist')
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
         elif self.model_type == ClassificationMethods.PERCEPTRON.value:

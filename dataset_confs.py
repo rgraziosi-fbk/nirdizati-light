@@ -283,7 +283,7 @@ class DatasetConfs:
             self.static_cat_cols = {dataset: []}
             self.dynamic_num_cols = {dataset: ["start:timestamp"]}
             self.static_num_cols = {dataset: ['AMOUNT_REQ']}
-        elif dataset_name in ["sepsis_cases_1_start"]:
+        elif dataset_name in ["sepsis_cases_1_start",'sepsis_cases_1_start_update']:
             #### Sepsis Cases settings ####
             dataset = dataset_name
             if where_is_the_file != '':
