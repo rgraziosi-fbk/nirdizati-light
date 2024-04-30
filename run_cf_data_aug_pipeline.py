@@ -16,6 +16,7 @@ from nirdizati_light.log.common import get_log
 from nirdizati_light.predictive_model.common import ClassificationMethods, get_tensor, RegressionMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
 import random
+import json
 from pm4py import convert_to_event_log, write_xes
 from dataset_confs import DatasetConfs
 
@@ -219,7 +220,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         best_model.config = best_model_config_new
 
         #print('Original model',initial_result,'\n','Updated model with original test set',new_result,'\n')
-        import json
         if os.path.exists('model_performances.txt'):
             with open('model_performances.txt', 'a') as data:
                 for id, _ in enumerate(best_candidates):
@@ -236,8 +236,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                     data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
                 data.close()
 
-    from sklearn.metrics import confusion_matrix
-
     logger.info('RESULT')
     #logger.info('INITIAL', initial_result)
     logger.info('Done, cheers!')
@@ -251,7 +249,7 @@ if __name__ == '__main__':
         # 'hospital_billing_3'
          #'synthetic_data',
         #'bpi2012_W_One_TS',
-        'sepsis_cases_1_start_update':[5,7,9,11,13,15],
+        'sepsis_cases_1_start':[5, 7, 9, 11, 12, 14],
         #'BPIC15_1_f2',
         #'BPIC15_2_f2'
         #'BPIC15_3_f2',
@@ -271,7 +269,7 @@ if __name__ == '__main__':
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3,0.5,0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('..', 'datasets', dataset, 'full.xes'),
+                    'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
