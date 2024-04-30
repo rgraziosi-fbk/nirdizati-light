@@ -175,7 +175,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                         for x in range(len(cols)):
                             del simulated_log[i][j]._dict[cols[x]]
             encoder, simulated_df = get_encoded_df(log=simulated_log,encoder=encoder,CONF=CONF)
-            predicted_simulated = predictive_model.model.predict(drop_columns(simulated_df))
+            predicted_simulated = best_model.model.predict(drop_columns(simulated_df))
             simulated_df['label'] = predicted_simulated
             updated_train_df = simulated_df
         else:
