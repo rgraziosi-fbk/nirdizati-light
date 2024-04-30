@@ -51,7 +51,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
               '%.2f' % (test_id+1 / len(index_test_instances)))
         x = query_instances_for_cf.sample(n=1,replace=False)
         case_id = x.iloc[0, 0]
-        k = 10
+        k = 5
         x = x.iloc[:, 1:]
         predicted_outcome = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_start_i = datetime.now()
