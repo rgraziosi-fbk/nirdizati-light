@@ -102,9 +102,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
 
-        train_df.to_csv(os.path.join('..','experiments',dataset_name + 'train_df.csv'))
+        train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
         df_cf['trace_id'] = df_cf.index
-        df_cf.to_csv(os.path.join('..','experiments',dataset_name + '_cf.csv'), index=False)
+        df_cf.to_csv(os.path.join('experiments',dataset_name + '_cf.csv'), index=False)
 
         updated_train_df = pd.concat([train_df,df_cf], ignore_index=True)
         encoder.encode(updated_train_df)
