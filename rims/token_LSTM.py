@@ -43,7 +43,7 @@ class Token(object):
             yield resource_trace_request
 
             buffer = [self.id, event[0]]
-            buffer.append(str(self.start_time + timedelta(seconds=env.now)))
+            buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for waiting time
             role = self.params.RESOURCE_ROLE[str(event[2])]
             resource = self.process.get_single_resource(str(event[2]))  ## ruolo
@@ -71,7 +71,7 @@ class Token(object):
             resource_task = self.process.get_resource_event(event[0])
             resource_task_request = resource_task.request()
             yield resource_task_request
-            buffer.append(str(self.start_time + timedelta(seconds=env.now)))
+            buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for processing time
             pr_wip = self.pr_wip_initial + resource_trace.count
             #rp_oc = self.process.get_occupations_resource(resource.get_name())
@@ -86,7 +86,7 @@ class Token(object):
                 if event[1] < 0:
                     event[1] = 0
                 yield env.timeout(event[1])
-            buffer.append(str(self.start_time + timedelta(seconds=env.now)))
+            buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             buffer.append(resource.get_name())
             buffer.append(pr_wip_wait)
             buffer.append(ac_wip)
