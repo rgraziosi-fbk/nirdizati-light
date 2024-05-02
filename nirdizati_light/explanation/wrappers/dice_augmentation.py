@@ -8,8 +8,8 @@ from scipy.spatial.distance import _validate_vector
 from scipy.spatial.distance import cdist, pdist
 from scipy.stats import median_abs_deviation
 from pm4py import convert_to_event_log
-from declare4py.declare4py import Declare4Py
-from declare4py.enums import TraceState
+#from declare4py.declare4py import Declare4Py
+#from declare4py.enums import TraceState
 
 from nirdizati_light.predictive_model.common import ClassificationMethods,RegressionMethods
 
@@ -34,8 +34,6 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         ratio_cont = 1
     else:
         ratio_cont = len(continuous_features)/len(categorical_features)
-    d4py = Declare4Py()
-
     time_start = datetime.now()
     query_instances_for_cf = query_instances.iloc[:,:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
@@ -84,7 +82,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         cf_list = np.array(generated_cfs).astype('float64')
         y_pred = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_test = (datetime.now() - time_start_i).total_seconds()
-
+        '''
         x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
                                   nr_of_cfs=5,y_pred=y_pred,predictive_model=predictive_model,
                                   query_instances=query_instances,continuous_features=continuous_features,
@@ -104,7 +102,8 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         x_eval['prefix_length'] = CONF['prefix_length']
         x_eval['heuristic'] = heuristic
         x_eval['optimization']  = optimization
-
+        x_eval_list.append(x_eval)
+        '''
         if cf_list.size > 4:
             if method == 'random':
                 cf_list = cf_list[:, :-1]
@@ -114,25 +113,21 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                 cf_list = cf_list[:, :-1]
             elif method == 'multi_objective_genetic':
                 cf_list = cf_list[:, :-1]
-
+            '''
             df_conf = pd.DataFrame(data=cf_list, columns=features_names)
             sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
                                           d4py=d4py, query_instance=x, model_path=model_path,
                                           timestamp_col_name=timestamp_col_name)
             x_eval['sat_score'] = sat_score
-
+            '''
             cf_list_all.extend(cf_list)
             desired_cfs = [float(k) * np.ones_like(cf_list[0])]
             case_ids.extend([case_id] * len(cf_list))
             desired_cfs_all.extend(*desired_cfs)
-        x_eval_list.append(x_eval)
         total_cfs += k
         print('Total generated',total_cfs,'/',total_traces)
         if total_traces <= total_cfs:
             break
-        result_dataframe = pd.DataFrame(data=x_eval_list)
-        result_dataframe = result_dataframe[columns]
-
     if len(cf_list_all) > 0:
         df_cf = pd.DataFrame(data=cf_list_all, columns=features_names)
         df_cf['label'] = predictive_model.model.predict(cf_list_all)
@@ -154,7 +149,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
        #     df_cf['case_id'] = case_ids[i]
        # else:
             #df_cf['Case ID'] = x.iloc[0] * len(cf_list_all)
-    return df_cf,result_dataframe
+    return df_cf
 
 def dice_model(predictive_model):
     if predictive_model.model_type is ClassificationMethods.RANDOM_FOREST.value:
@@ -184,52 +179,40 @@ def evaluate_cf_list(cf_list, query_instance, cont_feature_index,cat_feature_ind
     if cf_list.size > 4:
         nbr_cf_ = len(cf_list)
         nbr_features = cf_list.shape[1]
-        plausibility_sum = plausibility(query_instance, predictive_model, cf_list,nr_of_cfs, y_pred,
+        plausibility_sum = plausibility(query_instance, predictive_model, cf_list,nr_of_cfs, query_instances, y_pred,
                                         cont_feature_index,cat_feature_index, df, ratio_cont
                                        )
         plausibility_max_nbr_cf_ = plausibility_sum / nr_of_cfs
         plausibility_nbr_cf_ = plausibility_sum / nbr_cf_
         distance_l2_ = continuous_distance(query_instance, cf_list, cont_feature_index, metric='euclidean', X=df)
         distance_mad_ = continuous_distance(query_instance, cf_list, cont_feature_index, metric='mad', X=df)
-        distance_j_ = categorical_distance(query_instance.astype('int'), cf_list, cat_feature_index, metric='jaccard')
-        distance_h_ = categorical_distance(query_instance.astype('int'), cf_list, cat_feature_index, metric='hamming')
-        distance_l2j_ = distance_l2j(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index)
-        distance_l1j_ = distance_l1j(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index)
-        distance_mh_ = distance_mh(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index, df)
+        distance_j_ = categorical_distance(query_instance, cf_list, cat_feature_index, metric='jaccard')
+        distance_h_ = categorical_distance(query_instance, cf_list, cat_feature_index, metric='hamming')
+        distance_l2j_ = distance_l2j(query_instance, cf_list, cont_feature_index, cat_feature_index)
+        distance_l1j_ = distance_l1j(query_instance, cf_list, cont_feature_index, cat_feature_index)
+        distance_mh_ = distance_mh(query_instance, cf_list, cont_feature_index, cat_feature_index, df)
 
-        distance_l2_min_ = continuous_distance(query_instance.astype('int'), cf_list, cont_feature_index,
-                                               metric='euclidean', X=df,
+        distance_l2_min_ = continuous_distance(query_instance, cf_list, cont_feature_index, metric='euclidean', X=df,
                                                agg='min')
-        distance_mad_min_ = continuous_distance(query_instance.astype('int'), cf_list, cont_feature_index, metric='mad',
-                                                X=df, agg='min')
-        distance_j_min_ = categorical_distance(query_instance.astype('int'), cf_list, cat_feature_index,
-                                               metric='jaccard', agg='min')
-        distance_h_min_ = categorical_distance(query_instance.astype('int'), cf_list, cat_feature_index,
-                                               metric='hamming', agg='min')
-        distance_l2j_min_ = distance_l2j(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index,
+        distance_mad_min_ = continuous_distance(query_instance, cf_list, cont_feature_index, metric='mad', X=df, agg='min')
+        distance_j_min_ = categorical_distance(query_instance, cf_list, cat_feature_index, metric='jaccard', agg='min')
+        distance_h_min_ = categorical_distance(query_instance, cf_list, cat_feature_index, metric='hamming', agg='min')
+        distance_l2j_min_ = distance_l2j(query_instance, cf_list, cont_feature_index, cat_feature_index,
                                          agg='min')
-        distance_l1j_min_ = distance_l1j(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index,
+        distance_l1j_min_ = distance_l1j(query_instance, cf_list, cont_feature_index, cat_feature_index,
                                          agg='min')
-        distance_mh_min_ = distance_mh(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index, df,
-                                       agg='min')
+        distance_mh_min_ = distance_mh(query_instance, cf_list, cont_feature_index, cat_feature_index, df,agg='min')
 
-        distance_l2_max_ = continuous_distance(query_instance.astype('int'), cf_list, cont_feature_index,
-                                               metric='euclidean', X=df, agg='max')
-        distance_mad_max_ = continuous_distance(query_instance.astype('int'), cf_list, cont_feature_index, metric='mad',
-                                                X=df, agg='max')
-        distance_j_max_ = categorical_distance(query_instance.astype('int'), cf_list, cat_feature_index,
-                                               metric='jaccard', agg='max')
-        distance_h_max_ = categorical_distance(query_instance.astype('int'), cf_list, cat_feature_index,
-                                               metric='hamming', agg='max')
-        distance_l2j_max_ = distance_l2j(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index,
-                                         agg='max')
-        distance_l1j_max_ = distance_l1j(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index,
-                                         agg='max')
+        distance_l2_max_ = continuous_distance(query_instance, cf_list, cont_feature_index, metric='euclidean', X=df, agg='max')
+        distance_mad_max_ = continuous_distance(query_instance, cf_list, cont_feature_index, metric='mad', X=df, agg='max')
+        distance_j_max_ = categorical_distance(query_instance, cf_list, cat_feature_index, metric='jaccard', agg='max')
+        distance_h_max_ = categorical_distance(query_instance, cf_list, cat_feature_index, metric='hamming', agg='max')
+        distance_l2j_max_ = distance_l2j(query_instance, cf_list, cont_feature_index, cat_feature_index, agg='max')
+        distance_l1j_max_ = distance_l1j(query_instance, cf_list, cont_feature_index, cat_feature_index, agg='max')
 
-        distance_mh_max_ = distance_mh(query_instance.astype('int'), cf_list, cont_feature_index, cat_feature_index,
-                                       X=df, agg='max')
-        avg_nbr_changes_per_cf_ = avg_nbr_changes_per_cf(query_instance.astype('int'), cf_list, continuous_features)
-        avg_nbr_changes_ = avg_nbr_changes(query_instance.astype('int'), cf_list, nbr_features, continuous_features)
+        distance_mh_max_ = distance_mh(query_instance, cf_list, cont_feature_index, cat_feature_index, X=df, agg='max')
+        avg_nbr_changes_per_cf_ = avg_nbr_changes_per_cf(query_instance, cf_list, continuous_features)
+        avg_nbr_changes_ = avg_nbr_changes(query_instance, cf_list, nbr_features, continuous_features)
         if len(cf_list) > 1:
             diversity_l2_ = continuous_diversity(cf_list, cont_feature_index, metric='euclidean', X=df)
             diversity_mad_ = continuous_diversity(cf_list, cont_feature_index, metric='mad', X=df)
@@ -597,24 +580,23 @@ def avg_nbr_changes(x, cf_list, nbr_features, continuous_features):
     nbr_cf, _ = cf_list.shape
     return val / (nbr_cf * nbr_features)
 
-def plausibility(query_instance, predictive_model, cf_list,nr_of_cfs,
+def plausibility(query_instance, predictive_model, cf_list,nr_of_cfs, query_instances,
                  y_pred, continuous_features, categorical_features, df, ratio_cont):
-    distances = []
-    full_df = df
+    sum_dist = 0.0
+    full_df = pd.concat([query_instances,df],ignore_index=False)
     for cf in cf_list:
-        #X_y = full_df[full_df['label'] == y_pred]
+        #X_y = full_df[full_df['label'] == y_label]
         X_y = full_df
         # neigh_dist = exp.cdist(x.reshape(1, -1), X_test_y)
-        neigh_dist = distance_mh(np.array(query_instance).astype('int'), X_y.to_numpy().astype('int'), continuous_features,
-                        categorical_features, df.astype('int'), ratio_cont)
+        neigh_dist = distance_mh(query_instance.reshape(1, -1), X_y.to_numpy(), continuous_features,
+                        categorical_features, df, ratio_cont)
         idx_neigh = np.argsort(neigh_dist)[0]
         # closest_idx = closest_idx = idx_neigh[0]
         # closest = X_test_y[closest_idx]
         closest = X_y.to_numpy()[idx_neigh]
-        d = distance_mh(cf.reshape(1,-1).astype('int'), closest.reshape(1, -1).astype('int'), continuous_features,
-                        categorical_features, df.astype('int'), ratio_cont)
-        distances.append(d)
-    sum_dist = sum(distances)
+        d = distance_mh(cf.reshape(1,-1), closest.reshape(1, -1), continuous_features,
+                        categorical_features, df, ratio_cont)
+        sum_dist += d
     return sum_dist
 
 def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_instance, model_path, timestamp_col_name):
@@ -627,22 +609,18 @@ def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_in
     encoder.decode(df)
     df.insert(loc=0, column='Case ID', value=np.divmod(np.arange(len(df)), 1)[0] + 1)
     df.insert(loc=1, column='label', value=1)
-    df.drop(columns=[col for col in df.columns if 'time' in col], inplace=True)
     query_instance_to_decode.insert(loc=0, column='Case ID',
                                     value=np.divmod(np.arange(len(query_instance_to_decode)), 1)[0] + 1)
     query_instance_to_decode.insert(loc=1, column='label', value=1)
 
     long_data = pd.wide_to_long(df, stubnames=['prefix'], i='Case ID',
                                 j='order', sep='_', suffix=r'\w+')
-
     long_query_instance = pd.wide_to_long(query_instance_to_decode, stubnames=['prefix'], i='Case ID',
                                           j='order', sep='_', suffix=r'\w+')
     long_query_instance_sorted = long_query_instance.sort_values(['Case ID', 'order'], ).reset_index(drop=False)
     timestamps = pd.date_range('1/1/2011', periods=len(long_data), freq='H')
-    timestamps_query = pd.date_range('1/1/2011', periods=len(long_query_instance), freq='H')
     long_data_sorted = long_data.sort_values(['Case ID', 'order'], ).reset_index(drop=False)
     long_data_sorted[timestamp_col_name] = timestamps
-    long_query_instance_sorted[timestamp_col_name] = timestamps_query
     long_data_sorted['label'].replace({1: 'regular'}, inplace=True)
     long_data_sorted.drop(columns=['order'], inplace=True)
     columns_to_rename = {'Case ID': 'case:concept:name'}
@@ -653,8 +631,6 @@ def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_in
     long_query_instance_sorted.rename(columns=columns_to_rename, inplace=True)
     long_query_instance_sorted['label'].replace({'regular': 'false', 'deviant': 'true'}, inplace=True)
     long_query_instance_sorted.replace('0', 'other', inplace=True)
-    long_data_sorted['case:concept:name'] = long_data_sorted['case:concept:name'].astype('str')
-    long_query_instance_sorted['case:concept:name'] = long_query_instance_sorted['case:concept:name'].astype('str')
     event_log = convert_to_event_log(long_data_sorted)
     query_log = convert_to_event_log(long_query_instance_sorted)
     d4py.load_xes_log(event_log)

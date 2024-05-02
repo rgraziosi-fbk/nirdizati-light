@@ -142,6 +142,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
             x_eval['prefix_length'] = CONF['prefix_length']
             x_eval['heuristic'] = heuristic
             x_eval['optimization']  = optimization
+            x_eval_list.append(x_eval)
             if cf_list.size > 4:
                 if method == 'random':
                     cf_list = cf_list[:, :-1]
@@ -161,7 +162,6 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
                 desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
 
                 desired_cfs_all.extend(*desired_cfs)
-            x_eval_list.append(x_eval)
         try:
             if not os.path.exists(path_results+'_'+str(support)+'/'):
                 os.makedirs(path_results+'_'+str(support)+'/')
@@ -505,9 +505,9 @@ def continuous_distance(query_instance, cf_list, cont_feature_index, metric='euc
 
         def _mad_cityblock(u, v):
             return mad_cityblock(u, v, mad)
-        dist = cdist(np.array(query_instance,dtype='float')[:, cont_feature_index], cf_list[:, cont_feature_index], metric=_mad_cityblock)
+        dist = cdist(query_instance[:, cont_feature_index], cf_list[:, cont_feature_index], metric=_mad_cityblock)
     else:
-        dist = cdist(np.array(query_instance,dtype='float')[:, cont_feature_index], cf_list[:, cont_feature_index], metric=metric)
+        dist = cdist(query_instance[:, cont_feature_index], cf_list[:, cont_feature_index], metric=metric)
 
     if agg is None or agg == 'mean':
         return np.mean(dist)
