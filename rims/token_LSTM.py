@@ -7,6 +7,7 @@ from rims.checking_process import SimulationProcess
 from pm4py.objects.petri_net import semantics
 from rims.MAINparameters import*
 
+SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes']
 
 class Token(object):
 
@@ -44,7 +45,6 @@ class Token(object):
             buffer = [self.id, event[0]]
             buffer.append(str(self.start_time + timedelta(seconds=env.now)))
             ### call predictor for waiting time
-            #print(event)
             role = self.params.RESOURCE_ROLE[str(event[2])]
             resource = self.process.get_single_resource(str(event[2]))  ## ruolo
 
@@ -91,11 +91,11 @@ class Token(object):
             buffer.append(pr_wip_wait)
             buffer.append(ac_wip)
             buffer.append(queue)
-            #if self.contrafactual is not False and self.contrafactual!=[]:
-            #    buffer.append(self.contrafactual[0][2])
-            #else:
-            #    print(self.id, event)
-            buffer.append(event[4])
+            #### event attributes
+            print(event[-2])
+            for a in SEPSIS_ATTRIB_EVENT:
+                buffer.append(event[-2][a])
+            buffer.append(event[-1])
             resource.release(request_resource)
             resource_task.release(resource_task_request)
             print(*buffer)

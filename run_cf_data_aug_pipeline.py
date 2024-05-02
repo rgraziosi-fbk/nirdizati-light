@@ -19,6 +19,8 @@ import random
 import json
 from pm4py import convert_to_event_log, write_xes
 from dataset_confs import DatasetConfs
+from run_simulation import run_simulation
+import ast
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -49,11 +51,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     val_size = CONF['train_val_test_split'][1]
     test_size = CONF['train_val_test_split'][2]
     if train_size + val_size + test_size != 1.0:
-        raise Exception('Train-val-test split does not sum up to 1')
+        raise Exception('Train-val-test split doese  not sum up to 1')
 
     full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Resource')))]
     full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Activity')))]
-    train_df,val_df,test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
+    train_df, val_df, test_df = np.split(full_df, [int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
 
     predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df) for predictive_model in
                          CONF['predictive_models']]
@@ -82,7 +84,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         model_path = '../experiments/process_models/process_models'
         support = 1.0
         import itertools
-        if CONF['feature_selection'] in ['simple','simple_trace']:
+        if CONF['feature_selection'] in ['simple', 'simple_trace']:
             cols = ['prefix']
         elif CONF['feature_selection']:
             cols = [*dataset_confs.dynamic_num_cols.values(), *dataset_confs.dynamic_cat_cols.values()]
@@ -107,7 +109,35 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf.to_csv(os.path.join('experiments',dataset_name + '_cf.csv'), index=False)
 
         updated_train_df = pd.concat([train_df,df_cf], ignore_index=True)
+        updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_df.csv'))
         encoder.encode(updated_train_df)
+
+        ### simulation part
+        if CONF['simulation']:
+            run_simulation(train_df, df_cf)
+            path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
+            simulated_log = pd.read_csv(path_simulated_cfs)
+            dicts_trace = {}
+            for i in range(len(simulated_log)):
+                dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-1])
+            df = pd.DataFrame.from_dict(dicts_trace, orient='index')
+            simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
+            simulated_log.drop(columns=['key_0', 'st_wip',
+                                        'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
+            simulated_log.rename(
+                columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
+            simulated_log['org:group'] = simulated_log['org:resource']
+            simulated_log['label'] = 'true'
+            simulated_log['lifecycle:transition'] = 'complete'
+            cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
+            cols = list(itertools.chain.from_iterable(cols))
+            for i in range(len(simulated_log)):
+                for x in cols:
+                    simulated_log.at[i, x] = dicts_trace[i][x]
+            cols.append('label')
+            updated_train_df = pd.concat([train_df, simulated_log], ignore_index=True)
+            updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
+            encoder.encode(updated_train_df)
 
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
                              CONF['predictive_models']]
@@ -126,7 +156,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             with open('model_performances.txt', 'a') as data:
                 for id, _ in enumerate(best_candidates):
                     data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
-                    data.write('Augmented results '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
+                    data.write('Augmented results baseline '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
                     data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
                 data.close()
         else:
@@ -134,7 +164,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 for id, _ in enumerate(best_candidates):
                     print(best_candidates[id].get('result'))
                     data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
-                    data.write('Augmented results '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
+                    data.write('Augmented results baseline '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
                     data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
                 data.close()
 
@@ -144,11 +174,14 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
 if __name__ == '__main__':
     dataset_list = {
-        'sepsis_cases_1_start':[5, 7, 9, 11, 12, 14],
+        ### prefix length
+        'sepsis_cases_1_start': [5],
+        #'sepsis_cases_1_start': [5, 7, 9, 11, 12, 14],
     }
     for dataset,prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3,0.5,0.7]:
+            for augmentation_factor in [0.3]:
+            #for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
@@ -160,9 +193,10 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.XGBOOST.value,ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    #'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.XGBOOST.value],
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
-                    'augmentation_factor':augmentation_factor,# SHAP, LRP, ICE, DICE
+                    'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
@@ -171,5 +205,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
+                    'simulation': True  ## if True the simulation of TRAIN + CF is runned
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

@@ -13,10 +13,11 @@ import pm4py
 from pm4py.objects.log.util import sorting
 from pm4py.objects.log.importer.xes import importer as xes_importer
 
-SEPSIS_ATTRIB = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
+SEPSIS_ATTRIB_TRACE = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
                  'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore']
 
+SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes']
 
 def read_log_csv(self, path):
     dataframe = pd.read_csv(path, sep=',')
@@ -52,7 +53,7 @@ def define_log_to_check(path):
                         wait = 0
                     else:
                         start = datetime.strptime(str(trace[idx_e]['start:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                        end_bef = datetime.strptime(str(trace[idx_e - i]['time:timestamp'])[:19],'%Y-%m-%d %H:%M:%S')
+                        end_bef = datetime.strptime(str(trace[idx_e - i]['time:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
                         wait = (start - end_bef).total_seconds()
                 if wait < 0:
                     wait = 0
@@ -63,11 +64,11 @@ def define_log_to_check(path):
         log[trace.attributes['concept:name']] = trace_sim
     return log, arrivals
 
-def read_training(path, attrib):
+def read_training(train, attrib_event, attrib_trace):
     # [event, event_processingTime, resource, wait, amount]
-    train = pd.read_csv(path, sep=',')
+    #train = pd.read_csv(path, sep=',')
     arrivals_train = []
-    resource = 'org:resource_'
+    resource = 'org:group_'
     columns = list(train.columns)
     count_prefix = 1
     traces = dict()
@@ -77,21 +78,24 @@ def read_training(path, attrib):
         key = str(row['trace_id'])
         arrivals_train.append([key, start])
         buffer = []
-        attributes = {}
+        attributes_trace = {}
+        attributes_event = {}
         while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
             start = row['start:timestamp_'+str(count_prefix)]
             end = row['time:timestamp_'+str(count_prefix)]
             processing = end - start
-
+            ###### aggiungere qua la copia degli attributi di evento!!!!
             if count_prefix <= 1:
                 wait = 0
             else:
                 start = row['start:timestamp_' + str(count_prefix)]
                 end = row['time:timestamp_'+str(count_prefix-1)]
                 wait = start - end
-            for k in attrib:
-                attributes[k] = row[k]
-            buffer.append([row[prefix], processing, row[resource + str(count_prefix)], wait, attributes])
+            for k in attrib_event:
+                attributes_event[k] = row[k + '_' + str(count_prefix)]
+            for k in attrib_trace:
+                attributes_trace[k] = row[k]
+            buffer.append([row[prefix], processing, row[resource + str(count_prefix)], wait, attributes_event, attributes_trace])
             count_prefix += 1
             prefix = 'prefix_' + str(count_prefix)
 
@@ -100,11 +104,11 @@ def read_training(path, attrib):
     return traces, arrivals_train
 
 
-def read_contrafactual(path, attrib):
+def read_contrafactual(contrafactual, attrib_event, attrib_trace):
     ## list of events = [[activity, resource], ....]
-    contrafactual = pd.read_csv(path, sep=',')
+    #contrafactual = pd.read_csv(path, sep=',')
     arrivals_CF = []
-    resource = 'org:resource_'
+    resource = 'org:group_'
     columns = list(contrafactual.columns)
     count_prefix = 1
     contrafactual_traces = dict()
@@ -114,12 +118,15 @@ def read_contrafactual(path, attrib):
         prefix = 'prefix_' + str(count_prefix)
         start = pd.to_datetime(row['start:timestamp_1'], unit='s')
         arrivals_CF.append([key, start])
-        attributes = {}
-        for k in attrib:
-            attributes[k] = row[k]
+        attributes_trace = {}
+        attributes_event = {}
+        for k in attrib_trace:
+            attributes_trace[k] = row[k]
+        for k in attrib_event:
+            attributes_event[k] = row[k + '_' + str(count_prefix)]
         while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
             contrafactual_traces[key].append(
-                [row[prefix], row[resource + str(count_prefix)], attributes])
+                [row[prefix], row[resource + str(count_prefix)], attributes_event, attributes_trace])
             count_prefix += 1
             prefix = 'prefix_' + str(count_prefix)
         count_prefix = 1
@@ -149,10 +156,10 @@ def main(argv):
 
 def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key):
     simulation_process = SimulationProcess(env=env, params=params)
-    path_result = os.getcwd() + '/rims/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
+    path_result = os.getcwd() + '/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
     f = open(path_result, 'w')
     writer = csv.writer(f)
-    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'st_wip', 'st_tsk_wip', 'queue', 'amount'])
+    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'st_wip', 'st_tsk_wip', 'queue'] + SEPSIS_ATTRIB_EVENT + ['attrib_trace'])
     prev = params.START_SIMULATION
     for i in range(0, 5):
         next = arrivals[i][1]
@@ -166,8 +173,8 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
             env.process(Token(arrivals[i][0], params, simulation_process, params, log[arrivals[i][0]].copy(), False).simulation(env, writer, type))
 
 
-def run_simulation(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
-    path_model = os.getcwd() + '/rims/' + NAME_EXPERIMENT + '/' + NAME_EXPERIMENT
+def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
+    path_model = os.getcwd() + '/' + NAME_EXPERIMENT + '/' + NAME_EXPERIMENT
     if exists(path_model + '_diapr_meta.json'):
         FEATURE_ROLE = 'all_role'
     elif exists(path_model + '_dispr_meta.json'):
@@ -179,20 +186,11 @@ def run_simulation(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
         params = Parameters(NAME_EXPERIMENT, FEATURE_ROLE, i, type)
         env = simpy.Environment()
         env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
-
         env.run(until=params.SIM_TIME)
 
-def run():
-    NAME_EXPERIMENT = 'sepsis_cases_1_start'
-    type = 'rims'
-    N_SIMULATION = 1
+def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'sepsis_cases_1_start', type ='rims', N_SIMULATION = 1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
-    log, arrivals = read_training(os.getcwd() + '/rims/sepsis_cases_1_start/sepsis_cases_1_start_cf_complete_rem_time.csv', SEPSIS_ATTRIB)
-    contrafactual_traces, arrivals_CF = read_contrafactual(os.getcwd() + '/rims/sepsis_cases_1_start/sepsis_cases_1_start_train_df_complete_rem_time.csv', SEPSIS_ATTRIB)
+    log, arrivals = read_training(train_df, SEPSIS_ATTRIB_EVENT, SEPSIS_ATTRIB_TRACE)
+    contrafactual_traces, arrivals_CF = read_contrafactual(df_cf, SEPSIS_ATTRIB_EVENT, SEPSIS_ATTRIB_TRACE)
     arrivals = sorted(arrivals + arrivals_CF, key=lambda x: x[1])
-    run_simulation(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))
-
-if __name__ == "__main__":
-    warnings.filterwarnings("ignore")
-    #main(sys.argv[1:])
-    run()
+    run(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))

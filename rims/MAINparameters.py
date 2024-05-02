@@ -15,20 +15,20 @@ class Parameters(object):
     def __init__(self, name_exp, feature_role, iterations, type):
         self.NAME_EXP = name_exp
         self.FEATURE_ROLE = feature_role
-        self.PATH_PETRINET = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + '.pnml'
+        self.PATH_PETRINET = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + '.pnml'
         if self.FEATURE_ROLE == 'all_role':
             self.prefix = ('_diapr', '_dpiapr', '_dwiapr')
         else:
             self.prefix = ('_dispr', '_dpispr', '_dwispr')
 
-        self.MODEL_PATH_PROCESSING = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[1] +'.h5'
-        self.MODEL_PATH_WAITING = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[2] + '.h5'
+        self.MODEL_PATH_PROCESSING = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[1] +'.h5'
+        self.MODEL_PATH_WAITING = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[2] + '.h5'
 
         self.SIM_TIME = 1460*36000000000000000  # 10 day
-        self.METADATA = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_meta.json'
-        self.SCALER = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_scaler.pkl'
-        self.INTER_SCALER = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_inter_scaler.pkl'
-        self.END_INTER_SCALER = os.getcwd() + '/rims/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_end_inter_scaler.pkl'
+        self.METADATA = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_meta.json'
+        self.SCALER = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_scaler.pkl'
+        self.INTER_SCALER = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_inter_scaler.pkl'
+        self.END_INTER_SCALER = os.getcwd() + '/' + self.NAME_EXP + '/' + self.NAME_EXP + self.prefix[0] + '_end_inter_scaler.pkl'
         self.read_metadata_file()
 
     def read_metadata_file(self):

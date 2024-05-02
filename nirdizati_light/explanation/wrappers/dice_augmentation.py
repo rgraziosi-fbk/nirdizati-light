@@ -38,7 +38,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
     query_instances_for_cf = query_instances.iloc[:,:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
-    dice_query_instance = dice_ml.Dice(d, m, method)
+    dice_query_instance = dice_ml.Dice(d, m, method, encoder)
     time_train = (datetime.now() - time_start).total_seconds()
     index_test_instances = range(len(query_instances_for_cf))
     total_cfs = 0
