@@ -34,7 +34,7 @@ class Token(object):
 
     def simulation(self, env: simpy.Environment, writer, type, syn=False):
         #trans = self.next_transition(syn)
-        event = self.next_event() if self.contrafactual==False else self.next_event_contrafactual()
+        event = self.next_event() if self.contrafactual == False else self.next_event_contrafactual()
         ### register trace in process ###
         resource_trace = self.process.get_resource_trace()
         resource_trace_request = resource_trace.request()
@@ -92,7 +92,6 @@ class Token(object):
             buffer.append(ac_wip)
             buffer.append(queue)
             #### event attributes
-            print(event[-2])
             for a in SEPSIS_ATTRIB_EVENT:
                 buffer.append(event[-2][a])
             buffer.append(event[-1])
@@ -114,8 +113,8 @@ class Token(object):
             if self.sequence and self.sequence[0][0] == self.contrafactual[0][0]:
                 next = self.sequence[0]
             else:
-                # [event, event_processingTime, resource, wait, amount]
-                next = [self.contrafactual[0][0], -1, self.contrafactual[0][1], -1, self.contrafactual[0][2]]
+                # [event, event_processingTime, resource, wait, attrib_events, attrib_traces]
+                next = [self.contrafactual[0][0], -1, self.contrafactual[0][1], -1, self.contrafactual[0][-2], self.contrafactual[0][-1]]
             if self.sequence:
                 del self.sequence[0]
             del self.contrafactual[0]

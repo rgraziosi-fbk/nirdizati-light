@@ -27,43 +27,6 @@ def read_log_csv(self, path):
     event_log = sorting.sort_timestamp(event_log, timestamp_key='start_timestamp')
     return event_log
 
-def define_log_to_check(path):
-    # [event, event_processingTime, resource, wait]
-    #event_log = pm4py.read_xes('test_log_one_lifecycle.xes')
-    event_log = xes_importer.apply(path)
-    event_log = sorting.sort_timestamp(event_log, timestamp_key='start:timestamp')
-    log = dict()
-    arrivals = []
-    for idx, trace in enumerate(event_log):
-        trace_sim = []
-        arrival = datetime.strptime(str(trace[0]['start:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-        arrivals.append([trace.attributes['concept:name'], arrival])
-        for idx_e, event in enumerate(trace):
-            if event['concept:name'] != 'Start' and event['concept:name'] != 'End':
-                i = 1
-                if (idx_e == 0):
-                    wait = 0
-                else:
-                    start = datetime.strptime(str(trace[idx_e]['start:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                    end_bef = datetime.strptime(str(trace[idx_e - i]['time:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                    wait = (start - end_bef).total_seconds()
-                while wait < 0 and idx_e - i > 1:
-                    i += 1
-                    if (idx_e - i == 0):
-                        wait = 0
-                    else:
-                        start = datetime.strptime(str(trace[idx_e]['start:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                        end_bef = datetime.strptime(str(trace[idx_e - i]['time:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                        wait = (start - end_bef).total_seconds()
-                if wait < 0:
-                    wait = 0
-                start = datetime.strptime(str(trace[idx_e]['start:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                end = datetime.strptime(str(event['time:timestamp'])[:19], '%Y-%m-%d %H:%M:%S')
-                duration = (end - start).total_seconds()
-                trace_sim.append([event['concept:name'], duration, event['org:resource'], wait, trace.attributes['AMOUNT_REQ']])
-        log[trace.attributes['concept:name']] = trace_sim
-    return log, arrivals
-
 def read_training(train, attrib_event, attrib_trace):
     # [event, event_processingTime, resource, wait, amount]
     #train = pd.read_csv(path, sep=',')
@@ -132,28 +95,6 @@ def read_contrafactual(contrafactual, attrib_event, attrib_trace):
         count_prefix = 1
     return contrafactual_traces, arrivals_CF
 
-def main(argv):
-    opts, args = getopt.getopt(argv, "h:t:l:n:")
-    NAME_EXPERIMENT = 'confidential_1000'
-    for opt, arg in opts:
-        if opt == '-h':
-            print('main.py -t <[rims, rims_plus]> -l <log_name> -n <total number of simulation [1, 25]>')
-            sys.exit()
-        elif opt == "-t":
-            type = arg
-        elif opt == "-l":
-            NAME_EXPERIMENT = arg
-        elif opt == "-n":
-            N_SIMULATION = int(arg)
-            if N_SIMULATION > 25:
-                N_SIMULATION = 25
-    print(NAME_EXPERIMENT, N_SIMULATION, type)
-    log, arrivals = read_training('rims/sepsis_cases_1/sepsis_cases_1_start_cf_complete_rem_time.csv', SEPSIS_ATTRIB)
-    contrafactual_traces, arrivals_CF = read_contrafactual('rims/sepsis_cases_1/sepsis_cases_1_start_train_df_complete_rem_time.csv', SEPSIS_ATTRIB)
-    arrivals = sorted(arrivals + arrivals_CF, key=lambda x: x[1])
-    run_simulation(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))
-
-
 def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key):
     simulation_process = SimulationProcess(env=env, params=params)
     path_result = os.getcwd() + '/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
@@ -161,7 +102,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
     writer = csv.writer(f)
     writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'st_wip', 'st_tsk_wip', 'queue'] + SEPSIS_ATTRIB_EVENT + ['attrib_trace'])
     prev = params.START_SIMULATION
-    for i in range(0, 5):
+    for i in range(0, len(arrivals)):
         next = arrivals[i][1]
         interval = (next - prev).total_seconds()
         prev = next
