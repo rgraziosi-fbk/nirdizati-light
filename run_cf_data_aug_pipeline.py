@@ -117,10 +117,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf['trace_id'] = df_cf.index
         df_cf.to_csv(os.path.join('experiments',dataset_name + '_cf.csv'), index=False)
 
-        updated_train_df = pd.concat([train_df,df_cf], ignore_index=True)
-        updated_train_df.to_csv(path_or_buf=os.path.join('experiments','new_logs',dataset_name + '_train_df_cf_aug_'+str(augmentation_factor)+'_pref_len_'+str(CONF['prefix_length'])+'.csv'), index=False)
-        x_eval.to_csv(path_or_buf=os.path.join('experiments','cf_eval_results',dataset_name + '_cf_eval'+str(augmentation_factor)+'_pref_len_'+str(CONF['prefix_length'])+'.csv'), index=False)
-        encoder.encode(updated_train_df)
 
         ### simulation part
         if CONF['simulation']:
@@ -148,10 +144,21 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
             #simulated_log['label'] = minority_class
             simulated_log = convert_to_log(simulated_log, cols)
-            for trace in simulated_log:
-                trace.attributes['label'] = trace[0]['label']
+            #for trace in simulated_log:
+            #    trace.attributes['label'] = trace[0]['label']
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
+            updated_train_df = simulated_df.copy()
+        else:
+            updated_train_df = pd.concat([train_df, df_cf], ignore_index=True)
+            updated_train_df.to_csv(path_or_buf=os.path.join('experiments', 'new_logs',
+                                                             dataset_name + '_train_df_cf_aug_' + str(
+                                                                 augmentation_factor) + '_pref_len_' + str(
+                                                                 CONF['prefix_length']) + '.csv'), index=False)
+            x_eval.to_csv(path_or_buf=os.path.join('experiments', 'cf_eval_results', dataset_name + '_cf_eval' + str(
+                augmentation_factor) + '_pref_len_' + str(CONF['prefix_length']) + '.csv'), index=False)
+            encoder.encode(updated_train_df)
+
 
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
                              CONF['predictive_models']]
@@ -242,6 +249,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
