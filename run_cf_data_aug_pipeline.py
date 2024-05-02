@@ -81,7 +81,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         full_df = pd.concat([train_df, val_df, test_df])
         augmentation_factor = CONF['augmentation_factor']
         total_traces = augmentation_factor * len(train_df[train_df['label']==majority_class])
-        model_path = '../experiments/process_models/process_models'
+        model_path = 'experiments/process_models/'
         support = 1.0
         import itertools
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
@@ -93,7 +93,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('prefix')
             cols.append('lifecycle:transition')
 
-        df_cf = explain(CONF, best_model, encoder=encoder,
+        df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
                         query_instances=train_df_correct,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
                         heuristic='heuristic_2', support=support,
@@ -109,36 +109,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf.to_csv(os.path.join('experiments',dataset_name + '_cf.csv'), index=False)
 
         updated_train_df = pd.concat([train_df,df_cf], ignore_index=True)
-        updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_df.csv'))
+        updated_train_df.to_csv(path_or_buf=os.path.join('experiments','new_logs',dataset_name + '_train_df_cf_aug_'+str(augmentation_factor)+'_pref_len_'+str(CONF['prefix_length'])+'.csv'), index=False)
+        x_eval.to_csv(path_or_buf=os.path.join('experiments','cf_eval_results',dataset_name + '_cf_eval'+str(augmentation_factor)+'_pref_len_'+str(CONF['prefix_length'])+'.csv'), index=False)
         encoder.encode(updated_train_df)
-
-        ### simulation part
-        if CONF['simulation']:
-            run_simulation(train_df, df_cf)
-            path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
-            simulated_log = pd.read_csv(path_simulated_cfs)
-            dicts_trace = {}
-            for i in range(len(simulated_log)):
-                dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-2])
-            df = pd.DataFrame.from_dict(dicts_trace, orient='index')
-            simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
-            simulated_log.drop(columns=['key_0', 'st_wip',
-                                        'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            simulated_log.rename(
-                columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            simulated_log['org:group'] = simulated_log['org:resource']
-            simulated_log['lifecycle:transition'] = 'complete'
-            cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
-            cols = list(itertools.chain.from_iterable(cols))
-            for i in range(len(simulated_log)):
-                for x in cols:
-                    simulated_log.at[i, x] = dicts_trace[i][x]
-            cols.append('label')
-            simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
-            simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
-            simulated_log = pm4py.convert_to_event_log(simulated_log)
-            encoder, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
-            simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
 
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
                              CONF['predictive_models']]
@@ -153,15 +126,15 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         best_model.model = best_model_model_new
         best_model.config = best_model_config_new
 
-        if os.path.exists('model_performances.txt'):
-            with open('model_performances.txt', 'a') as data:
+        if os.path.exists('experiments/model_performances.txt'):
+            with open('experiments/model_performances_'+CONF['hyperparameter_optimisation_target']+'.txt', 'w') as data:
                 for id, _ in enumerate(best_candidates):
                     data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
                     data.write('Augmented results baseline '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
                     data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
                 data.close()
         else:
-            with open('model_performances.txt', 'w') as data:
+            with open('experiments/model_performances_'+CONF['hyperparameter_optimisation_target']+'.txt', 'a') as data:
                 for id, _ in enumerate(best_candidates):
                     print(best_candidates[id].get('result'))
                     data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
@@ -194,10 +167,9 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    #'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
-                    'predictive_models': [ClassificationMethods.XGBOOST.value],
+                    'predictive_models': [ClassificationMethods.XGBOOST.value,ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
-                    'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
+                    'augmentation_factor':augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used

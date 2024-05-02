@@ -103,5 +103,5 @@ explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         method='multi_objective_genetic', optimization='multiobjective',
         heuristic='heuristic_2', support=0.7,
         timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
-        model_path='./experiments/process_models/process_models',
+        model_path='./experiments/process_models/process_models/',
         random_seed=CONF['seed'], adapted=True, filtering=False)
