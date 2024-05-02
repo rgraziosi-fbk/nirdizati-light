@@ -137,8 +137,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('label')
             simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
             simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
+            #simulated_log['label'] = minority_class
             simulated_log = pm4py.convert_to_event_log(simulated_log)
-            encoder, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
+            for trace in simulated_log:
+                trace.attributes['label'] = trace[0]['label']
+            _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
 
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
@@ -154,21 +157,44 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         best_model.model = best_model_model_new
         best_model.config = best_model_config_new
 
-        if os.path.exists('experiments/model_performances.txt'):
-            with open('experiments/model_performances_'+CONF['hyperparameter_optimisation_target']+'.txt', 'w') as data:
-                for id, _ in enumerate(best_candidates):
-                    data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
-                    data.write('Augmented results baseline '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
-                    data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
-                data.close()
-        else:
-            with open('experiments/model_performances_'+CONF['hyperparameter_optimisation_target']+'.txt', 'a') as data:
-                for id, _ in enumerate(best_candidates):
-                    print(best_candidates[id].get('result'))
-                    data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
-                    data.write('Augmented results baseline '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
-                    data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
-                data.close()
+        data_list = []
+
+        # Iterate over the best candidates
+        for id, _ in enumerate(best_candidates):
+            initial_result = best_candidates[id].get('result')
+            augmented_result = best_candidates_new[id].get('result')
+            model = CONF['predictive_models'][id]
+            prefix_length = CONF['prefix_length']
+            augmentation_factor = augmentation_factor
+            simulation = CONF['simulation']
+
+            # Extract metrics from the initial and augmented results
+            initial_metrics = initial_result
+            augmented_metrics = augmented_result
+
+            # Append the data to the list
+            data_list.append([initial_metrics['accuracy'], initial_metrics['auc'], initial_metrics['f1_score'],
+                              initial_metrics['loss'], initial_metrics['mcc'], initial_metrics['precision'],
+                              initial_metrics['recall'], augmented_metrics['accuracy'], augmented_metrics['auc'],
+                              augmented_metrics['f1_score'], augmented_metrics['loss'], augmented_metrics['mcc'],
+                              augmented_metrics['precision'], augmented_metrics['recall'], model, prefix_length,
+                              augmentation_factor, simulation])
+
+        # Convert the list to a DataFrame
+        results_df = pd.DataFrame(data_list, columns=['Initial Accuracy', 'Initial AUC', 'Initial F1 Score',
+                                                      'Initial Loss', 'Initial MCC', 'Initial Precision',
+                                                      'Initial Recall', 'Augmented Accuracy', 'Augmented AUC',
+                                                      'Augmented F1 Score', 'Augmented Loss', 'Augmented MCC',
+                                                      'Augmented Precision', 'Augmented Recall', 'Model',
+                                                      'Prefix Length', 'Augmentation Factor', 'Simulation'])
+
+        # Define the file path
+        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '.csv'
+
+        # Write the DataFrame to a CSV file in append mode
+        results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
+
+        print("New results appended to the CSV file.")
 
     logger.info('RESULT')
     logger.info('Done, cheers!')
@@ -207,6 +233,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is runned
+                    'simulation': False  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
