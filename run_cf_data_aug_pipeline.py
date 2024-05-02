@@ -119,7 +119,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
             for i in range(len(simulated_log)):
-                dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-1])
+                dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-2])
             df = pd.DataFrame.from_dict(dicts_trace, orient='index')
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0', 'st_wip',
@@ -127,7 +127,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
             simulated_log['org:group'] = simulated_log['org:resource']
-            simulated_log['label'] = 'true'
             simulated_log['lifecycle:transition'] = 'complete'
             cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
             cols = list(itertools.chain.from_iterable(cols))
@@ -135,9 +134,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 for x in cols:
                     simulated_log.at[i, x] = dicts_trace[i][x]
             cols.append('label')
-            updated_train_df = pd.concat([train_df, simulated_log], ignore_index=True)
-            updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
-            encoder.encode(updated_train_df)
+            simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
+            simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
+            simulated_log = pm4py.convert_to_event_log(simulated_log)
+            encoder, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
+            simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
 
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
                              CONF['predictive_models']]

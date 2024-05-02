@@ -93,8 +93,9 @@ class Token(object):
             buffer.append(queue)
             #### event attributes
             for a in SEPSIS_ATTRIB_EVENT:
-                buffer.append(event[-2][a])
-            buffer.append(event[-1])
+                buffer.append(event[-3][a]) #event attributes
+            buffer.append(event[-2]) #trace attributes
+            buffer.append(event[-1]) #label
             resource.release(request_resource)
             resource_task.release(resource_task_request)
             print(*buffer)
@@ -113,8 +114,8 @@ class Token(object):
             if self.sequence and self.sequence[0][0] == self.contrafactual[0][0]:
                 next = self.sequence[0]
             else:
-                # [event, event_processingTime, resource, wait, attrib_events, attrib_traces]
-                next = [self.contrafactual[0][0], -1, self.contrafactual[0][1], -1, self.contrafactual[0][-2], self.contrafactual[0][-1]]
+                # [event, event_processingTime, resource, wait, attrib_events, attrib_traces, label]
+                next = [self.contrafactual[0][0], -1, self.contrafactual[0][1], -1, self.contrafactual[0][-3], self.contrafactual[0][-2], self.contrafactual[0][-1]]
             if self.sequence:
                 del self.sequence[0]
             del self.contrafactual[0]
