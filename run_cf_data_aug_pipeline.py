@@ -32,6 +32,15 @@ def dict_mean(dict_list):
         mean_dict[key] = sum(d[key] for d in dict_list) / len(dict_list)
     return mean_dict
 
+def convert_to_log(simulated_log, cols):
+    simulated_log = pm4py.convert_to_event_log(simulated_log)
+    for trace in simulated_log:
+        for c in cols:
+            trace.attributes[c] = trace[0][c]
+            for e in trace:
+                del e[c]
+    pm4py.write_xes(simulated_log, 'exported.xes')
+    return simulated_log
 
 def run_simple_pipeline(CONF=None, dataset_name=None):
     random.seed(CONF['seed'])
@@ -138,7 +147,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
             simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
             #simulated_log['label'] = minority_class
-            simulated_log = pm4py.convert_to_event_log(simulated_log)
+            simulated_log = convert_to_log(simulated_log, cols)
             for trace in simulated_log:
                 trace.attributes['label'] = trace[0]['label']
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
