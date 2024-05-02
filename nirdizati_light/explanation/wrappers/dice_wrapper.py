@@ -162,6 +162,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
                 desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
 
                 desired_cfs_all.extend(*desired_cfs)
+            x_eval_list.append(x_eval)
         try:
             if not os.path.exists(path_results+'_'+str(support)+'/'):
                 os.makedirs(path_results+'_'+str(support)+'/')

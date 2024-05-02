@@ -81,7 +81,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         full_df = pd.concat([train_df, val_df, test_df])
         augmentation_factor = CONF['augmentation_factor']
         total_traces = augmentation_factor * len(train_df[train_df['label']==majority_class])
-        model_path = '../experiments/process_models/process_models'
+        model_path = 'experiments/process_models/'
         support = 1.0
         import itertools
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
@@ -93,7 +93,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('prefix')
             cols.append('lifecycle:transition')
 
-        df_cf = explain(CONF, best_model, encoder=encoder,
+        df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
                         query_instances=train_df_correct,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
                         heuristic='heuristic_2', support=support,
@@ -109,7 +109,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf.to_csv(os.path.join('experiments',dataset_name + '_cf.csv'), index=False)
 
         updated_train_df = pd.concat([train_df,df_cf], ignore_index=True)
-        updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_df.csv'))
+        updated_train_df.to_csv(path_or_buf=os.path.join('experiments','new_logs',dataset_name + '_train_df_cf_aug_'+str(augmentation_factor)+'_pref_len_'+str(CONF['prefix_length'])+'.csv'), index=False)
+        x_eval.to_csv(path_or_buf=os.path.join('experiments','cf_eval_results',dataset_name + '_cf_eval'+str(augmentation_factor)+'_pref_len_'+str(CONF['prefix_length'])+'.csv'), index=False)
         encoder.encode(updated_train_df)
 
         ### simulation part
@@ -153,15 +154,15 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         best_model.model = best_model_model_new
         best_model.config = best_model_config_new
 
-        if os.path.exists('model_performances.txt'):
-            with open('model_performances.txt', 'a') as data:
+        if os.path.exists('experiments/model_performances.txt'):
+            with open('experiments/model_performances_'+CONF['hyperparameter_optimisation_target']+'.txt', 'w') as data:
                 for id, _ in enumerate(best_candidates):
                     data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')
                     data.write('Augmented results baseline '+str(best_candidates_new[id].get('result'))+' augmentation factor '+str(augmentation_factor)+'\n')
                     data.write(str(CONF['predictive_models'][id])+' prefix_length '+str(CONF['prefix_length'])+'\n')
                 data.close()
         else:
-            with open('model_performances.txt', 'w') as data:
+            with open('experiments/model_performances_'+CONF['hyperparameter_optimisation_target']+'.txt', 'a') as data:
                 for id, _ in enumerate(best_candidates):
                     print(best_candidates[id].get('result'))
                     data.write('Initial model results '+str(best_candidates[id].get('result'))+'\n')

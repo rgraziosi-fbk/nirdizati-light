@@ -21,6 +21,7 @@ setup(
         'pymoo~=0.6.0.1',
         'torch~=2.2.1',
         'PDPbox~=0.3.0',
-        'seaborn~=0.13.2'
+        'seaborn~=0.13.2',
+        'simpy~=4.1.0',
     ]
 )
