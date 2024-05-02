@@ -128,7 +128,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-2])
             df = pd.DataFrame.from_dict(dicts_trace, orient='index')
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
-            simulated_log.drop(columns=['key_0', 'st_wip',
+            simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -144,8 +144,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
             #simulated_log['label'] = minority_class
             simulated_log = convert_to_log(simulated_log, cols)
-            #for trace in simulated_log:
-            #    trace.attributes['label'] = trace[0]['label']
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
             updated_train_df = simulated_df.copy()

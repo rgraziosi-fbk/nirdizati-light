@@ -7,7 +7,7 @@ from rims.checking_process import SimulationProcess
 from pm4py.objects.petri_net import semantics
 from rims.MAINparameters import*
 
-SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes']
+SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
 
 class Token(object):
 
@@ -38,6 +38,7 @@ class Token(object):
         ### register trace in process ###
         resource_trace = self.process.get_resource_trace()
         resource_trace_request = resource_trace.request()
+        time_previous_event = self.start_time
 
         while event is not None:
             yield resource_trace_request
@@ -92,8 +93,22 @@ class Token(object):
             buffer.append(ac_wip)
             buffer.append(queue)
             #### event attributes
+            ### SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
             for a in SEPSIS_ATTRIB_EVENT:
-                buffer.append(event[-3][a]) #event attributes
+                if a == 'event_nr':
+                    buffer.append(len(self.prefix))
+                elif a == 'hour':
+                    buffer.append((self.start_time + timedelta(seconds=env.now)).hour)
+                elif a == 'month':
+                    buffer.append((self.start_time + timedelta(seconds=env.now)).month)
+                elif a == 'timesincecasestart':
+                    buffer.append((self.start_time - (self.start_time + timedelta(seconds=env.now))).total_seconds())
+                elif a == 'timesincelastevent':
+                    buffer.append((time_previous_event - (self.start_time + timedelta(seconds=env.now))).total_seconds())
+                elif a == 'weekday':
+                    buffer.append((self.start_time + timedelta(seconds=env.now)).isoweekday())
+                else:
+                    buffer.append(event[-3][a]) #event attributes
             buffer.append(event[-2]) #trace attributes
             buffer.append(event[-1]) #label
             resource.release(request_resource)
@@ -103,6 +118,7 @@ class Token(object):
 
             #self.update_marking(trans)
             #trans = self.next_transition(syn)
+            time_previous_event = self.start_time + timedelta(seconds=env.now)
             self.see_activity = True
             event = self.next_event() if self.contrafactual == False else self.next_event_contrafactual()
 

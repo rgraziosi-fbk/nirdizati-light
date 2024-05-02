@@ -17,7 +17,7 @@ SEPSIS_ATTRIB_TRACE = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBloo
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
                  'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore']
 
-SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes']
+SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
 
 def read_log_csv(self, path):
     dataframe = pd.read_csv(path, sep=',')
@@ -100,7 +100,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
     path_result = os.getcwd() + '/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
     f = open(path_result, 'w')
     writer = csv.writer(f)
-    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'st_wip', 'st_tsk_wip', 'queue'] + SEPSIS_ATTRIB_EVENT + ['attrib_trace', 'label'])
+    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] + SEPSIS_ATTRIB_EVENT + ['attrib_trace', 'label'])
     prev = params.START_SIMULATION
     for i in range(0, len(arrivals)):
         next = arrivals[i][1]
