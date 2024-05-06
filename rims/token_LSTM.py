@@ -46,8 +46,12 @@ class Token(object):
             buffer = [self.id, event[0]]
             buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for waiting time
-            role = self.params.RESOURCE_ROLE[str(event[2])]
-            resource = self.process.get_single_resource(str(event[2]))  ## ruolo
+            if str(event[2]) == 0:
+                role = self.params.RESOURCE_ROLE[str(event[2])]
+                resource = self.process.get_single_resource(str(event[2]))
+            else:
+                role = self.params.RESOURCE_ROLE['F']
+                resource = self.process.get_single_resource('F')  ## ruolo
 
             transition = (self.params.INDEX_AC[event[0]], self.params.INDEX_ROLE[role])
             self.prefix.append(event[0])

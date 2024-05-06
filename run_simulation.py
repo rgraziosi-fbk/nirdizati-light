@@ -19,6 +19,10 @@ SEPSIS_ATTRIB_TRACE = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBloo
 
 SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
 
+BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE = ['AMOUNT_REQ', 'REG_DATE']
+
+BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT = []
+
 def read_log_csv(self, path):
     dataframe = pd.read_csv(path, sep=',')
     dataframe = pm4py.format_dataframe(dataframe, case_id='caseid', activity_key='task',
@@ -27,9 +31,9 @@ def read_log_csv(self, path):
     event_log = sorting.sort_timestamp(event_log, timestamp_key='start_timestamp')
     return event_log
 
+
 def read_training(train, attrib_event, attrib_trace):
     # [event, event_processingTime, resource, wait, amount]
-    #train = pd.read_csv(path, sep=',')
     arrivals_train = []
     resource = 'org:group_'
     columns = list(train.columns)
@@ -47,7 +51,6 @@ def read_training(train, attrib_event, attrib_trace):
             start = row['start:timestamp_'+str(count_prefix)]
             end = row['time:timestamp_'+str(count_prefix)]
             processing = end - start
-            ###### aggiungere qua la copia degli attributi di evento!!!!
             if count_prefix <= 1:
                 wait = 0
             else:
@@ -69,7 +72,6 @@ def read_training(train, attrib_event, attrib_trace):
 
 def read_contrafactual(contrafactual, attrib_event, attrib_trace):
     ## list of events = [[activity, resource], ....]
-    #contrafactual = pd.read_csv(path, sep=',')
     arrivals_CF = []
     resource = 'org:group_'
     columns = list(contrafactual.columns)

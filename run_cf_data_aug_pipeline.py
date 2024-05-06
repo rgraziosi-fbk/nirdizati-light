@@ -42,6 +42,7 @@ def convert_to_log(simulated_log, cols):
     pm4py.write_xes(simulated_log, 'exported.xes')
     return simulated_log
 
+
 def run_simple_pipeline(CONF=None, dataset_name=None):
     random.seed(CONF['seed'])
     np.random.seed(CONF['seed'])
@@ -121,6 +122,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         ### simulation part
         if CONF['simulation']:
             run_simulation(train_df, df_cf)
+            #path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '.csv'
             path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
@@ -155,6 +157,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                                                                  CONF['prefix_length']) + '.csv'), index=False)
             x_eval.to_csv(path_or_buf=os.path.join('experiments', 'cf_eval_results', dataset_name + '_cf_eval' + str(
                 augmentation_factor) + '_pref_len_' + str(CONF['prefix_length']) + '.csv'), index=False)
+            updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_baseline.csv'))
             encoder.encode(updated_train_df)
 
 
@@ -217,13 +220,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
+        #'BPI_Challenge_2012_W_Two_TS': [2],
         'sepsis_cases_1_start': [5],
-        #'sepsis_cases_1_start': [5, 7, 9, 11, 12, 14],
     }
-    for dataset,prefix_lengths in dataset_list.items():
+    for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3]:
-            #for augmentation_factor in [0.3, 0.5, 0.7]:
+            for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
@@ -235,8 +237,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    #'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
-                    'predictive_models': [ClassificationMethods.XGBOOST.value],
+                    'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
@@ -250,3 +251,37 @@ if __name__ == '__main__':
                     'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
+    '''
+    dataset_list = {
+        ### prefix length
+        'sepsis_cases_1_start': [14],
+    }
+    for dataset, prefix_lengths in dataset_list.items():
+        for prefix in prefix_lengths:
+            for augmentation_factor in [0.3, 0.5, 0.7]: #0.3, 0.5, 0.7
+                CONF = {  # This contains the configuration for the run
+                    'data': os.path.join(dataset, 'full.xes'),
+                    'train_val_test_split': [0.7, 0.15, 0.15],
+                    'output': os.path.join('..', 'output_data'),
+                    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+                    'prefix_length': prefix,
+                    'padding': True,  # TODO, why use of padding?
+                    'feature_selection': EncodingType.COMPLEX.value,
+                    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+                    'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
+                    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
+                    'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'explanator': ExplainerType.DICE_AUGMENTATION.value,
+                    'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
+                    'threshold': 13,
+                    'top_k': 10,
+                    'hyperparameter_optimisation': False,  # TODO, this parameter is not used
+                    'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
+                    'hyperparameter_optimisation_evaluations': 20,
+                    'time_encoding': TimeEncodingType.NONE.value,
+                    'target_event': None,
+                    'seed': 42,
+                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                }
+                run_simple_pipeline(CONF=CONF, dataset_name=dataset)
+        '''
