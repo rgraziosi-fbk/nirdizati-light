@@ -107,7 +107,7 @@ class PredictiveModel:
                                   tree_method='hist')
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
-        elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
+        elif self.model_type == RegressionMethods.SGDREGRESSOR.value:
             model = SGDRegressor(**config)
         elif self.model_type == ClassificationMethods.PERCEPTRON.value:
             # added CalibratedClassifier to get predict_proba from perceptron model
