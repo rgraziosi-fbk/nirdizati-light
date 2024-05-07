@@ -86,7 +86,7 @@ def is_time_or_duration(column: list):
     return column_type
 
 
-def is_date(column: list, fuzzy=True) -> bool:
+def is_date(column: list) -> bool:
     """Returns whether all string can be interpreted as a date.
 
     Accepts empty string and None Object in python
@@ -102,7 +102,7 @@ def is_date(column: list, fuzzy=True) -> bool:
                     return False
                 except ValueError:
                     try:
-                        parse(value, fuzzy=fuzzy)
+                        parse(value)
                     except ValueError:
                         return False
         elif isinstance(value, int) and value == 0:
