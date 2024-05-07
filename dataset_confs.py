@@ -263,7 +263,7 @@ class DatasetConfs:
             self.label_col = {dataset: "label"}
             self.pos_label = {dataset: "deviant"}
             self.neg_label = {dataset: "regular"}
-        elif dataset_name in ['bpi2012_W_Two_TS','bpi2012_W_One_TS']:
+        elif dataset_name in ['BPI_Challenge_2012_W_Two_TS', 'bpi2012_W_Two_TS','bpi2012_W_One_TS']:
             dataset = dataset_name
             if where_is_the_file != '':
                 self.filename = {dataset: where_is_the_file}
@@ -275,8 +275,8 @@ class DatasetConfs:
             self.resource_col = {dataset: "Resource"}
             self.timestamp_col = {dataset: "time:timestamp"}
             self.label_col = {dataset: "label"}
-            self.neg_label = {dataset: "regular"}
-            self.pos_label = {dataset: "deviant"}
+            self.neg_label = {dataset: "true"}
+            self.pos_label = {dataset: "false"}
 
             # features for classifier
             self.dynamic_cat_cols = {dataset: ["prefix", "org:resource","lifecycle:transition"]}

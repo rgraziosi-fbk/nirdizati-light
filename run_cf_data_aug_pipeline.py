@@ -90,7 +90,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             train_df_correct = train_df
         full_df = pd.concat([train_df, val_df, test_df])
         augmentation_factor = CONF['augmentation_factor']
-        total_traces = augmentation_factor * len(train_df[train_df['label']==majority_class])
+        total_traces = augmentation_factor * len(train_df[train_df['label'] == majority_class])
         model_path = 'experiments/process_models/'
         support = 1.0
         import itertools
@@ -122,8 +122,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         ### simulation part
         if CONF['simulation']:
             run_simulation(train_df, df_cf)
-            #path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '.csv'
-            path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
+            path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '.csv'
+            #path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
             for i in range(len(simulated_log)):
@@ -220,14 +220,14 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'BPI_Challenge_2012_W_Two_TS': [2],
-        'sepsis_cases_1_start': [5],
+        'BPI_Challenge_2012_W_Two_TS': [2],
+        #'sepsis_cases_1_start': [5],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'full.xes'),
+                    'data': os.path.join(dataset, 'BPI_Challenge_2012_W_Two_TS_ATTRIB.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -237,7 +237,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,

@@ -12,6 +12,7 @@ import pandas as pd
 import pm4py
 from pm4py.objects.log.util import sorting
 from pm4py.objects.log.importer.xes import importer as xes_importer
+from operator import itemgetter
 
 SEPSIS_ATTRIB_TRACE = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
@@ -19,7 +20,7 @@ SEPSIS_ATTRIB_TRACE = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBloo
 
 SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
 
-BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE = ['AMOUNT_REQ', 'REG_DATE']
+BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE = ['AMOUNT_REQ']
 
 BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT = []
 
@@ -35,7 +36,7 @@ def read_log_csv(self, path):
 def read_training(train, attrib_event, attrib_trace):
     # [event, event_processingTime, resource, wait, amount]
     arrivals_train = []
-    resource = 'org:group_'
+    resource = 'org:resource_'
     columns = list(train.columns)
     count_prefix = 1
     traces = dict()
@@ -73,7 +74,7 @@ def read_training(train, attrib_event, attrib_trace):
 def read_contrafactual(contrafactual, attrib_event, attrib_trace):
     ## list of events = [[activity, resource], ....]
     arrivals_CF = []
-    resource = 'org:group_'
+    resource = 'org:resource_'
     columns = list(contrafactual.columns)
     count_prefix = 1
     contrafactual_traces = dict()
@@ -103,7 +104,8 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
     f = open(path_result, 'w')
     writer = csv.writer(f)
     writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] + SEPSIS_ATTRIB_EVENT + ['attrib_trace', 'label'])
-    prev = params.START_SIMULATION
+    #prev = params.START_SIMULATION
+    prev = arrivals[0][1]
     for i in range(0, len(arrivals)):
         next = arrivals[i][1]
         interval = (next - prev).total_seconds()
@@ -131,9 +133,11 @@ def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
         env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
         env.run(until=params.SIM_TIME)
 
-def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'sepsis_cases_1_start', type ='rims', N_SIMULATION = 1):
+def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'BPI_Challenge_2012_W_Two_TS', type ='rims', N_SIMULATION = 1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
-    log, arrivals = read_training(train_df, SEPSIS_ATTRIB_EVENT, SEPSIS_ATTRIB_TRACE)
-    contrafactual_traces, arrivals_CF = read_contrafactual(df_cf, SEPSIS_ATTRIB_EVENT, SEPSIS_ATTRIB_TRACE)
+    log, arrivals = read_training(train_df, BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT,
+                                  BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE)
+    contrafactual_traces, arrivals_CF = read_contrafactual(df_cf, BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT,
+                                                           BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE)
     arrivals = sorted(arrivals + arrivals_CF, key=lambda x: x[1])
     run(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))

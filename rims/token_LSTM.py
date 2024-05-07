@@ -50,8 +50,8 @@ class Token(object):
                 role = self.params.RESOURCE_ROLE[str(event[2])]
                 resource = self.process.get_single_resource(str(event[2]))
             else:
-                role = self.params.RESOURCE_ROLE['F']
-                resource = self.process.get_single_resource('F')  ## ruolo
+                role = self.params.RESOURCE_ROLE["11169.0"]
+                resource = self.process.get_single_resource("11169.0")  ## ruolo
 
             transition = (self.params.INDEX_AC[event[0]], self.params.INDEX_ROLE[role])
             self.prefix.append(event[0])
@@ -64,7 +64,7 @@ class Token(object):
             else:
                 queue = 0
             waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
-                                                       self.start_time + timedelta(seconds=env.now), -1)
+                                                       self.start_time + timedelta(seconds=env.now), queue)
             if self.contrafactual is not None:
                 if self.see_activity:
                     yield env.timeout(waiting)
