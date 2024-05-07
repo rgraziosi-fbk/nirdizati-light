@@ -38,7 +38,6 @@ def time_encoding(df: DataFrame, encoding_type) -> DataFrame:
     for column_name in df.keys():
         current_time = df[column_name]
         column_type = is_time_or_duration(current_time)
-
         if column_type == TimeType.DATE.value and encoding_type == TimeEncodingType.NONE.value:
             df_output[column_name] = convert_datetime_in_UTC(current_time)
 
@@ -62,11 +61,13 @@ def time_encoding(df: DataFrame, encoding_type) -> DataFrame:
 
 def convert_datetime_in_UTC(column: list):
     return [
-        value.replace(tzinfo=timezone.utc).timestamp()
-        if isinstance(value, datetime)
-        else dateparser.parse(value).replace(tzinfo=timezone.utc).timestamp()
-        for value in column
-    ]
+    value.replace(tzinfo=timezone.utc).timestamp()
+    if isinstance(value, datetime) and value != datetime(1, 1, 1)  # Exclude datetime(1, 1, 1)
+    else parse(value).replace(tzinfo=timezone.utc).timestamp()
+    if value != 0  # Exclude 0 values
+    else value  # Return value if it equals 0
+    for value in column
+]
 
 
 def is_time_or_duration(column: list):
@@ -85,7 +86,7 @@ def is_time_or_duration(column: list):
     return column_type
 
 
-def is_date(column: list) -> bool:
+def is_date(column: list, fuzzy=True) -> bool:
     """Returns whether all string can be interpreted as a date.
 
     Accepts empty string and None Object in python
@@ -95,15 +96,17 @@ def is_date(column: list) -> bool:
     """
     for value in column:
         if isinstance(value, str):
-            if value != "" and value != 'None':
+            if value not in ('','None','0'):
                 try:
                     float(value)
                     return False
                 except ValueError:
                     try:
-                        parse(value)
+                        parse(value, fuzzy=fuzzy)
                     except ValueError:
                         return False
+        elif isinstance(value, int) and value == 0:
+            pass
         elif isinstance(value, datetime) or value is None:
             pass
         else:

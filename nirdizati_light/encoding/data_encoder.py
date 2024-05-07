@@ -54,13 +54,35 @@ class Encoder:
                             self._label_dict_decoder[column] = dict(zip(transforms, classes))
 
                 else:
-                    self._numeric_encoder[column] = MinMaxScaler().fit(
-                        df[column].values.reshape(-1,1)
-                    )
-                    unscaled = df[column].values
-                    scaled = self._numeric_encoder[column].transform(df[column].values.reshape(-1,1)).flatten()
-                    self._scaled_values[column] = scaled
-                    self._unscaled_values[column] = unscaled
+                    # Assuming df[column] contains your timestamps
+                    unscaled_values = df[column].values
+
+                    # Exclude 0 values from the MinMaxScaler
+                    non_zero_values = unscaled_values[unscaled_values != 0.0].reshape(-1,1)
+                    scaler = MinMaxScaler()
+
+                    # Check if all values in the column are 0.0
+                    if non_zero_values.size == 0:
+
+                        # Handle case where all values are 0.0 (padding)
+                        scaled_values = unscaled_values  # Padding values remain unchanged
+                        self._numeric_encoder[column] = scaler.fit(unscaled_values.reshape(-1,1))
+                        scaled_values_full = scaled_values# No scaler needed for all 0 values
+                    else:
+                        # Use MinMaxScaler for non-padding timestamps
+                        self._numeric_encoder[column] = scaler.fit(non_zero_values)
+                        # Scale the non-padding timestamps
+                        scaled_values = self._numeric_encoder[column].transform(non_zero_values).flatten()
+
+                        # Initialize scaled values with padding timestamps included
+                        scaled_values_full = np.zeros_like(unscaled_values)
+                        scaled_values_full[unscaled_values != 0.0] = scaled_values
+
+                    # Update your _scaled_values and _unscaled_values dictionaries
+                    self._scaled_values[column] = scaled_values_full
+                    self._unscaled_values[column] = unscaled_values
+
+                    # Print information
                     print('column:', column, 'considered number, top 5 values are:', list(df[column][:5]))
 
     def encode(self, df: DataFrame) -> None:
@@ -69,16 +91,25 @@ class Encoder:
                 if column in self._label_encoder:
                     df[column] = df[column].apply(lambda x: self._label_dict[column].get(str(x), PADDING_VALUE))
                 else:
-                    df[column] = self._numeric_encoder[column].transform(df[column].values.reshape(-1,1)).flatten()
-
+                    non_padding_mask = df[column] != 0
+                    if non_padding_mask.any():  # Check if there are non-padding values
+                        non_padding_values = df[column][non_padding_mask].values.reshape(-1, 1)
+                        transformed_values = self._numeric_encoder[column].transform(non_padding_values).flatten()
+                        df[column][non_padding_mask] = transformed_values
 
     def decode(self, df: DataFrame) -> None:
         for column in df:
-                if column != 'trace_id':
-                        if column in self._label_encoder:
-                            df[column] = df[column].apply(lambda x: self._label_dict_decoder[column].get(x, PADDING_VALUE))
-                        else:
-                            df[column] = self._numeric_encoder[column].inverse_transform(df[column].values.reshape(-1,1)).flatten()
+            if column != 'trace_id':
+                if column in self._label_encoder:
+                    df[column] = df[column].apply(lambda x: self._label_dict_decoder[column].get(x, PADDING_VALUE))
+                else:
+                    non_padding_mask = df[column] != PADDING_VALUE  # Assuming PADDING_VALUE is defined
+                    non_padding_values = df[column][non_padding_mask].values.reshape(-1, 1)
+                    if non_padding_values.size==0:
+                        df[column][non_padding_mask] = 0
+                    else:
+                        original_values = self._numeric_encoder[column].inverse_transform(non_padding_values).flatten()
+                        df[column][non_padding_mask] = original_values
 
     def decode_row(self, row) -> np.array:
         decoded_row = []
