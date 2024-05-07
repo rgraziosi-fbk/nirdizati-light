@@ -99,17 +99,11 @@ class Encoder:
 
     def decode(self, df: DataFrame) -> None:
         for column in df:
-            if column != 'trace_id':
-                if column in self._label_encoder:
-                    df[column] = df[column].apply(lambda x: self._label_dict_decoder[column].get(x, PADDING_VALUE))
-                else:
-                    non_padding_mask = df[column] != PADDING_VALUE  # Assuming PADDING_VALUE is defined
-                    non_padding_values = df[column][non_padding_mask].values.reshape(-1, 1)
-                    if non_padding_values.size==0:
-                        df[column][non_padding_mask] = 0
+                if column != 'trace_id':
+                    if column in self._label_encoder:
+                        df[column] = df[column].apply(lambda x: self._label_dict_decoder[column].get(x, PADDING_VALUE))
                     else:
-                        original_values = self._numeric_encoder[column].inverse_transform(non_padding_values).flatten()
-                        df[column][non_padding_mask] = original_values
+                        df[column] = self._numeric_encoder[column].inverse_transform(df[column].values.reshape(-1,1)).flatten()
 
     def decode_row(self, row) -> np.array:
         decoded_row = []
