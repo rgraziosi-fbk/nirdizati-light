@@ -6,7 +6,7 @@ from pandas import DataFrame
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.tree import DecisionTreeClassifier,DecisionTreeRegressor
-from sklearn.linear_model import SGDClassifier, Perceptron
+from sklearn.linear_model import SGDClassifier, Perceptron, SGDRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
@@ -102,8 +102,13 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.XGBOOST.value:
             model = XGBClassifier(**config,enable_categorical=True,
                                   tree_method='hist')
+        elif self.model_type == RegressionMethods.XGBOOST.value:
+            model = XGBRegressor(**config,enable_categorical=True,
+                                  tree_method='hist')
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
+        elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
+            model = SGDRegressor(**config)
         elif self.model_type == ClassificationMethods.PERCEPTRON.value:
             # added CalibratedClassifier to get predict_proba from perceptron model
             model = Perceptron(**config)

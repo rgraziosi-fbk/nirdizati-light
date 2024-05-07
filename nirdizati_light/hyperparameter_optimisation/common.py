@@ -43,10 +43,38 @@ def _get_space(model_type) -> dict:
     elif model_type is ClassificationMethods.XGBOOST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
-            'max_depth': scope.int(hp.quniform('max_depth', 3, 30, 1)),
+        'eta': hp.quniform('eta', 0.025, 0.5, 0.025),
+            'max_depth': scope.int(hp.quniform('max_depth', 2, 30, 1)),
+            'min_child_weight': hp.quniform('min_child_weight', 1, 6, 1),
+            'subsample': hp.quniform('subsample', 0.5, 1, 0.05),
+            'gamma': hp.quniform('gamma', 0.5, 1, 0.05),
+            'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.05),
         }
-
+    elif model_type is RegressionMethods.XGBOOST.value:
+        return {
+            'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
+            'eta': hp.quniform('eta', 0.025, 0.5, 0.025),
+            'max_depth': scope.int(hp.quniform('max_depth', 2, 30, 1)),
+            'min_child_weight': hp.quniform('min_child_weight', 1, 6, 1),
+            'subsample': hp.quniform('subsample', 0.5, 1, 0.05),
+            'gamma': hp.quniform('gamma', 0.5, 1, 0.05),
+            'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.05),
+        }
     elif model_type is ClassificationMethods.SGDCLASSIFIER.value:
+        return {
+            'loss': hp.choice('loss', ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_error',
+                                       'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive']),
+            'penalty': hp.choice('penalty', [None, 'l1', 'l2', 'elasticnet']),
+            'alpha': hp.uniform('alpha', 0.0001, 0.5),
+            'fit_intercept': hp.choice('fit_intercept', [True, False]),
+            'tol': hp.uniform('tol', 1e-3, 0.5),
+            'shuffle': hp.choice('shuffle', [True, False]),
+            'eta0': hp.quniform('eta0', 0, 5, 1),
+            # 'early_stopping': hp.choice('early_stopping', [True, False]), #needs to be false with partial_fit
+            'validation_fraction': 0.1,
+            'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 1, 30, 5))
+        }
+    elif model_type is RegressionMethods.SGDREGRESSOR.value:
         return {
             'loss': hp.choice('loss', ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_error',
                                        'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive']),

@@ -19,6 +19,8 @@ class ClassificationMethods(Enum):
 
 class RegressionMethods(Enum):
     RANDOM_FOREST = 'randomForestRegressor'
+    XGBOOST = 'xgboostregressor'
+    SGDREGRESSOR = 'SGDRegressor'
 
 
 def get_tensor(CONF, df: DataFrame):
