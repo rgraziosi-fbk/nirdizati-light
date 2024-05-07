@@ -14,15 +14,12 @@ from pm4py.objects.log.util import sorting
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from operator import itemgetter
 
-SEPSIS_ATTRIB_TRACE = ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
+ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
-                 'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore']
+                 'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
+                                        'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']},
+               'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []}}
 
-SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
-
-BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE = ['AMOUNT_REQ']
-
-BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT = []
 
 def read_log_csv(self, path):
     dataframe = pd.read_csv(path, sep=',')
@@ -103,7 +100,8 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
     path_result = os.getcwd() + '/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
     f = open(path_result, 'w')
     writer = csv.writer(f)
-    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] + SEPSIS_ATTRIB_EVENT + ['attrib_trace', 'label'])
+    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] +
+                    ATTRIBUTES[NAME_EXPERIMENT]['EVENT'] + ['attrib_trace', 'label'])
     #prev = params.START_SIMULATION
     prev = arrivals[0][1]
     for i in range(0, len(arrivals)):
@@ -135,9 +133,9 @@ def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'BPI_Challenge_2012_W_Two_TS', type ='rims', N_SIMULATION = 1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
-    log, arrivals = read_training(train_df, BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT,
-                                  BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE)
-    contrafactual_traces, arrivals_CF = read_contrafactual(df_cf, BPI_Challenge_2012_W_Two_TS_ATTRIB_EVENT,
-                                                           BPI_Challenge_2012_W_Two_TS_ATTRIB_TRACE)
+    log, arrivals = read_training(train_df, ATTRIBUTES[NAME_EXPERIMENT]['EVENT'],
+                                  ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])
+    contrafactual_traces, arrivals_CF = read_contrafactual(df_cf, ATTRIBUTES[NAME_EXPERIMENT]['EVENT'],
+                                  ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])
     arrivals = sorted(arrivals + arrivals_CF, key=lambda x: x[1])
     run(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))

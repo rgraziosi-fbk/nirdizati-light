@@ -116,13 +116,13 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
         train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
         df_cf['trace_id'] = df_cf.index
-        df_cf.to_csv(os.path.join('experiments',dataset_name + '_cf.csv'), index=False)
+        df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
 
 
         ### simulation part
         if CONF['simulation']:
             run_simulation(train_df, df_cf)
-            path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '.csv'
+            path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
             #path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
@@ -132,9 +132,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
+            if dataset_name == 'BPI_Challenge_2012_W_Two_TS':
+                simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            simulated_log['org:group'] = simulated_log['org:resource']
+            #simulated_log['org:group'] = simulated_log['org:resource'] for sepsis
             simulated_log['lifecycle:transition'] = 'complete'
             cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
             cols = list(itertools.chain.from_iterable(cols))
@@ -220,12 +222,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'BPI_Challenge_2012_W_Two_TS': [2],
+        'BPI_Challenge_2012_W_Two_TS': [4],
         #'sepsis_cases_1_start': [5],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3, 0.5, 0.7]:
+            for augmentation_factor in [0.3]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'BPI_Challenge_2012_W_Two_TS_ATTRIB.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
