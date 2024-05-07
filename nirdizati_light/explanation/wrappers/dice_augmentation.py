@@ -683,8 +683,11 @@ def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_in
         }
         for k, v in model_check_res.items()
     }
-
-    conformance_score = [len(v) / len(query_patterns) for v in model_check_res.values() ]
+    try:
+        conformance_score = [len(v) / len(query_patterns) for v in model_check_res.values() ]
+    except ZeroDivisionError:
+        print('No constraints available')
+        conformance_score = [1.0]
     avg_conformance = np.mean(conformance_score)
     print('Average conformance score', np.mean(conformance_score))
     return avg_conformance
