@@ -22,7 +22,8 @@ single_prefix = ['loreley','loreley_complex']
 
 
 def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
-                 timestamp_col_name,model_path,total_traces=None,minority_class=None,case_ids=None,random_seed=None):
+                 timestamp_col_name,model_path,total_traces=None,minority_class=None,case_ids=None,random_seed=None,
+                      desired_range=None):
     features_names = df.columns.values[:-1]
     feature_selection = CONF['feature_selection']
     dataset = CONF['data'].rpartition('/')[0].replace('../datasets/','')
@@ -63,29 +64,54 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         x = x.iloc[:, 1:]
         predicted_outcome = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_start_i = datetime.now()
-        if method == 'genetic_conformance':
-            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                       verbose=False,
-                                                                       posthoc_sparsity_algorithm='linear',
-                                                                       total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                       model_path=model_path, optimization=optimization,
-                                                                       heuristic=heuristic,random_seed=random_seed
-                                                                       )
-        elif method == 'multi_objective_genetic':
-            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                       verbose=False,
-                                                                       posthoc_sparsity_algorithm='linear',
-                                                                       total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                       model_path=model_path, optimization=optimization,
-                                                                       heuristic=heuristic,random_seed=random_seed
-                                                                       )
+        if desired_range is None:
+            if method == 'genetic_conformance':
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
+                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                           model_path=model_path, optimization=optimization,
+                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           )
+            elif method == 'multi_objective_genetic':
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
+                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                           model_path=model_path, optimization=optimization,
+                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           )
+            else:
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
+                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']
+                                                                                                               )#stopping_threshold=0.7
+                 )
         else:
-            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
-                                                                       verbose=False,
-                                                                       posthoc_sparsity_algorithm='linear',
-                                                                       total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']
-                                                                                                           )#stopping_threshold=0.7
-             )
+            if method == 'genetic_conformance':
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_range=desired_range,
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
+                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                           model_path=model_path, optimization=optimization,
+                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           )
+            elif method == 'multi_objective_genetic':
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class=desired_range,
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
+                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                           model_path=model_path, optimization=optimization,
+                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           )
+            else:
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class=desired_range,
+                                                                           verbose=False,
+                                                                           posthoc_sparsity_algorithm='linear',
+                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length'])
+                 )
+
         # function to decode cf from train_df and show it decoded before adding to list
         generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
         cf_list = np.array(generated_cfs).astype('float64')
