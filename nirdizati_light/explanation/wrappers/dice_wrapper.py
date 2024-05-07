@@ -56,11 +56,10 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
         if not os.path.exists(model_path):
             os.makedirs(model_path)
             print("Directory '%s' created successfully" % model_path)
+            d4py = Declare4Py()
+            model_discovery(CONF, encoder, df, dataset, features_names, d4py, model_path, support, timestamp_col_name)
     except OSError as error:
         print("Directory '%s' can not be created" % model_path)
-    
-    d4py = Declare4Py()
-    model_discovery(CONF, encoder, df, dataset, features_names, d4py, model_path, support, timestamp_col_name)
 
     cols = df.columns[:-1].values
 

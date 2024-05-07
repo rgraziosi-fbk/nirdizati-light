@@ -36,6 +36,12 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         ratio_cont = len(continuous_features)/len(categorical_features)
     d4py = Declare4Py()
 
+    try:
+        if not os.path.exists(model_path+dataset+'_'+str(CONF['prefix_length'])+'.decl'):
+            print("Directory '%s' created successfully" % model_path)
+            model_discovery(CONF, encoder, df, dataset, features_names, d4py, model_path, support, timestamp_col_name)
+    except OSError as error:
+        print("Directory '%s' can not be created" % model_path)
     time_start = datetime.now()
     query_instances_for_cf = query_instances.iloc[:,:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
@@ -702,6 +708,7 @@ def model_discovery(CONF, encoder, df, dataset, features_names, d4py, model_path
     long_data_sorted.replace('0', 'other', inplace=True)
     long_data_sorted.replace(0.0, 'other', inplace=True)
     long_data_sorted.replace(0, 'other', inplace=True)
+    long_data_sorted['case:concept:name'] = long_data_sorted['case:concept:name'].astype('str')
     event_log = convert_to_event_log(long_data_sorted)
     d4py.load_xes_log(event_log)
     d4py.compute_frequent_itemsets(min_support=support, len_itemset=2)
