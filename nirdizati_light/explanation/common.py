@@ -15,7 +15,7 @@ class ExplainerType(Enum):
 def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instances=None, target_trace_id=None,
             method=None, optimization=None, heuristic=None, support=0.9, timestamp_col_name=None,
             model_path=None,random_seed=None,adapted=None,filtering=None,total_traces=None,minority_class=None,
-            desired_rage=None):
+            desired_range=None):
     """
         Generate explanation based on the configuration provided in the CONF dictionary.
         :param dict CONF: dictionary for configuring the encoding

@@ -208,7 +208,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                                                       'Prefix Length', 'Augmentation Factor', 'Simulation'])
 
         # Define the file path
-        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '.csv'
+        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + dataset_name+ '.csv'
 
         # Write the DataFrame to a CSV file in append mode
         results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -229,7 +229,7 @@ if __name__ == '__main__':
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'BPI_Challenge_2012_W_Two_TS_ATTRIB.xes'),
+                    'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
