@@ -69,9 +69,11 @@ for idx_aug,aug in enumerate(augs):
         axes[idx_aug][idx_m].plot(initial, color='green')
         axes[idx_aug][idx_m].plot(baseline, color='blue')
         axes[idx_aug][idx_m].plot(sim, color='red')
-        axes[idx_aug][idx_m].set_title(model[idx_m], fontsize=20)
-        axes[idx_aug][idx_m].set_title(model[idx_m], fontsize=20)
-fig.legend(['Initial', 'Baseline', 'Sim+CF'])
-
-plt.tight_layout()
+        axes[idx_aug][idx_m].set_xticks(range(len(prefix)))  # Set xticks based on prefix length
+        axes[idx_aug][idx_m].set_xticklabels(prefix)
+        axes[0][idx_m].set_title(model[idx_m], fontsize=20)
+        axes[0][idx_m].set_title(model[idx_m], fontsize=20)
+fig.legend(['Initial', 'Baseline', 'Sim+CF'],ncols=3, loc='upper center', fontsize=20,bbox_to_anchor=(0.5, 0.98))
+fig.suptitle('Sepsis',fontsize=30)
+#plt.tight_layout()
 plt.show()
