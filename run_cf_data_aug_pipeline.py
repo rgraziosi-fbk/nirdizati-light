@@ -92,7 +92,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         augmentation_factor = CONF['augmentation_factor']
         total_traces = augmentation_factor * len(train_df[train_df['label'] == majority_class])
         model_path = 'experiments/process_models/'
-        support = 1.0
+        support = 0.9
         import itertools
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
             cols = ['prefix']
@@ -109,7 +109,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                         heuristic='heuristic_2', support=support,
                         timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
                         model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces,
-                        minority_class=minority_class
+                        minority_class=minority_class,cfs_to_gen=10#how many cfs to generate at one time
                         )
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
@@ -222,7 +222,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'BPI_Challenge_2012_W_Two_TS': [4],
+        'BPI_Challenge_2012_W_Two_TS': [2],
         #'sepsis_cases_1_start': [5],
     }
     for dataset, prefix_lengths in dataset_list.items():
