@@ -18,7 +18,17 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
                  'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
                                         'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']},
-               'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []}}
+               'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []},
+               'bpic2015_2_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
+       'Brandveilig gebruik (melding)', 'Brandveilig gebruik (vergunning)',
+       'Gebiedsbescherming', 'Handelen in strijd met regels RO',
+       'Inrit/Uitweg', 'Kap', 'Milieu (melding)',
+       'Milieu (neutraal wijziging)',
+       'Milieu (omgevingsvergunning beperkte milieutoets)',
+       'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
+       'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
+       'lifecycle:transition', 'month', 'question', 'timesincecasestart',
+       'timesincelastevent', 'timesincemidnight', 'weekday']}}
 
 
 def read_log_csv(self, path):
@@ -131,7 +141,7 @@ def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
         env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
         env.run(until=params.SIM_TIME)
 
-def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'BPI_Challenge_2012_W_Two_TS', type ='rims', N_SIMULATION = 1):
+def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'bpic2015_2_start', type ='rims', N_SIMULATION = 1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
     log, arrivals = read_training(train_df, ATTRIBUTES[NAME_EXPERIMENT]['EVENT'],
                                   ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])

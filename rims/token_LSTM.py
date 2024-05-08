@@ -11,7 +11,20 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
                  'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
                                         'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']},
-               'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []}}
+               'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []},
+              'bpic2015_2_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
+                                             'Brandveilig gebruik (melding)', 'Brandveilig gebruik (vergunning)',
+                                             'Gebiedsbescherming', 'Handelen in strijd met regels RO',
+                                             'Inrit/Uitweg', 'Kap', 'Milieu (melding)',
+                                             'Milieu (neutraal wijziging)',
+                                             'Milieu (omgevingsvergunning beperkte milieutoets)',
+                                             'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
+                                             'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
+                                                                             'lifecycle:transition', 'month',
+                                                                             'question', 'timesincecasestart',
+                                                                             'timesincelastevent', 'timesincemidnight',
+                                                                             'weekday']}
+              }
 
 class Token(object):
 
@@ -43,7 +56,7 @@ class Token(object):
         resource_trace = self.process.get_resource_trace()
         resource_trace_request = resource_trace.request()
         time_previous_event = self.start_time
-
+        print(event)
         while event is not None:
             yield resource_trace_request
 
@@ -54,9 +67,11 @@ class Token(object):
                 role = self.params.RESOURCE_ROLE[str(event[2])]
                 resource = self.process.get_single_resource(str(event[2]))
             else:
-                role = self.params.RESOURCE_ROLE["11169.0"]
-                resource = self.process.get_single_resource("11169.0")  ## ruolo
+                role = self.params.RESOURCE_ROLE["560532"]
+                resource = self.process.get_single_resource("560532")  ## ruolo
 
+            if event[0] not in self.params.INDEX_AC:
+                event[0] = "other"
             transition = (self.params.INDEX_AC[event[0]], self.params.INDEX_ROLE[role])
             self.prefix.append(event[0])
             pr_wip_wait = self.pr_wip_initial + resource_trace.count
@@ -68,7 +83,7 @@ class Token(object):
             else:
                 queue = 0
             waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
-                                                       self.start_time + timedelta(seconds=env.now), queue)
+                                                       self.start_time + timedelta(seconds=env.now), -1)
             if self.contrafactual is not None:
                 if self.see_activity:
                     yield env.timeout(waiting)
@@ -102,7 +117,7 @@ class Token(object):
             buffer.append(queue)
             #### event attributes
             ### SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
-            for a in ATTRIBUTES['BPI_Challenge_2012_W_Two_TS']['EVENT']:
+            for a in ATTRIBUTES['bpic2015_2_start']['EVENT']:
                 if a == 'event_nr':
                     buffer.append(len(self.prefix))
                 elif a == 'hour':
