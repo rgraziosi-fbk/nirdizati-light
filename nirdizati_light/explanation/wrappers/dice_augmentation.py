@@ -23,7 +23,7 @@ single_prefix = ['loreley','loreley_complex']
 
 def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
                  timestamp_col_name,model_path,total_traces=None,minority_class=None,case_ids=None,random_seed=None,
-                      desired_range=None):
+                      desired_range=None,cfs_to_gen=None):
     features_names = df.columns.values[:-1]
     feature_selection = CONF['feature_selection']
     dataset = CONF['data'].rpartition('/')[0].replace('../datasets/','')
@@ -60,7 +60,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
               '%.2f' % (test_id+1 / len(index_test_instances)))
         x = query_instances_for_cf.sample(n=1,replace=False)
         case_id = x.iloc[0, 0]
-        k = 5
+        k = cfs_to_gen
         x = x.iloc[:, 1:]
         predicted_outcome = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_start_i = datetime.now()

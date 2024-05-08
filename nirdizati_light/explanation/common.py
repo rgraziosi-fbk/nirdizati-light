@@ -15,7 +15,7 @@ class ExplainerType(Enum):
 def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instances=None, target_trace_id=None,
             method=None, optimization=None, heuristic=None, support=0.9, timestamp_col_name=None,
             model_path=None,random_seed=None,adapted=None,filtering=None,total_traces=None,minority_class=None,
-            desired_range=None):
+            desired_range=None,cfs_to_gen=None):
     """
         Generate explanation based on the configuration provided in the CONF dictionary.
         :param dict CONF: dictionary for configuring the encoding
@@ -51,4 +51,4 @@ def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instan
                             random_seed=random_seed,adapted=adapted,filtering=filtering)
     elif explainer is ExplainerType.DICE_AUGMENTATION.value:
         return dice_augmentation(CONF=CONF, predictive_model = predictive_model, encoder = encoder, df=df, query_instances=query_instances, method = method, optimization= optimization, heuristic=heuristic, support=support,
-                 timestamp_col_name=timestamp_col_name, total_traces=total_traces, minority_class=minority_class, model_path=model_path,desired_range=desired_range)
+                 timestamp_col_name=timestamp_col_name, total_traces=total_traces, minority_class=minority_class, model_path=model_path,desired_range=desired_range,cfs_to_gen=cfs_to_gen)
