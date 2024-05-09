@@ -14,6 +14,7 @@ class HyperoptTarget(Enum):
     MAE = 'mae'
     ACCURACY = 'accuracy'
     MCC = 'mcc'
+    MAPE = 'mape'
 
 
 def _get_space(model_type) -> dict:
