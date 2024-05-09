@@ -121,7 +121,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         if CONF['simulation']:
             run_simulation(train_df, df_cf, dataset_name)
             path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
-            #path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
             for i in range(len(simulated_log)):
@@ -236,7 +235,7 @@ if __name__ == '__main__':
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'full.xes'),
+                    'data': os.path.join(dataset, 'bpic2015_2_start.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
