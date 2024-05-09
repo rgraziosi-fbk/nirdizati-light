@@ -28,7 +28,7 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
 
 class Token(object):
 
-    def __init__(self, id, params, process: SimulationProcess, sequence, contrafactual, rp_feature='all_role'):
+    def __init__(self, id, params, process: SimulationProcess, sequence, contrafactual, NAME_EXPERIMENT, rp_feature='all_role'):
         self.id = id
         self.net, self.am, self.fm = pm4py.read_pnml(params.PATH_PETRINET)
         self.process = process
@@ -42,6 +42,7 @@ class Token(object):
         self.sequence = sequence
         self.contrafactual = contrafactual
         self.CF = True if self.contrafactual else False
+        self.NAME_EXPERIMENT = NAME_EXPERIMENT
 
     def read_json(self, path):
         with open(path) as file:
@@ -64,11 +65,19 @@ class Token(object):
                 role = self.params.RESOURCE_ROLE[str(event[2])]
                 resource = self.process.get_single_resource(str(event[2]))
             else:
-                role = self.params.RESOURCE_ROLE["560532"]
-                resource = self.process.get_single_resource("560532")  ## ruolo
+                if self.NAME_EXPERIMENT == 'bpic2015_2_start':
+                    role = self.params.RESOURCE_ROLE["560532"]
+                    resource = self.process.get_single_resource("560532")  ## ruolo
+                elif self.NAME_EXPERIMENT == 'sepsis_cases_1_start':
+                    role = self.params.RESOURCE_ROLE["F"]
+                    resource = self.process.get_single_resource("F")
+                elif self.NAME_EXPERIMENT == 'BPI_Challenge_2012_W_Two_TS':
+                    role = self.params.RESOURCE_ROLE["11169.0"]
+                    resource = self.process.get_single_resource("11169.0")
 
             if event[0] not in self.params.INDEX_AC:
-                event[0] = "other"
+                if self.NAME_EXPERIMENT == 'bpic2015_2_start':
+                    event[0] = "05_EIND_010"
             transition = (self.params.INDEX_AC[event[0]], self.params.INDEX_ROLE[role])
             self.prefix.append(event[0])
             pr_wip_wait = self.pr_wip_initial + resource_trace.count
@@ -87,7 +96,6 @@ class Token(object):
             else:
                 yield env.timeout(float(event[3]))
             yield request_resource
-
             ### register event in process ###
             resource_task = self.process.get_resource_event(event[0])
             resource_task_request = resource_task.request()
@@ -98,7 +106,7 @@ class Token(object):
             #rp_oc = self.process.get_occupations_resource(resource.get_name())
             rp_oc = self.process.get_occupations_all_role(role)
             initial_ac_wip = self.params.AC_WIP_INITIAL[event[0]] if event[0] in self.params.AC_WIP_INITIAL else 0
-            ac_wip = initial_ac_wip + resource_task.count
+            ac_wip = initial_ac_wip + 0#resource_task.count
 
             duration = self.process.get_predict_processing(str(self.id), pr_wip, transition, ac_wip, rp_oc, self.start_time + timedelta(seconds=env.now), -1)
             if event[1] == -1:
@@ -114,7 +122,7 @@ class Token(object):
             buffer.append(queue)
             #### event attributes
             ### SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
-            for a in ATTRIBUTES['bpic2015_2_start']['EVENT']:
+            for a in ATTRIBUTES[self.NAME_EXPERIMENT]['EVENT']:
                 if a == 'event_nr':
                     buffer.append(len(self.prefix))
                 elif a == 'hour':

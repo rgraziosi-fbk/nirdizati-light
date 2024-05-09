@@ -47,7 +47,7 @@ class DatasetConfs:
                                         'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea',
                                         'SIRSCritTemperature',
                                         'SIRSCriteria2OrMore'] } # i.e. case attributes that are known from the start
-            self.dynamic_num_cols = {dataset: ["timesincemidnight",
+            self.dynamic_num_cols = {dataset: ["start:timestamp", "timesincemidnight",
                                          "timesincelastevent", "timesincecasestart", "event_nr", "open_cases","Leucocytes","CRP","LacticAcid","month", "weekday", "hour"]}
             self.static_num_cols = {dataset: ['Age']}
         elif dataset_name is "Production":
@@ -152,7 +152,8 @@ class DatasetConfs:
             self.dynamic_num_cols = {dataset: ["hour", "weekday", "month", "timesincemidnight", "timesincelastevent",
                                          "timesincecasestart", "event_nr", "open_cases"]}
             self.static_num_cols = {dataset: ['AMOUNT_REQ']}
-        elif dataset_name in [ "BPIC15_%s_f%s" % (municipality, formula) for municipality in range(1, 6) for formula in range(1, 3)]:
+        #elif dataset_name in ['bpic2015_2_start.xes', "BPIC15_%s_f%s" % (municipality, formula) for municipality in range(1, 6) for formula in range(1, 3)]:
+        elif dataset_name in ['bpic2015_2_start']:
             dataset = dataset_name
             if where_is_the_file != '':
                 self.filename = {dataset: where_is_the_file}
@@ -172,18 +173,18 @@ class DatasetConfs:
             # features for classifier
             self.dynamic_cat_cols = {dataset: ["Activity", "monitoringResource", "question", "org:resource"]}
             self.static_cat_cols = {dataset: ["Responsible_actor"]}
-            self.dynamic_num_cols = {dataset: ["hour", "weekday", "month", "timesincemidnight", "timesincelastevent",
-                                         "timesincecasestart", "event_nr", "open_cases"]}
+            self.dynamic_num_cols = {dataset: ["start:timestamp", "hour", "weekday", "month", "timesincemidnight", "timesincelastevent",
+                                         "timesincecasestart", "event_nr"]}
             self.static_num_cols = {dataset: ["SUMleges", 'Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
                                         'Brandveilig gebruik (vergunning)', 'Gebiedsbescherming',
                                         'Handelen in strijd met regels RO', 'Inrit/Uitweg', 'Kap',
                                         'Milieu (neutraal wijziging)', 'Milieu (omgevingsvergunning beperkte milieutoets)',
-                                        'Milieu (vergunning)', 'Monument', 'Reclame', 'Sloop']}
+                                        'Milieu (vergunning)', 'Monument', 'Reclame', 'Sloop', 'Brandveilig gebruik (melding)', 'Milieu (melding)']}
             if dataset_name in ['BPIC15_3_f2', 'BPIC15_5_f2']:
                 self.dynamic_num_cols[dataset].append('Flora en Fauna')
-            if dataset_name in ['BPIC15_1_f2','BPIC15_2_f2','BPIC15_3_f2','BPIC15_5_f2']:
-                self.dynamic_num_cols[dataset].append('Brandveilig gebruik (melding)')
-                self.dynamic_num_cols[dataset].append('Milieu (melding)')
+            #if dataset_name in ['bpic2015_2_start', 'BPIC15_1_f2','BPIC15_2_f2','BPIC15_3_f2','BPIC15_5_f2']:
+            #    self.dynamic_num_cols[dataset].append('Brandveilig gebruik (melding)')
+            #    self.dynamic_num_cols[dataset].append('Milieu (melding)')
             if dataset_name in ['BPIC15_5_f2']:
                 self.dynamic_num_cols[dataset].append('Integraal')
         elif dataset_name in ["BPIC11_f%s" % formula for formula in range(1, 5)]:

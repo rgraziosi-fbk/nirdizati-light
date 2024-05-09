@@ -114,16 +114,16 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
                     ATTRIBUTES[NAME_EXPERIMENT]['EVENT'] + ['attrib_trace', 'label'])
     #prev = params.START_SIMULATION
     prev = arrivals[0][1]
-    for i in range(0, 3):
+    for i in range(0, len(arrivals)):
         next = arrivals[i][1]
         interval = (next - prev).total_seconds()
         prev = next
         yield env.timeout(interval)
         if str(arrivals[i][0]) in key:
             id_arrival = str(arrivals[i][0])
-            env.process(Token(id_arrival, params, simulation_process, [], contrafactual[arrivals[i][0]].copy()).simulation(env, writer, type))
+            env.process(Token(id_arrival, params, simulation_process, [], contrafactual[arrivals[i][0]].copy(), NAME_EXPERIMENT).simulation(env, writer, type))
         else:
-            env.process(Token(arrivals[i][0], params, simulation_process, log[arrivals[i][0]].copy(), False).simulation(env, writer, type))
+            env.process(Token(arrivals[i][0], params, simulation_process, log[arrivals[i][0]].copy(), False, NAME_EXPERIMENT).simulation(env, writer, type))
 
 
 def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
@@ -141,7 +141,7 @@ def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
         env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
         env.run(until=params.SIM_TIME)
 
-def run_simulation(train_df, df_cf, NAME_EXPERIMENT = 'bpic2015_2_start', type ='rims', N_SIMULATION = 1):
+def run_simulation(train_df, df_cf, NAME_EXPERIMENT, type ='rims', N_SIMULATION = 1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
     log, arrivals = read_training(train_df, ATTRIBUTES[NAME_EXPERIMENT]['EVENT'],
                                   ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])
