@@ -2,7 +2,7 @@ from math import sqrt
 
 import numpy as np
 from sklearn.metrics import f1_score, roc_auc_score, precision_score, recall_score, accuracy_score, mean_absolute_error, \
-    mean_squared_error, r2_score,matthews_corrcoef
+    mean_squared_error, r2_score,matthews_corrcoef,mean_absolute_percentage_error
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pandas import DataFrame
@@ -64,7 +64,7 @@ def evaluate_regressor(y_true, y_pred, loss=None):
     except Exception as e:
         evaluation.update({'rscore': None})
     try:
-        evaluation.update({'mape': _mean_absolute_percentage_error(y_true, y_pred)})
+        evaluation.update({'mape': mean_absolute_percentage_error(y_true, y_pred)})
     except Exception as e:
         evaluation.update({'mape': None})
 

@@ -101,7 +101,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('time:timestamp')
             cols.append('prefix')
             cols.append('lifecycle:transition')
-
         df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
                         query_instances=train_df_correct,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
@@ -162,7 +161,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_baseline.csv'))
             encoder.encode(updated_train_df)
 
-
+        #updated_train_df = pd.read_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'),index_col=[0])
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
                              CONF['predictive_models']]
         best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
@@ -187,28 +186,35 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             augmentation_factor = augmentation_factor
             simulation = CONF['simulation']
 
-            # Extract metrics from the initial and augmented results
-            initial_metrics = initial_result
-            augmented_metrics = augmented_result
+            columns = []
+            for key in initial_result.keys:
+                columns.append(f'Initial {key.capitalize()}')
+            for key in augmented_result.keys:
+                columns.append(f'Augmented {key.capitalize()}')
+            columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
 
-            # Append the data to the list
-            data_list.append([initial_metrics['accuracy'], initial_metrics['auc'], initial_metrics['f1_score'],
-                              initial_metrics['loss'], initial_metrics['mcc'], initial_metrics['precision'],
-                              initial_metrics['recall'], augmented_metrics['accuracy'], augmented_metrics['auc'],
-                              augmented_metrics['f1_score'], augmented_metrics['loss'], augmented_metrics['mcc'],
-                              augmented_metrics['precision'], augmented_metrics['recall'], model, prefix_length,
-                              augmentation_factor, simulation])
+            # Create an empty DataFrame
+            results_df = pd.DataFrame(columns=columns)
 
-        # Convert the list to a DataFrame
-        results_df = pd.DataFrame(data_list, columns=['Initial Accuracy', 'Initial AUC', 'Initial F1 Score',
-                                                      'Initial Loss', 'Initial MCC', 'Initial Precision',
-                                                      'Initial Recall', 'Augmented Accuracy', 'Augmented AUC',
-                                                      'Augmented F1 Score', 'Augmented Loss', 'Augmented MCC',
-                                                      'Augmented Precision', 'Augmented Recall', 'Model',
-                                                      'Prefix Length', 'Augmentation Factor', 'Simulation'])
+            # Create a data row
+            data_row = []
+
+            # Append initial metrics
+            for key in initial_result.keys:
+                data_row.append(initial_result[key])
+
+            # Append augmented metrics
+            for key in augmented_result.keys:
+                data_row.append(augmented_result[key])
+
+            # Append additional data to the data row
+            data_row.extend([model, prefix_length, augmentation_factor, simulation])
+
+            # Append the data row to the DataFrame
+            results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
 
         # Define the file path
-        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + dataset_name+ '.csv'
+        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name+ '.csv'
 
         # Write the DataFrame to a CSV file in append mode
         results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -223,14 +229,14 @@ if __name__ == '__main__':
     dataset_list = {
         ### prefix length
         #'BPI_Challenge_2012_W_Two_TS': [3],
-        'bpic2015_2_start': [3, 5]
+        'bpic2015_2_start': [3, 5],
         #'sepsis_cases_1_start': [5],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'bpic2015_2_start.xes'),
+                    'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -240,8 +246,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    #'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
-                    'predictive_models': [ClassificationMethods.RANDOM_FOREST.value],
+                    'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,

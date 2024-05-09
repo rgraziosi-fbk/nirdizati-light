@@ -98,7 +98,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            heuristic=heuristic,random_seed=random_seed
                                                                            )
             elif method == 'multi_objective_genetic':
-                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class=desired_range,
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_range=desired_range,
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
@@ -106,7 +106,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            heuristic=heuristic,random_seed=random_seed
                                                                            )
             else:
-                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class=desired_range,
+                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_range=desired_range,
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']
@@ -200,6 +200,8 @@ def dice_model(predictive_model):
     elif predictive_model.model_type is ClassificationMethods.XGBOOST.value:
         m = dice_ml.Model(model=predictive_model.model, backend='sklearn')
     elif predictive_model.model_type is RegressionMethods.RANDOM_FOREST.value:
+        m = dice_ml.Model(model=predictive_model.model, backend='sklearn',model_type='regressor')
+    elif predictive_model.model_type is RegressionMethods.XGBOOST.value:
         m = dice_ml.Model(model=predictive_model.model, backend='sklearn',model_type='regressor')
     else:
         m = dice_ml.Model(model=predictive_model.model, backend='TF2')
