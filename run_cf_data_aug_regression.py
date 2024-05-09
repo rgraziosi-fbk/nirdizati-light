@@ -51,6 +51,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     logger.debug('LOAD DATA')
     log = get_log(filepath=CONF['data'])
 
+
     logger.debug('ENCODE DATA')
     encoder, full_df = get_encoded_df(log=log, CONF=CONF)
 
@@ -79,17 +80,40 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     best_model.config = best_model_config
     logger.debug('COMPUTE EXPLANATION')
     if CONF['explanator'] is ExplainerType.DICE_AUGMENTATION.value:
-        # set test df just with correctly predicted labels and make sure it's minority class
-        minority_class = full_df['label'].value_counts().idxmin()
-        majority_class = full_df['label'].value_counts().idxmax()
-        predicted_train = best_model.model.predict(drop_columns(train_df))
-        if best_model.model_type in [item.value for item in ClassificationMethods]:
-            train_df_correct = train_df[(train_df['label'] == predicted_train) & (train_df['label'] == majority_class)]
-        else:
-            train_df_correct = train_df
         full_df = pd.concat([train_df, val_df, test_df])
         augmentation_factor = CONF['augmentation_factor']
-        total_traces = augmentation_factor * len(train_df[train_df['label'] == majority_class])
+
+        # Define the width of each custom interval
+        interval_width = 0.1  # Adjust this value as needed
+
+        # Generate custom intervals within the range [0, 1]
+        custom_intervals = [(start, start + interval_width) for start in np.arange(full_df['label'].min(), full_df['label'].max(), interval_width)]
+
+        # Initialize variables to keep track of the maximum count and corresponding interval
+        max_count = 0
+        max_interval = None
+
+        # Iterate over each custom interval
+        for interval in custom_intervals:
+            # Unpack the start and end of the current interval
+            interval_start, interval_end = interval
+
+            # Count the number of values within the current interval
+            count = len(train_df[(train_df['label'] >= interval_start) & (train_df['label'] < interval_end)])
+
+            # Update the maximum count and corresponding interval if necessary
+            if count > max_count:
+                max_count = count
+                max_interval = interval
+
+        # max_interval will contain the custom interval with the maximum count of values
+        print("Custom interval with the maximum count of values:", max_interval)
+        print("Number of values in the custom interval:", max_count)
+        desired_range = [[max_interval[1], full_df['label'].max()] if max_interval[1] < full_df['label'].max() else
+                            [full_df['label'].min(), max_interval[1]] if max_interval[1] == full_df['label'].max() else max_interval]
+        desired_range = desired_range[0]
+        # Print the interval outside of the second interval within the first interval
+        total_traces = augmentation_factor * max_count
         model_path = 'experiments/process_models/'
         support = 0.9
         import itertools
@@ -101,13 +125,15 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('time:timestamp')
             cols.append('prefix')
             cols.append('lifecycle:transition')
+
         df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
-                        query_instances=train_df_correct,
+                        query_instances=train_df,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
                         heuristic='heuristic_2', support=support,
                         timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
                         model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces,
-                        minority_class=minority_class,cfs_to_gen=10#how many cfs to generate at one time
+                        cfs_to_gen=10,#how many cfs to generate at one time,
+                               desired_range=desired_range
                         )
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
@@ -160,7 +186,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_baseline.csv'))
             encoder.encode(updated_train_df)
 
-        #updated_train_df = pd.read_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'),index_col=[0])
+
         predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
                              CONF['predictive_models']]
         best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
@@ -186,9 +212,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulation = CONF['simulation']
 
             columns = []
-            for key in initial_result.keys:
+            for key in initial_result.keys():
                 columns.append(f'Initial {key.capitalize()}')
-            for key in augmented_result.keys:
+            for key in augmented_result.keys():
                 columns.append(f'Augmented {key.capitalize()}')
             columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
 
@@ -199,11 +225,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             data_row = []
 
             # Append initial metrics
-            for key in initial_result.keys:
+            for key in initial_result.keys():
                 data_row.append(initial_result[key])
 
             # Append augmented metrics
-            for key in augmented_result.keys:
+            for key in augmented_result.keys():
                 data_row.append(augmented_result[key])
 
             # Append additional data to the data row
@@ -213,7 +239,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
 
         # Define the file path
-        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name+ '.csv'
+        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + dataset_name+ '.csv'
 
         # Write the DataFrame to a CSV file in append mode
         results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -227,13 +253,13 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'BPI_Challenge_2012_W_Two_TS': [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-        #'bpic2015_2_start': [3]
-        #'sepsis_cases_1_start': [5],
+        'BPI_Challenge_2012_W_Two_TS': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+        # 'bpic2015_2_start': [3]
+        # 'sepsis_cases_1_start': [5],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3,0.5,0.7]:
+            for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
@@ -244,14 +270,14 @@ if __name__ == '__main__':
                     'feature_selection': EncodingType.COMPLEX.value,
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
-                    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'labeling_type': LabelTypes.REMAINING_TIME.value,
+                    'predictive_models': [RegressionMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
-                    'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
+                    'hyperparameter_optimisation_target': HyperoptTarget.RMSE.value,
                     'hyperparameter_optimisation_evaluations': 20,
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
