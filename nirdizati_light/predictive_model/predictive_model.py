@@ -100,11 +100,16 @@ class PredictiveModel:
         elif self.model_type == ClassificationMethods.KNN.value:
             model = KNeighborsClassifier(**config)
         elif self.model_type == ClassificationMethods.XGBOOST.value:
+            scale_pos_weight = (self.full_train_df['label'].value_counts().min() / self.full_train_df['label'].value_counts().max() )
             model = XGBClassifier(**config,enable_categorical=True,
-                                  tree_method='hist')
+                                  tree_method='hist',scale_pos_weight=scale_pos_weight)
         elif self.model_type == RegressionMethods.XGBOOST.value:
-            model = XGBRegressor(**config,enable_categorical=True,
-                                  tree_method='hist')
+            model = XGBRegressor(**config,#enable_categorical=True,
+                                  #tree_method='hist',
+                                 #base_score=0.0
+                                  #, booster='gbtree',
+                                  #objective='reg:linear'
+            )
         elif self.model_type == ClassificationMethods.SGDCLASSIFIER.value:
             model = SGDClassifier(**config)
         elif self.model_type == RegressionMethods.SGDREGRESSOR.value:
@@ -162,7 +167,6 @@ class PredictiveModel:
                 validate_loss = criterion(model(validate_tensor), torch.tensor(self.validate_label, dtype=torch.float32))
                 if early_stopper.early_stop(validate_loss):             
                     break
-
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             model.fit(self.train_df.values, self.full_train_df['label'])
 
