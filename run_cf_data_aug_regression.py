@@ -84,7 +84,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         augmentation_factor = CONF['augmentation_factor']
 
         # Define the width of each custom interval
-        interval_width = 0.1  # Adjust this value as needed
+        interval_width = 0.065  # Adjust this value as needed
 
         # Generate custom intervals within the range [0, 1]
         custom_intervals = [(start, start + interval_width) for start in np.arange(full_df['label'].min(), full_df['label'].max(), interval_width)]
