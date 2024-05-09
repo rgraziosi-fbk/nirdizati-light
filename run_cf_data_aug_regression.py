@@ -239,7 +239,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
 
         # Define the file path
-        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + dataset_name+ '.csv'
+        file_path = 'experiments/model_performances_regression' + CONF['hyperparameter_optimisation_target'] + dataset_name+ '.csv'
 
         # Write the DataFrame to a CSV file in append mode
         results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -253,9 +253,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'BPI_Challenge_2012_W_Two_TS': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+        #'BPI_Challenge_2012_W_Two_TS': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
         # 'bpic2015_2_start': [3]
-        # 'sepsis_cases_1_start': [5],
+         'sepsis_cases_1_start': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
@@ -282,7 +282,7 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
     '''
