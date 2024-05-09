@@ -28,7 +28,7 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
 
 class Token(object):
 
-    def __init__(self, id, params, process: SimulationProcess, case, sequence, contrafactual, rp_feature='all_role'):
+    def __init__(self, id, params, process: SimulationProcess, sequence, contrafactual, rp_feature='all_role'):
         self.id = id
         self.net, self.am, self.fm = pm4py.read_pnml(params.PATH_PETRINET)
         self.process = process
@@ -37,7 +37,6 @@ class Token(object):
         self.rp_feature = rp_feature
         self.params = params
         self.see_activity = False
-        self.case = case
         self.pos = 0
         self.prefix = []
         self.sequence = sequence
@@ -56,10 +55,8 @@ class Token(object):
         resource_trace = self.process.get_resource_trace()
         resource_trace_request = resource_trace.request()
         time_previous_event = self.start_time
-        print(event)
         while event is not None:
             yield resource_trace_request
-
             buffer = [self.id, event[0]]
             buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for waiting time

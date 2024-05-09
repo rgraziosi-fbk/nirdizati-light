@@ -114,16 +114,16 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
                     ATTRIBUTES[NAME_EXPERIMENT]['EVENT'] + ['attrib_trace', 'label'])
     #prev = params.START_SIMULATION
     prev = arrivals[0][1]
-    for i in range(0, len(arrivals)):
+    for i in range(0, 3):
         next = arrivals[i][1]
         interval = (next - prev).total_seconds()
         prev = next
         yield env.timeout(interval)
         if str(arrivals[i][0]) in key:
             id_arrival = str(arrivals[i][0])
-            env.process(Token(id_arrival, params, simulation_process, params, [], contrafactual[arrivals[i][0]].copy()).simulation(env, writer, type))
+            env.process(Token(id_arrival, params, simulation_process, [], contrafactual[arrivals[i][0]].copy()).simulation(env, writer, type))
         else:
-            env.process(Token(arrivals[i][0], params, simulation_process, params, log[arrivals[i][0]].copy(), False).simulation(env, writer, type))
+            env.process(Token(arrivals[i][0], params, simulation_process, log[arrivals[i][0]].copy(), False).simulation(env, writer, type))
 
 
 def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
