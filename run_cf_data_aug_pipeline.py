@@ -186,9 +186,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulation = CONF['simulation']
 
             columns = []
-            for key in initial_result.keys:
+            for key in initial_result.keys():
                 columns.append(f'Initial {key.capitalize()}')
-            for key in augmented_result.keys:
+            for key in augmented_result.keys():
                 columns.append(f'Augmented {key.capitalize()}')
             columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
 
@@ -199,11 +199,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             data_row = []
 
             # Append initial metrics
-            for key in initial_result.keys:
+            for key in initial_result.keys():
                 data_row.append(initial_result[key])
 
             # Append augmented metrics
-            for key in augmented_result.keys:
+            for key in augmented_result.keys():
                 data_row.append(augmented_result[key])
 
             # Append additional data to the data row
