@@ -28,7 +28,19 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
        'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
        'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
        'lifecycle:transition', 'month', 'question', 'timesincecasestart',
-       'timesincelastevent', 'timesincemidnight', 'weekday']}}
+       'timesincelastevent', 'timesincemidnight', 'weekday']},
+       'sepsis_cases_2_start': {
+          'TRACE': ['Age', 'DiagnosticArtAstrup','DiagnosticBlood','DiagnosticECG',
+ 'DiagnosticIC','DiagnosticLacticAcid','DiagnosticLiquor','DiagnosticOther',
+ 'DiagnosticSputum','DiagnosticUrinaryCulture','DiagnosticUrinarySediment',
+ 'DiagnosticXthorax','DisfuncOrg','Hypotensie','Hypoxie',
+ 'InfectionSuspected','Infusion','Oligurie','SIRSCritHeartRate',
+ 'SIRSCritLeucos','SIRSCritTachypnea','SIRSCritTemperature','SIRSCriteria2OrMore'],
+          'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month',
+                    'timesincecasestart',
+                    'timesincelastevent', 'timesincemidnight', 'weekday']}
+              }
+
 
 
 def read_log_csv(self, path):
