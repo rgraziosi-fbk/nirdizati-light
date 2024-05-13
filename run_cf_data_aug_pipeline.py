@@ -101,6 +101,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('time:timestamp')
             cols.append('prefix')
             cols.append('lifecycle:transition')
+
         df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
                         query_instances=train_df_correct,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
@@ -116,7 +117,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf['trace_id'] = df_cf.index
         df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
 
-
+  
         ### simulation part
         if CONF['simulation']:
             run_simulation(train_df, df_cf, dataset_name)
@@ -133,7 +134,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            if dataset_name == 'sepsis_cases_1_start':
+            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log['org:group'] = simulated_log['org:resource']
             simulated_log['lifecycle:transition'] = 'complete'
             cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
@@ -245,7 +246,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
