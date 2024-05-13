@@ -33,7 +33,17 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
              'SIRSCritLeucos','SIRSCritTachypnea','SIRSCritTemperature','SIRSCriteria2OrMore'],
                       'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month',
                                 'timesincecasestart',
-                                'timesincelastevent', 'timesincemidnight', 'weekday']}
+                                'timesincelastevent', 'timesincemidnight', 'weekday']},
+              'sepsis_cases_3_start': {
+                  'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG',
+                            'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
+                            'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture',
+                            'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
+                            'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate',
+                            'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
+                  'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart',
+                            'timesincelastevent', 'timesincemidnight', 'weekday']},
+
               }
 
 class Token(object):
@@ -78,7 +88,7 @@ class Token(object):
                 if self.NAME_EXPERIMENT == 'bpic2015_2_start':
                     role = self.params.RESOURCE_ROLE["560532"]
                     resource = self.process.get_single_resource("560532")  ## ruolo
-                elif self.NAME_EXPERIMENT == 'sepsis_cases_1_start' or self.NAME_EXPERIMENT == 'sepsis_cases_2_start':
+                elif self.NAME_EXPERIMENT == 'sepsis_cases_1_start' or self.NAME_EXPERIMENT == 'sepsis_cases_2_start' or self.NAME_EXPERIMENT == 'sepsis_cases_3_start':
                     role = self.params.RESOURCE_ROLE["F"]
                     resource = self.process.get_single_resource("F")
                 elif self.NAME_EXPERIMENT == 'BPI_Challenge_2012_W_Two_TS':

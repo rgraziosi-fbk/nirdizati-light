@@ -38,7 +38,17 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
  'SIRSCritLeucos','SIRSCritTachypnea','SIRSCritTemperature','SIRSCriteria2OrMore'],
           'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month',
                     'timesincecasestart',
-                    'timesincelastevent', 'timesincemidnight', 'weekday']}
+                    'timesincelastevent', 'timesincemidnight', 'weekday']},
+        'sepsis_cases_3_start': {
+                  'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG',
+                            'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
+                            'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture',
+                            'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
+                            'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate',
+                            'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
+                  'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart',
+                            'timesincelastevent', 'timesincemidnight', 'weekday']},
+
               }
 
 
