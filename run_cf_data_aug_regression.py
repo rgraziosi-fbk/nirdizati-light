@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
 from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
 from nirdizati_light.encoding.time_encoding import TimeEncodingType
-from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_regressor
+from nirdizati_light.evaluation.common import evaluate_classifier, evaluate_regressor
 from nirdizati_light.explanation.common import ExplainerType, explain
 from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
 from nirdizati_light.labeling.common import LabelTypes
@@ -32,6 +32,7 @@ def dict_mean(dict_list):
         mean_dict[key] = sum(d[key] for d in dict_list) / len(dict_list)
     return mean_dict
 
+
 def convert_to_log(simulated_log, cols):
     simulated_log = pm4py.convert_to_event_log(simulated_log)
     for trace in simulated_log:
@@ -51,7 +52,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     logger.debug('LOAD DATA')
     log = get_log(filepath=CONF['data'])
 
-
     logger.debug('ENCODE DATA')
     encoder, full_df = get_encoded_df(log=log, CONF=CONF)
 
@@ -65,7 +65,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
     full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Resource')))]
     full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Activity')))]
-    train_df, val_df, test_df = np.split(full_df, [int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
+    train_df, val_df, test_df = np.split(full_df,
+                                         [int(train_size * len(full_df)), int((train_size + val_size) * len(full_df))])
 
     predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df) for predictive_model in
                          CONF['predictive_models']]
@@ -80,40 +81,17 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     best_model.config = best_model_config
     logger.debug('COMPUTE EXPLANATION')
     if CONF['explanator'] is ExplainerType.DICE_AUGMENTATION.value:
+        # set test df just with correctly predicted labels and make sure it's minority class
+        minority_class = full_df['label'].value_counts().idxmin()
+        majority_class = full_df['label'].value_counts().idxmax()
+        predicted_train = best_model.model.predict(drop_columns(train_df))
+        if best_model.model_type in [item.value for item in ClassificationMethods]:
+            train_df_correct = train_df[(train_df['label'] == predicted_train) & (train_df['label'] == majority_class)]
+        else:
+            train_df_correct = train_df
         full_df = pd.concat([train_df, val_df, test_df])
         augmentation_factor = CONF['augmentation_factor']
-
-        # Define the width of each custom interval
-        interval_width = 0.065  # Adjust this value as needed
-
-        # Generate custom intervals within the range [0, 1]
-        custom_intervals = [(start, start + interval_width) for start in np.arange(full_df['label'].min(), full_df['label'].max(), interval_width)]
-
-        # Initialize variables to keep track of the maximum count and corresponding interval
-        max_count = 0
-        max_interval = None
-
-        # Iterate over each custom interval
-        for interval in custom_intervals:
-            # Unpack the start and end of the current interval
-            interval_start, interval_end = interval
-
-            # Count the number of values within the current interval
-            count = len(train_df[(train_df['label'] >= interval_start) & (train_df['label'] < interval_end)])
-
-            # Update the maximum count and corresponding interval if necessary
-            if count > max_count:
-                max_count = count
-                max_interval = interval
-
-        # max_interval will contain the custom interval with the maximum count of values
-        print("Custom interval with the maximum count of values:", max_interval)
-        print("Number of values in the custom interval:", max_count)
-        desired_range = [[max_interval[1], full_df['label'].max()] if max_interval[1] < full_df['label'].max() else
-                            [full_df['label'].min(), max_interval[1]] if max_interval[1] == full_df['label'].max() else max_interval]
-        desired_range = desired_range[0]
-        # Print the interval outside of the second interval within the first interval
-        total_traces = augmentation_factor * max_count
+        total_traces = augmentation_factor * len(train_df[train_df['label'] == majority_class])
         model_path = 'experiments/process_models/'
         support = 0.9
         import itertools
@@ -126,28 +104,25 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('prefix')
             cols.append('lifecycle:transition')
 
-        df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
-                        query_instances=train_df,
-                        method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
-                        heuristic='heuristic_2', support=support,
-                        timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
-                        model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces,
-                        cfs_to_gen=10,#how many cfs to generate at one time,
-                               desired_range=desired_range
-                        )
+        df_cf, x_eval = explain(CONF, best_model, encoder=encoder,
+                                query_instances=train_df_correct,
+                                method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
+                                heuristic='heuristic_2', support=support,
+                                timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
+                                model_path=model_path, random_seed=CONF['seed'], total_traces=10,
+                                minority_class=minority_class, cfs_to_gen=10  # how many cfs to generate at one time
+                                )
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
 
-        train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
+        train_df.to_csv(os.path.join('experiments', dataset_name + '_train_df.csv'))
         df_cf['trace_id'] = df_cf.index
         df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
 
-
         ### simulation part
         if CONF['simulation']:
-            run_simulation(train_df, df_cf)
+            run_simulation(train_df, df_cf, dataset_name)
             path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
-            #path_simulated_cfs = 'sepsis_cases_1_start/results/simulated_log_sepsis_cases_1_start_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
             for i in range(len(simulated_log)):
@@ -156,11 +131,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'BPI_Challenge_2012_W_Two_TS':
+            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            #simulated_log['org:group'] = simulated_log['org:resource'] for sepsis
+            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start':
+                simulated_log['org:group'] = simulated_log['org:resource']
             simulated_log['lifecycle:transition'] = 'complete'
             cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
             cols = list(itertools.chain.from_iterable(cols))
@@ -170,7 +146,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('label')
             simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
             simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
-            #simulated_log['label'] = minority_class
+            # simulated_log['label'] = minority_class
             simulated_log = convert_to_log(simulated_log, cols)
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
@@ -187,13 +163,78 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             encoder.encode(updated_train_df)
 
 
-        predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
-                             CONF['predictive_models']]
+        #REGRESSION PART
+        encoder.decode(updated_train_df)
+
+
+        REGRESSION_CONF = {  # This contains the configuration for the run
+            'data': os.path.join(dataset, 'full.xes'),
+            'train_val_test_split': [0.7, 0.15, 0.15],
+            'output': os.path.join('..', 'output_data'),
+            'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+            'prefix_length': prefix,
+            'padding': True,  # TODO, why use of padding?
+            'feature_selection': EncodingType.COMPLEX.value,
+            'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+            'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
+            'labeling_type': LabelTypes.REMAINING_TIME.value,
+            'predictive_models': [RegressionMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+            'explanator': ExplainerType.DICE_AUGMENTATION.value,
+            'augmentation_factor': CONF['augmentation_factor'],  # SHAP, LRP, ICE, DICE
+            'threshold': 13,
+            'top_k': 10,
+            'hyperparameter_optimisation': False,  # TODO, this parameter is not used
+            'hyperparameter_optimisation_target': HyperoptTarget.RMSE.value,
+            'hyperparameter_optimisation_evaluations': 20,
+            'time_encoding': TimeEncodingType.NONE.value,
+            'target_event': None,
+            'seed': 42,
+            'simulation': True  ## if True the simulation of TRAIN + CF is run
+        }
+        encoder_regression, full_df_regression = get_encoded_df(log=log, CONF=REGRESSION_CONF)
+
+        logger.debug('TRAIN PREDICTIVE MODEL')
+        # split in train, val, test
+        train_size = CONF['train_val_test_split'][0]
+        val_size = CONF['train_val_test_split'][1]
+        test_size = CONF['train_val_test_split'][2]
+        if train_size + val_size + test_size != 1.0:
+            raise Exception('Train-val-test split doese  not sum up to 1')
+
+        full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Resource')))]
+        full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Activity')))]
+        train_df, val_df, test_df = np.split(full_df,
+                                             [int(train_size * len(full_df)),
+                                              int((train_size + val_size) * len(full_df))])
+
+
+        predictive_models = [PredictiveModel(REGRESSION_CONF, predictive_model, train_df, val_df, test_df) for
+                                 predictive_model
+                                 in
+                                 REGRESSION_CONF['predictive_models']]
+        best_candidates, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
+            predictive_models,
+            max_evaluations=REGRESSION_CONF['hyperparameter_optimisation_evaluations'],
+            target=REGRESSION_CONF['hyperparameter_optimisation_target'],
+            seed=REGRESSION_CONF['seed']
+        )
+
+        best_model = predictive_models[best_model_idx]
+        best_model.model = best_model_model
+        best_model.config = best_model_config
+
+        updated_train_df['label'] = 0
+        encoder_regression.encode(updated_train_df)
+        updated_train_df['label'] = best_model.model.predict(drop_columns(updated_train_df))
+        predictive_models_new = [PredictiveModel(REGRESSION_CONF, predictive_model, updated_train_df, val_df, test_df) for
+                                 predictive_model
+                                 in
+                                 REGRESSION_CONF['predictive_models']]
         best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
             predictive_models_new,
-            max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
-            target=CONF['hyperparameter_optimisation_target'],
-            seed=CONF['seed']
+            max_evaluations=REGRESSION_CONF['hyperparameter_optimisation_evaluations'],
+            target=REGRESSION_CONF['hyperparameter_optimisation_target'],
+            seed=REGRESSION_CONF['seed']
         )
 
         best_model_new = predictive_models_new[best_model_idx_new]
@@ -207,9 +248,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             initial_result = best_candidates[id].get('result')
             augmented_result = best_candidates_new[id].get('result')
             model = CONF['predictive_models'][id]
-            prefix_length = CONF['prefix_length']
+            prefix_length = REGRESSION_CONF['prefix_length']
             augmentation_factor = augmentation_factor
-            simulation = CONF['simulation']
+            simulation = REGRESSION_CONF['simulation']
 
             columns = []
             for key in initial_result.keys():
@@ -239,7 +280,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
 
         # Define the file path
-        file_path = 'experiments/model_performances_regression' + CONF['hyperparameter_optimisation_target'] + dataset_name+ '.csv'
+        file_path = 'experiments/model_performances_regression' + CONF[
+            'hyperparameter_optimisation_target'] + dataset_name + '.csv'
 
         # Write the DataFrame to a CSV file in append mode
         results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -253,9 +295,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'BPI_Challenge_2012_W_Two_TS': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-        # 'bpic2015_2_start': [3]
-         'sepsis_cases_1_start': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+        # 'BPI_Challenge_2012_W_Two_TS': [1,2,3,4,5,6,7,8,9,10],
+        'bpic2015_2_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        # 'sepsis_cases_2_start': [5, 7, 9, 11, 12, 14],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
@@ -270,43 +312,10 @@ if __name__ == '__main__':
                     'feature_selection': EncodingType.COMPLEX.value,
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
-                    'labeling_type': LabelTypes.REMAINING_TIME.value,
-                    'predictive_models': [RegressionMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
-                    'explanator': ExplainerType.DICE_AUGMENTATION.value,
-                    'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
-                    'threshold': 13,
-                    'top_k': 10,
-                    'hyperparameter_optimisation': False,  # TODO, this parameter is not used
-                    'hyperparameter_optimisation_target': HyperoptTarget.RMSE.value,
-                    'hyperparameter_optimisation_evaluations': 20,
-                    'time_encoding': TimeEncodingType.NONE.value,
-                    'target_event': None,
-                    'seed': 42,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is run
-                }
-                run_simple_pipeline(CONF=CONF, dataset_name=dataset)
-    '''
-    dataset_list = {
-        ### prefix length
-        'sepsis_cases_1_start': [14],
-    }
-    for dataset, prefix_lengths in dataset_list.items():
-        for prefix in prefix_lengths:
-            for augmentation_factor in [0.3, 0.5, 0.7]: #0.3, 0.5, 0.7
-                CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'full.xes'),
-                    'train_val_test_split': [0.7, 0.15, 0.15],
-                    'output': os.path.join('..', 'output_data'),
-                    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
-                    'prefix_length': prefix,
-                    'padding': True,  # TODO, why use of padding?
-                    'feature_selection': EncodingType.COMPLEX.value,
-                    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
-                    'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.XGBOOST.value, ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
-                    'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
+                    'augmentation_factor': augmentation_factor,  # SHAP, LRP, ICE, DICE
                     'threshold': 13,
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
@@ -318,4 +327,3 @@ if __name__ == '__main__':
                     'simulation': False  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
-        '''
