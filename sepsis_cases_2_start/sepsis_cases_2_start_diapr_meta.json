@@ -1,0 +1,196 @@
+{
+    "ac_index": {
+        "Admission NC": 6,
+        "CRP": 8,
+        "ER Registration": 10,
+        "ER Sepsis Triage": 2,
+        "ER Triage": 1,
+        "End": 16,
+        "IV Antibiotics": 5,
+        "IV Liquid": 4,
+        "LacticAcid": 3,
+        "Leucocytes": 7,
+        "Release A": 9,
+        "Release B": 11,
+        "Release C": 14,
+        "Release D": 13,
+        "Return ER": 12,
+        "Start": 0,
+        "other": 15
+    },
+    "dense_act": "linear",
+    "generated_at": "12/05/2024 12:00:25",
+    "start_simulation": "2013-07-11 00:00:00",
+    "inter_mean_states": {
+        "tasks": {
+            "Admission NC": 0.13224074597343882,
+            "CRP": 0.8821701045493077,
+            "ER Registration": 0.004521051144391071,
+            "ER Sepsis Triage": 0.09578977112178581,
+            "ER Triage": 0.09692003390788358,
+            "End": 0.0,
+            "IV Antibiotics": 0.06951116134501271,
+            "IV Liquid": 0.07459734388245268,
+            "LacticAcid": 0.020909861542808703,
+            "Leucocytes": 0.6448149194687764,
+            "Release A": 0.8406329471602147,
+            "Release B": 0.11020062164453236,
+            "Release C": 0.1172647640576434,
+            "Return ER": 1.8533484035038146,
+            "Start": 0.0
+        },
+        "wip": 5.254591692568522
+    },
+    "l_size": 100,
+    "log_size": 529,
+    "loss": 0.007969532394781709,
+    "lstm_act": "selu",
+    "n_size": 15,
+    "optim": "Nadam",
+    "roles": {
+        "Role 1": [
+            "F",
+            "G",
+            "D",
+            "Q",
+            "O",
+            "I",
+            "T",
+            "M",
+            "N",
+            "H",
+            "S",
+            "K",
+            "L",
+            "R"
+        ],
+        "Role 2": [
+            "J",
+            "P",
+            "W",
+            "U"
+        ],
+        "Role 3": [
+            "C",
+            "V"
+        ],
+        "Role 4": [
+            "A",
+            "other"
+        ],
+        "Role 5": [
+            "B"
+        ],
+        "Role 6": [
+            "E"
+        ]
+    },
+    "roles_table": [
+        {
+            "role": "Role 5",
+            "task": "Release C"
+        },
+        {
+            "role": "Role 2",
+            "task": "ER Registration"
+        },
+        {
+            "role": "Role 5",
+            "task": "Release B"
+        },
+        {
+            "role": "Role 6",
+            "task": "Return ER"
+        },
+        {
+            "role": "Role 3",
+            "task": "LacticAcid"
+        },
+        {
+            "role": "Role 5",
+            "task": "Release A"
+        },
+        {
+            "role": "Role 2",
+            "task": "IV Liquid"
+        },
+        {
+            "role": "Role 2",
+            "task": "IV Antibiotics"
+        },
+        {
+            "role": "Role 1",
+            "task": "Admission NC"
+        },
+        {
+            "role": "Role 3",
+            "task": "CRP"
+        },
+        {
+            "role": "Role 3",
+            "task": "Leucocytes"
+        },
+        {
+            "role": "Role 2",
+            "task": "ER Sepsis Triage"
+        },
+        {
+            "role": "Role 4",
+            "task": "ER Triage"
+        }
+    ],
+    "usr_index": {
+        "?": 21,
+        "A": 2,
+        "B": 3,
+        "C": 1,
+        "D": 14,
+        "E": 12,
+        "P": 25,
+        "F": 8,
+        "G": 7,
+        "H": 17,
+        "I": 4,
+        "J": 24,
+        "K": 23,
+        "L": 5,
+        "M": 6,
+        "N": 18,
+        "O": 10,
+        "Q": 13,
+        "R": 9,
+        "S": 19,
+        "Start": 0,
+        "T": 16,
+        "U": 15,
+        "V": 11,
+        "W": 22,
+        "other": 20
+    },
+    "resources": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "other"
+    ]
+}

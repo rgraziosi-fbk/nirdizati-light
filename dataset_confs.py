@@ -322,7 +322,7 @@ class DatasetConfs:
 
             self.case_id_col = {dataset: "Case ID"}
             self.activity_col = {dataset: "Activity"}
-            self.resource_col = {dataset: "org:group"}
+            self.resource_col = {dataset: "org:resource"}
             self.timestamp_col = {dataset: "time:timestamp"}
             self.label_col = {dataset: "label"}
             self.pos_label = {dataset: "deviant"}
