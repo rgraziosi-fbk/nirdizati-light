@@ -122,7 +122,11 @@ class Token(object):
                 queue = len(resource.queue[-1])
             else:
                 queue = 0
-            waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
+            if self.NAME_EXPERIMENT == 'BPI_Challenge_2012_W_Two_TS':
+                waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
+                                                           self.start_time + timedelta(seconds=env.now), queue)
+            else:
+                waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
                                                        self.start_time + timedelta(seconds=env.now), -1)
             if self.contrafactual is not None:
                 if self.see_activity:
