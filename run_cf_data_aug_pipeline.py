@@ -134,7 +134,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start':
+            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log['org:group'] = simulated_log['org:resource']
             simulated_log['lifecycle:transition'] = 'complete'
             cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
@@ -228,14 +228,16 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'BPI_Challenge_2012_W_Two_TS': [3],
-        #'bpic2015_2_start': [7, 8, 9, 10],
-        'bpic2015_4_start': [7],
-        #'sepsis_cases_3_start': [9],
+        #'BPI_Challenge_2012_W_Two_TS': [1,2,3,4,5,6,7,8,9,10],
+        #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
+        #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
+        #'sepsis_cases_1_start': [3, 5, 7, 9, 11, 12, 14],
+        #'sepsis_cases_2_start': [3, 5, 7, 9, 11, 12, 14],
+        'sepsis_cases_3_start': [3, 5, 7, 9, 11, 12, 14],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.5]:
+            for augmentation_factor in [0.3,0.5,0.7]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
@@ -258,6 +260,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is run
+                    'simulation': False  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
