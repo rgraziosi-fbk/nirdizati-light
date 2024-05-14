@@ -340,3 +340,32 @@ class DatasetConfs:
                                          "timesincelastevent", "timesincecasestart", "event_nr"
                                                "Leucocytes","CRP","LacticAcid","month", "weekday", "hour"]}
             self.static_num_cols = {dataset: ['Age']}
+        elif dataset_name in ['bpic2015_4_start']:
+            dataset = dataset_name
+            if where_is_the_file != '':
+                self.filename = {dataset: where_is_the_file}
+            else:
+                self.filename = {dataset: ''}
+
+            # filename[dataset] = os.path.join(logs_dir, "BPIC15_%s_f%s.csv" % (municipality, formula))
+
+            self.case_id_col = {dataset: "Case ID"}
+            self.activity_col = {dataset: "Activity"}
+            self.resource_col = {dataset: "org:resource"}
+            self.timestamp_col = {dataset: "time:timestamp"}
+            self.label_col = {dataset: "label"}
+            self.pos_label = {dataset: "deviant"}
+            self.neg_label = {dataset: "regular"}
+
+            # features for classifier
+            self.dynamic_cat_cols = {dataset: ["Activity", "monitoringResource", "question", "org:resource"]}
+            self.static_cat_cols = {dataset: ["Responsible_actor"]}
+            self.dynamic_num_cols = {
+                dataset: ["start:timestamp", "hour", "weekday", "month", "timesincemidnight", "timesincelastevent",
+                          "timesincecasestart", "event_nr"]}
+            self.static_num_cols = {dataset: ["SUMleges", 'Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
+                                              'Brandveilig gebruik (vergunning)', 'Gebiedsbescherming',
+                                              'Handelen in strijd met regels RO', 'Inrit/Uitweg', 'Kap',
+                                              'Milieu (neutraal wijziging)',
+                                              'Milieu (omgevingsvergunning beperkte milieutoets)',
+                                              'Milieu (vergunning)', 'Monument', 'Reclame', 'Sloop']}

@@ -43,6 +43,17 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                             'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
                   'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart',
                             'timesincelastevent', 'timesincemidnight', 'weekday']},
+                'bpic2015_4_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw','Brandveilig gebruik (vergunning)',
+                                                             'Gebiedsbescherming', 'Handelen in strijd met regels RO',
+                                                             'Inrit/Uitweg', 'Kap',
+                                                             'Milieu (neutraal wijziging)',
+                                                             'Milieu (omgevingsvergunning beperkte milieutoets)',
+                                                             'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
+                                                             'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
+                                                                                             'lifecycle:transition', 'month',
+                                                                                             'question', 'timesincecasestart',
+                                                                                             'timesincelastevent', 'timesincemidnight',
+                                                                                                 'weekday']}
 
               }
 
@@ -81,12 +92,15 @@ class Token(object):
             buffer = [self.id, event[0]]
             buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for waiting time
-            if str(event[2]) == 0:
+            if str(event[2]) != 0 and str(event[2]) in self.params.RESOURCE_TO_ROLE_LSTM:
                 role = self.params.RESOURCE_ROLE[str(event[2])]
                 resource = self.process.get_single_resource(str(event[2]))
             else:
                 if self.NAME_EXPERIMENT == 'bpic2015_2_start':
                     role = self.params.RESOURCE_ROLE["560532"]
+                    resource = self.process.get_single_resource("560532")  ## ruolo
+                elif self.NAME_EXPERIMENT == 'bpic2015_4_start':
+                    role = self.params.RESOURCE_ROLE["560752"]
                     resource = self.process.get_single_resource("560532")  ## ruolo
                 elif self.NAME_EXPERIMENT == 'sepsis_cases_1_start' or self.NAME_EXPERIMENT == 'sepsis_cases_2_start' or self.NAME_EXPERIMENT == 'sepsis_cases_3_start':
                     role = self.params.RESOURCE_ROLE["F"]
@@ -96,7 +110,7 @@ class Token(object):
                     resource = self.process.get_single_resource("11169.0")
 
             if event[0] not in self.params.INDEX_AC:
-                if self.NAME_EXPERIMENT == 'bpic2015_2_start':
+                if self.NAME_EXPERIMENT == 'bpic2015_2_start' or self.NAME_EXPERIMENT == 'bpic2015_4_start':
                     event[0] = "05_EIND_010"
             transition = (self.params.INDEX_AC[event[0]], self.params.INDEX_ROLE[role])
             self.prefix.append(event[0])

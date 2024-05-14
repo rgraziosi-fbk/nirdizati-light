@@ -48,6 +48,17 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                             'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
                   'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart',
                             'timesincelastevent', 'timesincemidnight', 'weekday']},
+'bpic2015_4_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw','Brandveilig gebruik (vergunning)',
+                                             'Gebiedsbescherming', 'Handelen in strijd met regels RO',
+                                             'Inrit/Uitweg', 'Kap',
+                                             'Milieu (neutraal wijziging)',
+                                             'Milieu (omgevingsvergunning beperkte milieutoets)',
+                                             'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
+                                             'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
+                                                                             'lifecycle:transition', 'month',
+                                                                             'question', 'timesincecasestart',
+                                                                             'timesincelastevent', 'timesincemidnight',
+                                                                                 'weekday']}
 
               }
 

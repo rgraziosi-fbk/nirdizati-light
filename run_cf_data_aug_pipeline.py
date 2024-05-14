@@ -130,7 +130,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
+            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -230,7 +230,8 @@ if __name__ == '__main__':
         ### prefix length
         #'BPI_Challenge_2012_W_Two_TS': [3],
         #'bpic2015_2_start': [7, 8, 9, 10],
-        'sepsis_cases_3_start': [9],
+        'bpic2015_4_start': [7],
+        #'sepsis_cases_3_start': [9],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
