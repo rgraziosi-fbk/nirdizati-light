@@ -102,8 +102,11 @@ class PredictiveModel:
             model = KNeighborsClassifier(**config)
         elif self.model_type == ClassificationMethods.XGBOOST.value:
             scale_pos_weight = (self.full_train_df['label'].value_counts().min() / self.full_train_df['label'].value_counts().max() )
-            model = XGBClassifier(**config,enable_categorical=True,
-                                  tree_method='hist',scale_pos_weight=scale_pos_weight)
+            model = XGBClassifier(**config
+                                  ,enable_categorical=True,
+                                  tree_method='hist'
+                                  ,scale_pos_weight=scale_pos_weight
+            )
         elif self.model_type == RegressionMethods.XGBOOST.value:
             model = XGBRegressor(
                 **config,

@@ -53,15 +53,16 @@ def _get_space(model_type) -> dict:
             'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.05),
         }
     elif model_type is RegressionMethods.XGBOOST.value:
-        return {
-            'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
-            'eta': hp.quniform('eta', 0.025, 0.5, 0.025),
-            'max_depth': scope.int(hp.quniform('max_depth', 2, 30, 1)),
-            'min_child_weight': hp.quniform('min_child_weight', 1, 6, 1),
-            'subsample': hp.quniform('subsample', 0.5, 1, 0.05),
-            'gamma': hp.quniform('gamma', 0.5, 1, 0.05),
-            'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.05),
-        }
+        return  {
+                #'n_estimators': hp.choice('n_estimators', range(10, 500)),
+                #'max_depth': scope.int(hp.quniform('max_depth', 2, 30, 1)),
+                #'learning_rate': hp.uniform('learning_rate', 0.01, 0.5),
+                #'subsample': hp.quniform('subsample', 0.5, 1, 0.05),
+                #'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1),
+                #'gamma': hp.uniform('gamma', 0, 5),
+                'boosting_type': hp.choice('boosting_type', ['gbdt', 'dart', 'goss']),
+                'objective': hp.choice('objective', ['reg:squarederror', 'reg:squaredlogerror','reg:linear']),
+                }
     elif model_type is ClassificationMethods.SGDCLASSIFIER.value:
         return {
             'loss': hp.choice('loss', ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_error',
@@ -117,7 +118,7 @@ def _get_space(model_type) -> dict:
             'validation_fraction': 0.1,
             'n_iter_no_change': scope.int(hp.quniform('n_iter_no_change', 5, 30, 5))
         }
-    elif model_type is ClassificationMethods.RANDOM_FOREST.value:
+    elif model_type is RegressionMethods.RANDOM_FOREST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
             'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
