@@ -1,0 +1,21 @@
+activity CRP
+activity ER Sepsis Triage
+activity ER Triage
+activity IV Liquid
+activity LacticAcid
+activity IV Antibiotics
+activity ER Registration
+activity Leucocytes
+Existence1[ER Registration] | |
+Absence2[ER Registration] | |
+Exactly1[ER Registration] | |
+Init[ER Registration] | |
+Existence1[ER Triage] | |
+Absence2[ER Triage] | |
+Exactly1[ER Triage] | |
+Responded Existence[ER Triage, ER Registration] | | |
+Responded Existence[ER Registration, ER Triage] | | |
+Response[ER Registration, ER Triage] | | |
+Alternate Response[ER Registration, ER Triage] | | |
+Precedence[ER Registration, ER Triage] | | |
+Alternate Precedence[ER Registration, ER Triage] | | |

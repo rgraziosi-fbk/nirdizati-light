@@ -85,9 +85,10 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
-                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']
+                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                                                                random_seed=CONF['seed']
                                                                                                                )#stopping_threshold=0.7
-                 )
+
         else:
             if method == 'genetic_conformance':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_range=desired_range,
@@ -109,7 +110,8 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_range=desired_range,
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
-                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']
+                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length'],
+                                                                                                               random_seed=random_seed
 )
                  )
 
