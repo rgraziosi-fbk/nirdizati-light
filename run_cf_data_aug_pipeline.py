@@ -233,7 +233,7 @@ if __name__ == '__main__':
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'sepsis_cases_1_start': [3, 5, 7, 9, 11, 12, 14],
         #'sepsis_cases_2_start': [3, 5, 7, 9, 11, 12, 14],
-        'sepsis_cases_3_start': [3, 5, 7, 9, 11, 12, 14],
+        'sepsis_cases_3_start': [7],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
@@ -260,6 +260,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
