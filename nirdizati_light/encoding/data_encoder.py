@@ -95,7 +95,7 @@ class Encoder:
                     if non_padding_mask.any():  # Check if there are non-padding values
                         non_padding_values = df[column][non_padding_mask].values.reshape(-1, 1)
                         transformed_values = self._numeric_encoder[column].transform(non_padding_values).flatten()
-                        df[column][non_padding_mask] = transformed_values
+                        df.loc[non_padding_mask, column] = transformed_values
 
     def decode(self, df: DataFrame) -> None:
         for column in df:
