@@ -46,10 +46,10 @@ for dataset in datasets:
         plt.show()
     '''
     #augmentation_factors = [0.3, 0.5, 0.7]
-    initial_metrics = ['Initial Rmse', 'Initial Mae', 'Initial Rscore', 'Initial Mape', 'Initial Loss']
-    augmented_metrics = ['Augmented Rmse', 'Augmented Mae', 'Augmented Rscore', 'Augmented Mape', 'Augmented Loss']
+    initial_metrics = ['Initial Rmse', 'Initial Mae', 'Initial Rscore', 'Initial Mape']
+    augmented_metrics = ['Augmented Rmse', 'Augmented Mae', 'Augmented Rscore', 'Augmented Mape']
 
-    fig, axes = plt.subplots(nrows=3, ncols=len(initial_metrics), figsize=(10, 5))
+    fig, axes = plt.subplots(nrows=3, ncols=len(initial_metrics), figsize=(15, 8))
 
     # Iterate over augmentation factors
     for idx_metric, (initial_metric, augmented_metric) in enumerate(zip(initial_metrics, augmented_metrics)):
