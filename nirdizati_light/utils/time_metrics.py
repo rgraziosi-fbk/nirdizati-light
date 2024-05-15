@@ -35,7 +35,7 @@ def elapsed_time(trace, event):
 def remaining_time_id(trace, event_index: int):
     """Calculate remaining time by event index in trace"""
     try:
-        event = trace[event_index]
+        event = trace[event_index ] #index starts from 0 not 1
         return remaining_time(trace, event)
     except IndexError:
         # catch for 0 padding.

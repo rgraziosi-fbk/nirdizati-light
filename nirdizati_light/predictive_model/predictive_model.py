@@ -52,20 +52,20 @@ class PredictiveModel:
             self.train_label = shape_label_df(self.full_train_df)
             self.validate_label = shape_label_df(self.full_validate_df)
             self.test_label = shape_label_df(self.full_test_df)
-        elif model_type is ClassificationMethods.XGBOOST.value:
+        elif model_type is ClassificationMethods.XGBOOST.value or model_type is RegressionMethods.XGBOOST.value:
             prefix_columns = [col for col in self.train_df.columns if 'prefix' in col]
             self.train_df[prefix_columns] = self.train_df[prefix_columns].astype('category')
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()
             self.test_label = self.full_test_df['label'].unique()
-    
+
     def train_and_evaluate_configuration(self, config, target):
         try:
             self.model = self._instantiate_model(config)
             self._fit_model(self.model, config)
             actual = self.full_validate_df['label']
-            
+
             if self.model_type is ClassificationMethods.LSTM.value:
                 actual = np.array(actual.to_list())
             if self.model_type in [item.value for item in ClassificationMethods]:
@@ -74,6 +74,7 @@ class PredictiveModel:
             elif self.model_type in [item.value for item in RegressionMethods]:
                 predicted = self.model.predict(self.validate_df)
                 result = evaluate_regressor(actual, predicted, loss=target)
+                print(result)
             else:
                 raise Exception('Unsupported model_type')
 
@@ -104,8 +105,10 @@ class PredictiveModel:
             model = XGBClassifier(**config,enable_categorical=True,
                                   tree_method='hist',scale_pos_weight=scale_pos_weight)
         elif self.model_type == RegressionMethods.XGBOOST.value:
-            model = XGBRegressor(**config,#enable_categorical=True,
-                                  #tree_method='hist',
+            model = XGBRegressor(
+                **config,
+                enable_categorical=True,
+                                  tree_method='hist',
                                  #base_score=0.0
                                   #, booster='gbtree',
                                   #objective='reg:linear'
@@ -139,7 +142,7 @@ class PredictiveModel:
             ).to(torch.float32)
         else:
             raise Exception('unsupported model_type')
-        
+
         return model
 
     def _fit_model(self, model, config=None):
@@ -161,11 +164,11 @@ class PredictiveModel:
                 loss = criterion(output, torch.tensor(self.train_label, dtype=torch.float32))
                 loss.backward()
                 optimizer.step()
-                
+
                 # validation
                 model.eval()
                 validate_loss = criterion(model(validate_tensor), torch.tensor(self.validate_label, dtype=torch.float32))
-                if early_stopper.early_stop(validate_loss):             
+                if early_stopper.early_stop(validate_loss):
                     break
         elif self.model_type not in (ClassificationMethods.LSTM.value):
             model.fit(self.train_df.values, self.full_train_df['label'])
