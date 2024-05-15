@@ -232,8 +232,8 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'sepsis_cases_1_start': [3, 5, 7, 9, 11, 12, 14],
-        #'sepsis_cases_2_start': [3, 5, 7, 9, 11, 12, 14],
-        'sepsis_cases_3_start': [3, 5, 7, 9, 11, 12, 14],
+        'sepsis_cases_2_start': [14],
+        'sepsis_cases_3': [14],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:

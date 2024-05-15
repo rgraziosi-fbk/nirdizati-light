@@ -131,11 +131,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'sepsis_cases_2_start':
+            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start':
+            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log['org:group'] = simulated_log['org:resource']
             simulated_log['lifecycle:transition'] = 'complete'
             cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
@@ -178,7 +178,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             'task_generation_type': TaskGenerationType.ONLY_THIS.value,
             'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
             'labeling_type': LabelTypes.REMAINING_TIME.value,
-            'predictive_models': [RegressionMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+            'predictive_models': [RegressionMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
             'explanator': ExplainerType.DICE_AUGMENTATION.value,
             'augmentation_factor': CONF['augmentation_factor'],  # SHAP, LRP, ICE, DICE
             'threshold': 13,
@@ -250,7 +250,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             model = REGRESSION_CONF['predictive_models'][id]
             prefix_length = REGRESSION_CONF['prefix_length']
             augmentation_factor = augmentation_factor
-            simulation = REGRESSION_CONF['simulation']
+            simulation = CONF['simulation']
 
             columns = []
             for key in initial_result.keys():
@@ -281,7 +281,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
         # Define the file path
         file_path = 'experiments/model_performances_regression_' + REGRESSION_CONF[
-            'hyperparameter_optimisation_target'] +'_'+ dataset_name + '.csv'
+            'hyperparameter_optimisation_target'] +'_'+ dataset_name + '_update_event_index' + '.csv'
 
         # Write the DataFrame to a CSV file in append mode
         results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -298,8 +298,8 @@ if __name__ == '__main__':
         # 'BPI_Challenge_2012_W_Two_TS': [1,2,3,4,5,6,7,8,9,10],
         #'bpic2015_2_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20 ,25 ,30 ,35, 40],
         #'bpic2015_4_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20 ,25 ,30 ,35, 40],
-         'sepsis_cases_1_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
-         'sepsis_cases_2_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
+         #'sepsis_cases_1_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
+         #'sepsis_cases_2_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
          'sepsis_cases_3_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
     }
     for dataset, prefix_lengths in dataset_list.items():
@@ -327,6 +327,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
