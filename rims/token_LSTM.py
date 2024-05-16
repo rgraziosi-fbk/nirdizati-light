@@ -53,7 +53,12 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                                                                                              'lifecycle:transition', 'month',
                                                                                              'question', 'timesincecasestart',
                                                                                              'timesincelastevent', 'timesincemidnight',
-                                                                                                 'weekday']}
+                                                                                                 'weekday'],
+                                     'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],
+                                                          'EVENT': ["hour", "weekday", "month", "timesincemidnight",
+                                                                    "timesincelastevent",
+                                                                    "timesincecasestart", "event_nr", "open_cases"]}
+                                     }
 
               }
 
