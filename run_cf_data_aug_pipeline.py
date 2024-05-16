@@ -117,7 +117,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         df_cf['trace_id'] = df_cf.index
         df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
 
-  
+
         ### simulation part
         if CONF['simulation']:
             run_simulation(train_df, df_cf, dataset_name)
@@ -150,6 +150,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
             updated_train_df = simulated_df.copy()
+            encoder.decode(updated_train_df)
         else:
             updated_train_df = pd.concat([train_df, df_cf], ignore_index=True)
             updated_train_df.to_csv(path_or_buf=os.path.join('experiments', 'new_logs',
@@ -159,67 +160,95 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             x_eval.to_csv(path_or_buf=os.path.join('experiments', 'cf_eval_results', dataset_name + '_cf_eval' + str(
                 augmentation_factor) + '_pref_len_' + str(CONF['prefix_length']) + '.csv'), index=False)
             updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_baseline.csv'))
-            encoder.encode(updated_train_df)
-
+            #encoder.encode(updated_train_df)
+        # Have to do the prefixes loop here to get the results for each prefix length, train each predictive model again, add the counterfactuals and retrain with the updated_train_df
         #updated_train_df = pd.read_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'),index_col=[0])
-        predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df, val_df, test_df) for predictive_model in
-                             CONF['predictive_models']]
-        best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
-            predictive_models_new,
-            max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
-            target=CONF['hyperparameter_optimisation_target'],
-            seed=CONF['seed']
-        )
+        if 'sepsis' in dataset_name:
+            prefix_lengths =  [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        elif 'bpic2015' in dataset_name:
+            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
+        elif 'BPI_Challenge_2012' in dataset_name:
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 
-        best_model_new = predictive_models_new[best_model_idx_new]
-        best_model.model = best_model_model_new
-        best_model.config = best_model_config_new
+        for prefix in prefix_lengths:
+            CONF['prefix_length'] = prefix
+            prefix_encoder, full_df = get_encoded_df(log=log, CONF=CONF)
+            full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Resource')))]
+            full_df = full_df[full_df.columns.drop(list(full_df.filter(regex='Activity')))]
+            train_df, val_df, test_df = np.split(full_df, [int(train_size * len(full_df)), int((train_size + val_size) * len(full_df))])
+            #Reduce updated_train_df to the same prefix length
+            updated_train_df_reduced = updated_train_df[train_df.columns]
+            prefix_encoder.encode(updated_train_df_reduced)
+            predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df) for
+                                 predictive_model in
+                                 CONF['predictive_models']]
+            best_candidates, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
+                predictive_models,
+                max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
+                target=CONF['hyperparameter_optimisation_target'],
+                seed=CONF['seed']
+            )
+            best_model = predictive_models[best_model_idx]
+            best_model.model = best_model_model
+            best_model.config = best_model_config
+            predictive_models_new = [PredictiveModel(CONF, predictive_model, updated_train_df_reduced, val_df, test_df) for predictive_model in
+                                 CONF['predictive_models']]
+            best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
+                predictive_models_new,
+                max_evaluations=CONF['hyperparameter_optimisation_evaluations'],
+                target=CONF['hyperparameter_optimisation_target'],
+                seed=CONF['seed']
+            )
 
-        data_list = []
+            best_model_new = predictive_models_new[best_model_idx_new]
+            best_model.model = best_model_model_new
+            best_model.config = best_model_config_new
 
-        # Iterate over the best candidates
-        for id, _ in enumerate(best_candidates):
-            initial_result = best_candidates[id].get('result')
-            augmented_result = best_candidates_new[id].get('result')
-            model = CONF['predictive_models'][id]
-            prefix_length = CONF['prefix_length']
-            augmentation_factor = augmentation_factor
-            simulation = CONF['simulation']
+            data_list = []
 
-            columns = []
-            for key in initial_result.keys():
-                columns.append(f'Initial {key.capitalize()}')
-            for key in augmented_result.keys():
-                columns.append(f'Augmented {key.capitalize()}')
-            columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
+            # Iterate over the best candidates
+            for id, _ in enumerate(best_candidates):
+                initial_result = best_candidates[id].get('result')
+                augmented_result = best_candidates_new[id].get('result')
+                model = CONF['predictive_models'][id]
+                prefix_length = CONF['prefix_length']
+                augmentation_factor = augmentation_factor
+                simulation = CONF['simulation']
 
-            # Create an empty DataFrame
-            results_df = pd.DataFrame(columns=columns)
+                columns = []
+                for key in initial_result.keys():
+                    columns.append(f'Initial {key.capitalize()}')
+                for key in augmented_result.keys():
+                    columns.append(f'Augmented {key.capitalize()}')
+                columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
 
-            # Create a data row
-            data_row = []
+                # Create an empty DataFrame
+                results_df = pd.DataFrame(columns=columns)
 
-            # Append initial metrics
-            for key in initial_result.keys():
-                data_row.append(initial_result[key])
+                # Create a data row
+                data_row = []
 
-            # Append augmented metrics
-            for key in augmented_result.keys():
-                data_row.append(augmented_result[key])
+                # Append initial metrics
+                for key in initial_result.keys():
+                    data_row.append(initial_result[key])
 
-            # Append additional data to the data row
-            data_row.extend([model, prefix_length, augmentation_factor, simulation])
+                # Append augmented metrics
+                for key in augmented_result.keys():
+                    data_row.append(augmented_result[key])
 
-            # Append the data row to the DataFrame
-            results_df = results_df._append(pd.Series(data_row, index=columns), ignore_index = True)
+                # Append additional data to the data row
+                data_row.extend([model, prefix_length, augmentation_factor, simulation])
 
-        # Define the file path
-        file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name+ '.csv'
+                # Append the data row to the DataFrame
+                results_df = results_df._append(pd.Series(data_row, index=columns), ignore_index = True)
 
-        # Write the DataFrame to a CSV file in append mode
-        results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
+            # Define the file path
+            file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_from_full_traces' + '.csv'
 
-        print("New results appended to the CSV file.")
+            # Write the DataFrame to a CSV file in append mode
+            results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
+
+            print("New results appended to the CSV file.")
 
     logger.info('RESULT')
     logger.info('Done, cheers!')
@@ -228,16 +257,17 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'BPI_Challenge_2012_W_Two_TS': [1,2,3,4,5,6,7,8,9,10],
+        'bpic2012_2_start': [45],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        #'sepsis_cases_1_start': [3, 5, 7, 9, 11, 12, 14],
-        #'sepsis_cases_2_start': [3, 5, 7, 9, 11, 12, 14],
-        'sepsis_cases_3_start': [7],
+        #'sepsis_cases_1_start': [16],
+        #'sepsis_cases_2_start': [16],
+        #'sepsis_cases_3_start': [16],
+        #'sepsis_cases_3': [14],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3,0.5,0.7]:
+            for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
@@ -256,10 +286,10 @@ if __name__ == '__main__':
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
                     'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
-                    'hyperparameter_optimisation_evaluations': 20,
+                    'hyperparameter_optimisation_evaluations': 30,
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
-                    'seed': 42,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is run
+                    'seed': 666,
+                    'simulation': False  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

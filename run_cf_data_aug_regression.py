@@ -151,6 +151,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
             updated_train_df = simulated_df.copy()
+            encoder.decode(updated_train_df)
         else:
             updated_train_df = pd.concat([train_df, df_cf], ignore_index=True)
             updated_train_df.to_csv(path_or_buf=os.path.join('experiments', 'new_logs',
@@ -166,127 +167,138 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         #REGRESSION PART
         encoder.decode(updated_train_df)
 
+        if 'sepsis' in dataset_name:
+            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        elif 'bpic2015' in dataset_name:
+            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
+        elif 'BPI_Challenge_2012' in dataset_name:
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 
-        REGRESSION_CONF = {  # This contains the configuration for the run
-            'data': os.path.join(dataset, 'full.xes'),
-            'train_val_test_split': [0.7, 0.15, 0.15],
-            'output': os.path.join('..', 'output_data'),
-            'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
-            'prefix_length': prefix,
-            'padding': True,  # TODO, why use of padding?
-            'feature_selection': EncodingType.COMPLEX.value,
-            'task_generation_type': TaskGenerationType.ONLY_THIS.value,
-            'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
-            'labeling_type': LabelTypes.REMAINING_TIME.value,
-            'predictive_models': [RegressionMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
-            'explanator': ExplainerType.DICE_AUGMENTATION.value,
-            'augmentation_factor': CONF['augmentation_factor'],  # SHAP, LRP, ICE, DICE
-            'threshold': 13,
-            'top_k': 10,
-            'hyperparameter_optimisation': False,  # TODO, this parameter is not used
-            'hyperparameter_optimisation_target': HyperoptTarget.MAE.value,
-            'hyperparameter_optimisation_evaluations': 20,
-            'time_encoding': TimeEncodingType.NONE.value,
-            'target_event': None,
-            'seed': 42,
-            'simulation': True  ## if True the simulation of TRAIN + CF is run
-        }
-        encoder_regression, full_df_regression = get_encoded_df(log=log, CONF=REGRESSION_CONF)
-
-        logger.debug('TRAIN PREDICTIVE MODEL')
-        # split in train, val, test
-        train_size = CONF['train_val_test_split'][0]
-        val_size = CONF['train_val_test_split'][1]
-        test_size = CONF['train_val_test_split'][2]
-        if train_size + val_size + test_size != 1.0:
-            raise Exception('Train-val-test split doese  not sum up to 1')
-
-        full_df_regression = full_df_regression[full_df_regression.columns.drop(list(full_df_regression.filter(regex='Resource')))]
-        full_df_regression = full_df_regression[full_df_regression.columns.drop(list(full_df_regression.filter(regex='Activity')))]
-        train_df, val_df, test_df = np.split(full_df_regression,
-                                             [int(train_size * len(full_df_regression)),
-                                              int((train_size + val_size) * len(full_df_regression))])
+        for prefix in prefix_lengths:
+            REGRESSION_CONF = {  # This contains the configuration for the run
+                'data': os.path.join(dataset, 'full.xes'),
+                'train_val_test_split': [0.7, 0.15, 0.15],
+                'output': os.path.join('..', 'output_data'),
+                'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+                'prefix_length': prefix,
+                'padding': True,  # TODO, why use of padding?
+                'feature_selection': EncodingType.COMPLEX.value,
+                'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+                'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
+                'labeling_type': LabelTypes.REMAINING_TIME.value,
+                'predictive_models': [RegressionMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                'explanator': ExplainerType.DICE_AUGMENTATION.value,
+                'augmentation_factor': CONF['augmentation_factor'],  # SHAP, LRP, ICE, DICE
+                'threshold': 13,
+                'top_k': 10,
+                'hyperparameter_optimisation': False,  # TODO, this parameter is not used
+                'hyperparameter_optimisation_target': HyperoptTarget.MAE.value,
+                'hyperparameter_optimisation_evaluations': 20,
+                'time_encoding': TimeEncodingType.NONE.value,
+                'target_event': None,
+                'seed': 42,
+                'simulation': False  ## if True the simulation of TRAIN + CF is run
+            }
 
 
-        predictive_models = [PredictiveModel(REGRESSION_CONF, predictive_model, train_df, val_df, test_df) for
-                                 predictive_model
-                                 in
-                                 REGRESSION_CONF['predictive_models']]
-        best_candidates, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
-            predictive_models,
-            max_evaluations=REGRESSION_CONF['hyperparameter_optimisation_evaluations'],
-            target=REGRESSION_CONF['hyperparameter_optimisation_target'],
-            seed=REGRESSION_CONF['seed']
-        )
+            encoder_regression, full_df_regression = get_encoded_df(log=log, CONF=REGRESSION_CONF)
 
-        best_model = predictive_models[best_model_idx]
-        best_model.model = best_model_model
-        best_model.config = best_model_config
+            logger.debug('TRAIN PREDICTIVE MODEL')
+            # split in train, val, test
+            train_size = CONF['train_val_test_split'][0]
+            val_size = CONF['train_val_test_split'][1]
+            test_size = CONF['train_val_test_split'][2]
+            if train_size + val_size + test_size != 1.0:
+                raise Exception('Train-val-test split doese  not sum up to 1')
 
-        updated_train_df['label'] = 0
-        encoder_regression.encode(updated_train_df)
-        updated_train_df['label'] = best_model.model.predict(drop_columns(updated_train_df))
-        predictive_models_new = [PredictiveModel(REGRESSION_CONF, predictive_model, updated_train_df, val_df, test_df) for
-                                 predictive_model
-                                 in
-                                 REGRESSION_CONF['predictive_models']]
-        best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
-            predictive_models_new,
-            max_evaluations=REGRESSION_CONF['hyperparameter_optimisation_evaluations'],
-            target=REGRESSION_CONF['hyperparameter_optimisation_target'],
-            seed=REGRESSION_CONF['seed']
-        )
+            full_df_regression = full_df_regression[full_df_regression.columns.drop(list(full_df_regression.filter(regex='Resource')))]
+            full_df_regression = full_df_regression[full_df_regression.columns.drop(list(full_df_regression.filter(regex='Activity')))]
+            train_df, val_df, test_df = np.split(full_df_regression,
+                                                 [int(train_size * len(full_df_regression)),
+                                                  int((train_size + val_size) * len(full_df_regression))])
 
-        best_model_new = predictive_models_new[best_model_idx_new]
-        best_model.model = best_model_model_new
-        best_model.config = best_model_config_new
 
-        data_list = []
+            predictive_models = [PredictiveModel(REGRESSION_CONF, predictive_model, train_df, val_df, test_df) for
+                                     predictive_model
+                                     in
+                                     REGRESSION_CONF['predictive_models']]
+            best_candidates, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
+                predictive_models,
+                max_evaluations=REGRESSION_CONF['hyperparameter_optimisation_evaluations'],
+                target=REGRESSION_CONF['hyperparameter_optimisation_target'],
+                seed=REGRESSION_CONF['seed']
+            )
 
-        # Iterate over the best candidates
-        for id, _ in enumerate(best_candidates):
-            initial_result = best_candidates[id].get('result')
-            augmented_result = best_candidates_new[id].get('result')
-            model = REGRESSION_CONF['predictive_models'][id]
-            prefix_length = REGRESSION_CONF['prefix_length']
-            augmentation_factor = augmentation_factor
-            simulation = CONF['simulation']
+            best_model = predictive_models[best_model_idx]
+            best_model.model = best_model_model
+            best_model.config = best_model_config
 
-            columns = []
-            for key in initial_result.keys():
-                columns.append(f'Initial {key.capitalize()}')
-            for key in augmented_result.keys():
-                columns.append(f'Augmented {key.capitalize()}')
-            columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
+            updated_train_df_reduced = updated_train_df[train_df.columns]
 
-            # Create an empty DataFrame
-            results_df = pd.DataFrame(columns=columns)
+            updated_train_df_reduced['label'] = 0
+            encoder_regression.encode(updated_train_df_reduced)
+            updated_train_df_reduced['label'] = best_model.model.predict(drop_columns(updated_train_df))
+            predictive_models_new = [PredictiveModel(REGRESSION_CONF, predictive_model, updated_train_df, val_df, test_df) for
+                                     predictive_model
+                                     in
+                                     REGRESSION_CONF['predictive_models']]
+            best_candidates_new, best_model_idx_new, best_model_model_new, best_model_config_new = retrieve_best_model(
+                predictive_models_new,
+                max_evaluations=REGRESSION_CONF['hyperparameter_optimisation_evaluations'],
+                target=REGRESSION_CONF['hyperparameter_optimisation_target'],
+                seed=REGRESSION_CONF['seed']
+            )
 
-            # Create a data row
-            data_row = []
+            best_model_new = predictive_models_new[best_model_idx_new]
+            best_model.model = best_model_model_new
+            best_model.config = best_model_config_new
 
-            # Append initial metrics
-            for key in initial_result.keys():
-                data_row.append(initial_result[key])
+            data_list = []
 
-            # Append augmented metrics
-            for key in augmented_result.keys():
-                data_row.append(augmented_result[key])
+            # Iterate over the best candidates
+            for id, _ in enumerate(best_candidates):
+                initial_result = best_candidates[id].get('result')
+                augmented_result = best_candidates_new[id].get('result')
+                model = REGRESSION_CONF['predictive_models'][id]
+                prefix_length = REGRESSION_CONF['prefix_length']
+                augmentation_factor = augmentation_factor
+                simulation = CONF['simulation']
 
-            # Append additional data to the data row
-            data_row.extend([model, prefix_length, augmentation_factor, simulation])
+                columns = []
+                for key in initial_result.keys():
+                    columns.append(f'Initial {key.capitalize()}')
+                for key in augmented_result.keys():
+                    columns.append(f'Augmented {key.capitalize()}')
+                columns.extend(['Model', 'Prefix Length', 'Augmentation Factor', 'Simulation'])
 
-            # Append the data row to the DataFrame
-            results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
+                # Create an empty DataFrame
+                results_df = pd.DataFrame(columns=columns)
 
-        # Define the file path
-        file_path = 'experiments/model_performances_regression_' + REGRESSION_CONF[
-            'hyperparameter_optimisation_target'] +'_'+ dataset_name + '_update_event_index' + '.csv'
+                # Create a data row
+                data_row = []
 
-        # Write the DataFrame to a CSV file in append mode
-        results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
+                # Append initial metrics
+                for key in initial_result.keys():
+                    data_row.append(initial_result[key])
 
-        print("New results appended to the CSV file.")
+                # Append augmented metrics
+                for key in augmented_result.keys():
+                    data_row.append(augmented_result[key])
+
+                # Append additional data to the data row
+                data_row.extend([model, prefix_length, augmentation_factor, simulation])
+
+                # Append the data row to the DataFrame
+                results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
+
+            # Define the file path
+            file_path = 'experiments/model_performances_regression_' + REGRESSION_CONF[
+                'hyperparameter_optimisation_target'] +'_'+ dataset_name + '_update_event_index' + '.csv'
+
+            # Write the DataFrame to a CSV file in append mode
+            results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
+
+            print("New results appended to the CSV file.")
 
     logger.info('RESULT')
     logger.info('Done, cheers!')
@@ -298,9 +310,9 @@ if __name__ == '__main__':
         # 'BPI_Challenge_2012_W_Two_TS': [1,2,3,4,5,6,7,8,9,10],
         #'bpic2015_2_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20 ,25 ,30 ,35, 40],
         #'bpic2015_4_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20 ,25 ,30 ,35, 40],
-         #'sepsis_cases_1_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
-         #'sepsis_cases_2_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
-         'sepsis_cases_3_start': [1,2,3,4,5,6, 7, 8, 9, 11, 12, 14],
+         'sepsis_cases_1_start': [20],
+         'sepsis_cases_2_start': [20],
+         'sepsis_cases_3_start': [20],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
@@ -327,6 +339,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is run
+                    'simulation': False  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

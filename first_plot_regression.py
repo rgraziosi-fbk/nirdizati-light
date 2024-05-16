@@ -46,8 +46,8 @@ for dataset in datasets:
         plt.show()
     '''
     #augmentation_factors = [0.3, 0.5, 0.7]
-    initial_metrics = ['Initial Rmse', 'Initial Mae', 'Initial Rscore', 'Initial Mape']
-    augmented_metrics = ['Augmented Rmse', 'Augmented Mae', 'Augmented Rscore', 'Augmented Mape']
+    initial_metrics = ['Initial Rmse', 'Initial Mae', 'Initial Mape']
+    augmented_metrics = ['Augmented Rmse', 'Augmented Mae', 'Augmented Mape']
 
     fig, axes = plt.subplots(nrows=3, ncols=len(initial_metrics), figsize=(15, 8))
 
