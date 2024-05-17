@@ -25,7 +25,7 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                                                                              'timesincelastevent', 'timesincemidnight',
                                                                                  'weekday']},
                 'sepsis_cases_2_start': {
-          'TRACE': ['Age', 'DiagnosticArtAstrup','DiagnosticBlood','DiagnosticECG',
+          'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup','DiagnosticBlood','DiagnosticECG',
              'DiagnosticIC','DiagnosticLacticAcid','DiagnosticLiquor','DiagnosticOther',
              'DiagnosticSputum','DiagnosticUrinaryCulture','DiagnosticUrinarySediment',
              'DiagnosticXthorax','DisfuncOrg','Hypotensie','Hypoxie',

@@ -129,7 +129,7 @@ class DatasetConfs:
             #     dynamic_cat_cols[dataset] = [col for col in dynamic_cat_cols[dataset] if col != "isCancelled"]
             # elif i == 2:
             #     dynamic_cat_cols[dataset] = [col for col in dynamic_cat_cols[dataset] if col != "isClosed"]
-        elif dataset_name in ['bpic2012','bpic2012_O_ACCEPTED-COMPLETE','bpic2012_O_CANCELLED-COMPLETE','bpic2012_O_DECLINED-COMPLETE','full_triple_pattern.xes','full_complex_direct_pattern.xes', 'full_double_pattern_symmetrical_0.8.xes', 'full_direct_follow.xes', 'full_eventually_follow.xes', 'full.xes',
+        elif dataset_name in ['bpic2012_2_start', 'bpic2012','bpic2012_O_ACCEPTED-COMPLETE','bpic2012_O_CANCELLED-COMPLETE','bpic2012_O_DECLINED-COMPLETE','full_triple_pattern.xes','full_complex_direct_pattern.xes', 'full_double_pattern_symmetrical_0.8.xes', 'full_direct_follow.xes', 'full_eventually_follow.xes', 'full.xes',
                               'full_triple_pattern_0.8.xes','full_triple_direct_pattern.xes','full_complex_concurrent_pattern.xes','full_a_a_pattern.xes','full_a_b_pattern_pareto.xes','full_a_b_c_pattern.xes'
                               'full_complex_direct_both_pattern.xes','']:
             dataset = dataset_name
@@ -329,7 +329,7 @@ class DatasetConfs:
             self.neg_label = {dataset: "regular"}
 
             self.dynamic_cat_cols = {dataset: ["org:group"]}  # i.e. event attributes
-            self.static_cat_cols = {dataset: ['DiagnosticArtAstrup',
+            self.static_cat_cols = {dataset: ['Diagnose','DiagnosticArtAstrup',
              'DiagnosticBlood','DiagnosticECG','DiagnosticIC','DiagnosticLacticAcid',
              'DiagnosticLiquor','DiagnosticOther','DiagnosticSputum','DiagnosticUrinaryCulture',
              'DiagnosticUrinarySediment','DiagnosticXthorax','DisfuncOrg','Hypotensie',
