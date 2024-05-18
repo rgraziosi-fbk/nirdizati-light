@@ -130,7 +130,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start':
+            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -260,7 +260,7 @@ if __name__ == '__main__':
         #'bpic2012_2_start': [45],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        'sepsis_cases_2_start': [7],
+        'sepsis_cases_1_start': [9],
         #'sepsis_cases_2_start': [16],
         #'sepsis_cases_3_start': [16],
         #'sepsis_cases_3': [14],
@@ -269,7 +269,7 @@ if __name__ == '__main__':
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'sepsis_cases_3_start.xes'),
+                    'data': os.path.join(dataset, 'sepsis_cases_1_start_full_correct.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
