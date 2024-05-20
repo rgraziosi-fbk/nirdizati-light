@@ -1,2 +1,0 @@
-Initial Auc,Initial F1_score,Initial Accuracy,Initial Mcc,Initial Precision,Initial Recall,Initial Loss,Augmented Auc,Augmented F1_score,Augmented Accuracy,Augmented Mcc,Augmented Precision,Augmented Recall,Augmented Loss,Model,Prefix Length,Augmentation Factor,Simulation
-0.9731674039773432,0.9349151176263161,0.9961300309597523,0.8701264621174176,0.9242138364779874,0.9461901021209741,0.8701264621174176,0.5,0.014492753623188406,0.014705882352941176,0.0,0.007352941176470588,0.5,0.0,xgboost,3,0.3,True

@@ -87,7 +87,7 @@ class Encoder:
 
     def encode(self, df: DataFrame) -> None:
         for column in df:
-            if column != 'trace_id' and '.' not in column:
+            if column != 'trace_id':
                 if column in self._label_encoder:
                     df[column] = df[column].apply(lambda x: self._label_dict[column].get(str(x), PADDING_VALUE))
                 else:

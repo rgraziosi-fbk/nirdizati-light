@@ -74,7 +74,6 @@ class PredictiveModel:
             elif self.model_type in [item.value for item in RegressionMethods]:
                 predicted = self.model.predict(self.validate_df)
                 result = evaluate_regressor(actual, predicted, loss=target)
-                print(result)
             else:
                 raise Exception('Unsupported model_type')
 

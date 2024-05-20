@@ -167,7 +167,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         elif 'bpic2015' in dataset_name:
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
-        elif 'BPI_Challenge_2012' in dataset_name:
+        elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 
         for prefix in prefix_lengths:
@@ -290,6 +290,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,
-                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
