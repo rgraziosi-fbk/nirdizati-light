@@ -7,34 +7,33 @@ from rims.checking_process import SimulationProcess
 from pm4py.objects.petri_net import semantics
 from rims.MAINparameters import*
 
-ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
+ATTRIBUTES = {
+        'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
                  'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture', 'DiagnosticUrinarySediment', 'DiagnosticXthorax', 'DisfuncOrg', 'Hypotensie',
-                 'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
-                                        'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']},
-               'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []},
-              'bpic2015_2_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
+                 'Hypoxie', 'InfectionSuspected', 'Infusion', 'Oligurie', 'SIRSCritHeartRate', 'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'], 'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']},
+        'BPI_Challenge_2012_W_Two_TS':{'TRACE': ['AMOUNT_REQ'], 'EVENT': []},
+        'bpic2015_2_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
                                              'Brandveilig gebruik (melding)', 'Brandveilig gebruik (vergunning)',
                                              'Gebiedsbescherming', 'Handelen in strijd met regels RO',
                                              'Inrit/Uitweg', 'Kap', 'Milieu (melding)',
                                              'Milieu (neutraal wijziging)',
                                              'Milieu (omgevingsvergunning beperkte milieutoets)',
                                              'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
-                                             'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
-                                                                             'lifecycle:transition', 'month',
+                                             'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour','lifecycle:transition', 'month',
                                                                              'question', 'timesincecasestart',
                                                                              'timesincelastevent', 'timesincemidnight',
                                                                                  'weekday']},
-                'sepsis_cases_2_start': {
+        'sepsis_cases_2_start': {
           'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup','DiagnosticBlood','DiagnosticECG',
              'DiagnosticIC','DiagnosticLacticAcid','DiagnosticLiquor','DiagnosticOther',
              'DiagnosticSputum','DiagnosticUrinaryCulture','DiagnosticUrinarySediment',
              'DiagnosticXthorax','DisfuncOrg','Hypotensie','Hypoxie',
              'InfectionSuspected','Infusion','Oligurie','SIRSCritHeartRate',
              'SIRSCritLeucos','SIRSCritTachypnea','SIRSCritTemperature','SIRSCriteria2OrMore'],
-                      'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month',
+           'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month',
                                 'timesincecasestart',
                                 'timesincelastevent', 'timesincemidnight', 'weekday']},
-              'sepsis_cases_3_start': {
+        'sepsis_cases_3_start': {
                   'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG',
                             'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
                             'DiagnosticOther', 'DiagnosticSputum', 'DiagnosticUrinaryCulture',
@@ -43,22 +42,19 @@ ATTRIBUTES = {'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticA
                             'SIRSCritLeucos', 'SIRSCritTachypnea', 'SIRSCritTemperature', 'SIRSCriteria2OrMore'],
                   'EVENT': ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart',
                             'timesincelastevent', 'timesincemidnight', 'weekday']},
-                'bpic2015_4_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw','Brandveilig gebruik (vergunning)',
+        'bpic2015_4_start': {'TRACE': ['Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw','Brandveilig gebruik (vergunning)',
                                                              'Gebiedsbescherming', 'Handelen in strijd met regels RO',
                                                              'Inrit/Uitweg', 'Kap',
                                                              'Milieu (neutraal wijziging)',
                                                              'Milieu (omgevingsvergunning beperkte milieutoets)',
                                                              'Milieu (vergunning)', 'Monument', 'Reclame', 'Responsible_actor',
-                                                             'SUMleges', 'Sloop'], 'EVENT': ['event_nr', 'hour',
-                                                                                             'lifecycle:transition', 'month',
-                                                                                             'question', 'timesincecasestart',
-                                                                                             'timesincelastevent', 'timesincemidnight',
-                                                                                                 'weekday'],
-                                     'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],
-                                                          'EVENT': ["hour", "weekday", "month", "timesincemidnight",
+                                                             'SUMleges', 'Sloop'],
+                             'EVENT': ['event_nr', 'hour','lifecycle:transition', 'month',
+                                       'question', 'timesincecasestart','timesincelastevent', 'timesincemidnight',
+                                                                                                 'weekday']},
+        'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
                                                                     "timesincelastevent",
                                                                     "timesincecasestart", "event_nr", "open_cases"]}
-                                     }
 
               }
 
