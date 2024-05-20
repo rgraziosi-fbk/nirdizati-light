@@ -54,7 +54,7 @@ ATTRIBUTES = {
                                                                                                  'weekday']},
         'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
                                                                     "timesincelastevent",
-                                                                    "timesincecasestart", "event_nr", "open_cases"]}
+                                                                    "timesincecasestart", "event_nr"]}
 
               }
 
