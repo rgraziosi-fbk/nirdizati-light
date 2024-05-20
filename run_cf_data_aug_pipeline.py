@@ -150,6 +150,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
             updated_train_df = simulated_df.copy()
             encoder.decode(updated_train_df)
+            encoder.decode(simulated_df)
             simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
         else:
             updated_train_df = pd.concat([train_df, df_cf], ignore_index=True)
@@ -257,12 +258,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'bpic2012_2_start': [45],
-        #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
+        #'bpic2012_2_start': [45],
+        'bpic2015_2_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'sepsis_cases_1_start': [16],
         #'sepsis_cases_2_start': [16],
-       # 'sepsis_cases_3_start': [16],
+        #'sepsis_cases_3_start': [16],
         #'sepsis_cases_3': [14],
     }
     for dataset, prefix_lengths in dataset_list.items():
