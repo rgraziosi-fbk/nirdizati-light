@@ -60,11 +60,11 @@ ATTRIBUTES = {
 
 class Token(object):
 
-    def __init__(self, id, params, process: SimulationProcess, sequence, contrafactual, NAME_EXPERIMENT, rp_feature='all_role'):
+    def __init__(self, id, start, params, process: SimulationProcess, sequence, contrafactual, NAME_EXPERIMENT, rp_feature='all_role'):
         self.id = id
         self.net, self.am, self.fm = pm4py.read_pnml(params.PATH_PETRINET)
         self.process = process
-        self.start_time = params.START_SIMULATION
+        self.start_time = start
         self.pr_wip_initial = params.PR_WIP_INITIAL
         self.rp_feature = rp_feature
         self.params = params
@@ -129,11 +129,37 @@ class Token(object):
             else:
                 waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
                                                        self.start_time + timedelta(seconds=env.now), -1)
-            if self.contrafactual is not None:
-                if self.see_activity:
-                    yield env.timeout(waiting)
-            else:
-                yield env.timeout(float(event[3]))
+            #if self.contrafactual is not None:
+            #    if self.see_activity:
+            #    yield env.timeout(waiting)
+            #else:
+            #    yield env.timeout(float(event[3]))
+
+            #### event attributes
+            ### SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
+            attrib = []
+            for a in ATTRIBUTES[self.NAME_EXPERIMENT]['EVENT']:
+                if a == 'event_nr':
+                    attrib.append(len(self.prefix))
+                elif a == 'hour':
+                    attrib.append((self.start_time + timedelta(seconds=env.now)).hour)
+                elif a == 'month':
+                    attrib.append((self.start_time + timedelta(seconds=env.now)).month)
+                elif a == 'timesincecasestart':
+                    attrib.append((((self.start_time + timedelta(seconds=env.now)) - self.start_time).total_seconds())/60)
+                elif a == 'timesincelastevent':
+                    attrib.append((((self.start_time + timedelta(seconds=env.now) - time_previous_event)).total_seconds())/60)
+                elif a == 'timesincemidnight':
+                    now = self.start_time + timedelta(seconds=env.now)
+                    attrib.append((now.hour * 3600 + now.minute * 60 + now.second)/60)
+                elif a == 'weekday':
+                    attrib.append((self.start_time + timedelta(seconds=env.now)).isoweekday())
+                else:
+                    attrib.append(event[-3][a])  # event attributes
+            attrib.append(event[-2])  # trace attributes
+            attrib.append(event[-1])  # label
+            time_previous_event = self.start_time + timedelta(seconds=env.now)
+
             yield request_resource
             ### register event in process ###
             resource_task = self.process.get_resource_event(event[0])
@@ -159,33 +185,13 @@ class Token(object):
             buffer.append(pr_wip_wait)
             buffer.append(ac_wip)
             buffer.append(queue)
-            #### event attributes
-            ### SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
-            for a in ATTRIBUTES[self.NAME_EXPERIMENT]['EVENT']:
-                if a == 'event_nr':
-                    buffer.append(len(self.prefix))
-                elif a == 'hour':
-                    buffer.append((self.start_time + timedelta(seconds=env.now)).hour)
-                elif a == 'month':
-                    buffer.append((self.start_time + timedelta(seconds=env.now)).month)
-                elif a == 'timesincecasestart':
-                    buffer.append((self.start_time - (self.start_time + timedelta(seconds=env.now))).total_seconds())
-                elif a == 'timesincelastevent':
-                    buffer.append((time_previous_event - (self.start_time + timedelta(seconds=env.now))).total_seconds())
-                elif a == 'weekday':
-                    buffer.append((self.start_time + timedelta(seconds=env.now)).isoweekday())
-                else:
-                    buffer.append(event[-3][a]) #event attributes
-            buffer.append(event[-2]) #trace attributes
-            buffer.append(event[-1]) #label
-            resource.release(request_resource)
+            buffer = buffer + attrib
             resource_task.release(resource_task_request)
             print(*buffer)
             writer.writerow(buffer)
-
+            resource.release(request_resource)
             #self.update_marking(trans)
             #trans = self.next_transition(syn)
-            time_previous_event = self.start_time + timedelta(seconds=env.now)
             self.see_activity = True
             event = self.next_event() if self.contrafactual == False else self.next_event_contrafactual()
 
