@@ -150,9 +150,9 @@ class DatasetConfs:
             self.dynamic_cat_cols = {dataset: ["Activity", "Resource","lifecycle:transition"]}
             self.static_cat_cols = {dataset: []}
             self.dynamic_num_cols = {dataset: ["hour", "weekday", "month", "timesincemidnight", "timesincelastevent",
-                                         "timesincecasestart", "event_nr", "open_cases"]}
+                                         "timesincecasestart", "event_nr"]}
             self.static_num_cols = {dataset: ['AMOUNT_REQ']}
-        #elif dataset_name in ['bpic2015_2_start.xes', "BPIC15_%s_f%s" % (municipality, formula) for municipality in range(1, 6) for formula in range(1, 3)]:
+        #elif dataset_name in ['full.xes', "BPIC15_%s_f%s" % (municipality, formula) for municipality in range(1, 6) for formula in range(1, 3)]:
         elif dataset_name in ['bpic2015_2_start']:
             dataset = dataset_name
             if where_is_the_file != '':

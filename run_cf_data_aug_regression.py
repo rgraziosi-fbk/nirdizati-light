@@ -197,7 +197,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 'time_encoding': TimeEncodingType.NONE.value,
                 'target_event': None,
                 'seed': 42,
-                'simulation': False  ## if True the simulation of TRAIN + CF is run
+                'simulation': True  ## if True the simulation of TRAIN + CF is run
             }
 
 
@@ -292,7 +292,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
 
             # Define the file path
-            file_path = 'experiments/model_performances_regression_' + REGRESSION_CONF[
+            file_path = 'experiments/new_results/model_performances_regression_' + REGRESSION_CONF[
                 'hyperparameter_optimisation_target'] +'_'+ dataset_name + '_update_event_index' + '.csv'
 
             # Write the DataFrame to a CSV file in append mode
@@ -339,6 +339,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 42,
-                    'simulation': False  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

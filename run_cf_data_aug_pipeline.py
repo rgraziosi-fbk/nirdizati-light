@@ -130,7 +130,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
+            if dataset_name == 'bpic2012_2_start' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -148,9 +148,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             #simulated_log['label'] = minority_class
             simulated_log = convert_to_log(simulated_log, cols)
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
-            simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
             updated_train_df = simulated_df.copy()
             encoder.decode(updated_train_df)
+            simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
         else:
             updated_train_df = pd.concat([train_df, df_cf], ignore_index=True)
             updated_train_df.to_csv(path_or_buf=os.path.join('experiments', 'new_logs',
@@ -164,7 +164,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         # Have to do the prefixes loop here to get the results for each prefix length, train each predictive model again, add the counterfactuals and retrain with the updated_train_df
         #updated_train_df = pd.read_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'),index_col=[0])
         if 'sepsis' in dataset_name:
-            prefix_lengths =  [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         elif 'bpic2015' in dataset_name:
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
         elif 'BPI_Challenge_2012' in dataset_name:
@@ -243,7 +243,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 results_df = results_df._append(pd.Series(data_row, index=columns), ignore_index = True)
 
             # Define the file path
-            file_path = 'experiments/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_from_full_traces' + '.csv'
+            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_from_full_traces' + '.csv'
 
             # Write the DataFrame to a CSV file in append mode
             results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -257,19 +257,19 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'bpic2012_2_start': [45],
+        'bpic2012_2_start': [45],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        'sepsis_cases_1_start': [9],
+        #'sepsis_cases_1_start': [16],
         #'sepsis_cases_2_start': [16],
-        #'sepsis_cases_3_start': [16],
+       # 'sepsis_cases_3_start': [16],
         #'sepsis_cases_3': [14],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'sepsis_cases_1_start_full_correct.xes'),
+                    'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -279,7 +279,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
@@ -290,6 +290,6 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is run
+                    'simulation': False  ## if True the simulation of TRAIN + CF is run
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

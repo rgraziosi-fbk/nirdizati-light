@@ -1,0 +1,335 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text></text>
+    </name>
+    <page id="n0">
+      <place id="ent_node_c5baf373-6ef6-4277-a6ab-b42710b38cdb">
+        <name>
+          <text>ent_node_c5baf373-6ef6-4277-a6ab-b42710b38cdb</text>
+        </name>
+      </place>
+      <place id="ent_node_acdc4582-479c-4f0b-9a98-0b1d30967be0">
+        <name>
+          <text>ent_node_acdc4582-479c-4f0b-9a98-0b1d30967be0</text>
+        </name>
+      </place>
+      <place id="exi_node_1318634e-3f80-4615-b7ad-37aa7aabf031">
+        <name>
+          <text>exi_node_1318634e-3f80-4615-b7ad-37aa7aabf031</text>
+        </name>
+      </place>
+      <place id="ent_node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b">
+        <name>
+          <text>ent_node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b</text>
+        </name>
+      </place>
+      <place id="ent_node_f69fb725-7031-4a7c-b8d8-64c95b157635">
+        <name>
+          <text>ent_node_f69fb725-7031-4a7c-b8d8-64c95b157635</text>
+        </name>
+      </place>
+      <place id="exi_node_7b13bec9-6078-4aa5-acfd-3a2c33ca59db">
+        <name>
+          <text>exi_node_7b13bec9-6078-4aa5-acfd-3a2c33ca59db</text>
+        </name>
+      </place>
+      <place id="exi_node_78785db7-7eab-4769-a880-6b5e0a7f8253">
+        <name>
+          <text>exi_node_78785db7-7eab-4769-a880-6b5e0a7f8253</text>
+        </name>
+      </place>
+      <place id="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44">
+        <name>
+          <text>ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="ent_node_38f49e8b-a66c-4188-b18b-95258da5ca46">
+        <name>
+          <text>ent_node_38f49e8b-a66c-4188-b18b-95258da5ca46</text>
+        </name>
+      </place>
+      <place id="exi_node_8436639f-d87a-4b68-a319-f52c1ea756a1">
+        <name>
+          <text>exi_node_8436639f-d87a-4b68-a319-f52c1ea756a1</text>
+        </name>
+      </place>
+      <place id="exi_node_b14898ac-344c-4b43-884f-e07f0e7e5128">
+        <name>
+          <text>exi_node_b14898ac-344c-4b43-884f-e07f0e7e5128</text>
+        </name>
+      </place>
+      <place id="ent_node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb">
+        <name>
+          <text>ent_node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb</text>
+        </name>
+      </place>
+      <place id="exi_node_7dd8d705-3a77-4c0c-a6ef-437676fbaf55">
+        <name>
+          <text>exi_node_7dd8d705-3a77-4c0c-a6ef-437676fbaf55</text>
+        </name>
+      </place>
+      <place id="exi_node_73a0ff88-765f-407f-8631-6491ad63fc01">
+        <name>
+          <text>exi_node_73a0ff88-765f-407f-8631-6491ad63fc01</text>
+        </name>
+      </place>
+      <place id="exi_node_a71e765c-8fc3-4501-baa5-17ca630fefa3">
+        <name>
+          <text>exi_node_a71e765c-8fc3-4501-baa5-17ca630fefa3</text>
+        </name>
+      </place>
+      <place id="exi_node_9ec69920-7309-4ee8-93d0-b73641c9b397">
+        <name>
+          <text>exi_node_9ec69920-7309-4ee8-93d0-b73641c9b397</text>
+        </name>
+      </place>
+      <place id="exi_node_aa61bb96-5391-4b2c-90f0-65d25d50f641">
+        <name>
+          <text>exi_node_aa61bb96-5391-4b2c-90f0-65d25d50f641</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="ent_node_e01f9548-819f-4554-8dbe-6d74d564ffd8">
+        <name>
+          <text>ent_node_e01f9548-819f-4554-8dbe-6d74d564ffd8</text>
+        </name>
+      </place>
+      <transition id="node_60346c8c-3604-4bd7-bab8-3a5e11d6c645">
+        <name>
+          <text>Release B</text>
+        </name>
+      </transition>
+      <transition id="node_347fdfe0-dd3e-4b2f-acc0-e637c5b0e9cf">
+        <name>
+          <text>Return ER</text>
+        </name>
+      </transition>
+      <transition id="d51a009a-7efb-4f5c-ba6a-9f46df738a6a">
+        <name>
+          <text>d51a009a-7efb-4f5c-ba6a-9f46df738a6a</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="779afe76-b5de-4ae6-8ae3-2600d9c61cd6"/>
+      </transition>
+      <transition id="node_f90fdf54-795f-459c-8bdb-8fac710927d3">
+        <name>
+          <text>Release D</text>
+        </name>
+      </transition>
+      <transition id="0474611f-ddea-4116-b5e5-bae3396a2679">
+        <name>
+          <text>0474611f-ddea-4116-b5e5-bae3396a2679</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="a88ea44f-1bf2-47d4-87cd-1d0adfa6e4a0"/>
+      </transition>
+      <transition id="node_b35e95d2-5487-4363-953c-aac8269ffcb4">
+        <name>
+          <text>ER Triage</text>
+        </name>
+      </transition>
+      <transition id="1c3c1505-6742-43fe-9ce0-60b0854414e8">
+        <name>
+          <text>1c3c1505-6742-43fe-9ce0-60b0854414e8</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="615be5d7-5d7a-4d2f-8cbd-234e7f39f0b6"/>
+      </transition>
+      <transition id="node_6b5bf78a-45bf-4989-96c5-32ad1f613bd7">
+        <name>
+          <text>ER Registration</text>
+        </name>
+      </transition>
+      <transition id="4e286a5c-2b17-4fe3-9fdf-54be887cfd69">
+        <name>
+          <text>4e286a5c-2b17-4fe3-9fdf-54be887cfd69</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="a0daec0d-963d-49a2-908e-9ff1cf5426b1"/>
+      </transition>
+      <transition id="node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb">
+        <name>
+          <text>node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="6564b72d-4724-4a3d-bed9-933078fc8acb"/>
+      </transition>
+      <transition id="node_80dee176-f563-4f30-a627-3ee94e714bbb">
+        <name>
+          <text>Release C</text>
+        </name>
+      </transition>
+      <transition id="node_4666784d-ec89-4348-8829-e561e3c55a1a">
+        <name>
+          <text>Start</text>
+        </name>
+      </transition>
+      <transition id="node_86d57ed9-af72-48f0-848f-437502a1b348">
+        <name>
+          <text>Leucocytes</text>
+        </name>
+      </transition>
+      <transition id="node_acdc4582-479c-4f0b-9a98-0b1d30967be0">
+        <name>
+          <text>node_acdc4582-479c-4f0b-9a98-0b1d30967be0</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="a7a7dd74-868d-48b6-b762-79c0a25502b4"/>
+      </transition>
+      <transition id="node_e16ce8fe-5b59-49f7-846d-82bfb8084ece">
+        <name>
+          <text>IV Liquid</text>
+        </name>
+      </transition>
+      <transition id="31b9b3c1-3ffb-402f-a235-3307253e85c6">
+        <name>
+          <text>31b9b3c1-3ffb-402f-a235-3307253e85c6</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="edbcf982-dff7-46d9-a1d2-42db3ea25701"/>
+      </transition>
+      <transition id="node_38f49e8b-a66c-4188-b18b-95258da5ca46">
+        <name>
+          <text>node_38f49e8b-a66c-4188-b18b-95258da5ca46</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="d375341c-cc9c-4212-b61e-7e60ac2aa94f"/>
+      </transition>
+      <transition id="7d547062-1278-4250-bc74-1e2e098f347d">
+        <name>
+          <text>7d547062-1278-4250-bc74-1e2e098f347d</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="e5917bc0-cf27-4ebc-af96-83de47968740"/>
+      </transition>
+      <transition id="node_62b50829-711c-48b6-98b9-171941b5c7af">
+        <name>
+          <text>Admission IC</text>
+        </name>
+      </transition>
+      <transition id="node_c3424b07-da87-478e-80ef-0b40594263f6">
+        <name>
+          <text>Admission NC</text>
+        </name>
+      </transition>
+      <transition id="node_e04a5717-58b2-44fa-b1be-c90503ff91ed">
+        <name>
+          <text>LacticAcid</text>
+        </name>
+      </transition>
+      <transition id="node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b">
+        <name>
+          <text>ER Sepsis Triage</text>
+        </name>
+      </transition>
+      <transition id="node_9bfb3b7a-e8ca-46fe-8e66-83652423b97c">
+        <name>
+          <text>other</text>
+        </name>
+      </transition>
+      <transition id="8d1d604b-e1e7-4143-862a-b67f97d0a13e">
+        <name>
+          <text>8d1d604b-e1e7-4143-862a-b67f97d0a13e</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="f7a2eab9-2cc1-476b-a437-1d7adfe86568"/>
+      </transition>
+      <transition id="node_1160270d-c428-4be6-982e-819721b87c25">
+        <name>
+          <text>CRP</text>
+        </name>
+      </transition>
+      <transition id="cefd171b-ffe5-430f-9c7a-3f6f324d2fd8">
+        <name>
+          <text>cefd171b-ffe5-430f-9c7a-3f6f324d2fd8</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="a0891afa-5082-43f0-b0ca-1e4cdf125e29"/>
+      </transition>
+      <transition id="c2c009b1-4e78-4ac8-a63d-7012dd7693a3">
+        <name>
+          <text>c2c009b1-4e78-4ac8-a63d-7012dd7693a3</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="be6ef5b7-5bdc-4571-86da-062b04f6e501"/>
+      </transition>
+      <transition id="node_59ef069a-740a-4a34-8c3f-7b4394ea1c4a">
+        <name>
+          <text>End</text>
+        </name>
+      </transition>
+      <transition id="node_c5baf373-6ef6-4277-a6ab-b42710b38cdb">
+        <name>
+          <text>IV Antibiotics</text>
+        </name>
+      </transition>
+      <arc id="140501496953872" source="ent_node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b" target="node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b"/>
+      <arc id="140501140567088" source="node_acdc4582-479c-4f0b-9a98-0b1d30967be0" target="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44"/>
+      <arc id="140501149356096" source="exi_node_9ec69920-7309-4ee8-93d0-b73641c9b397" target="1c3c1505-6742-43fe-9ce0-60b0854414e8"/>
+      <arc id="140500092145728" source="exi_node_b14898ac-344c-4b43-884f-e07f0e7e5128" target="node_80dee176-f563-4f30-a627-3ee94e714bbb"/>
+      <arc id="140501496875088" source="ent_node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb" target="node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb"/>
+      <arc id="140501164381280" source="exi_node_8436639f-d87a-4b68-a319-f52c1ea756a1" target="c2c009b1-4e78-4ac8-a63d-7012dd7693a3"/>
+      <arc id="140501136520288" source="exi_node_78785db7-7eab-4769-a880-6b5e0a7f8253" target="node_6b5bf78a-45bf-4989-96c5-32ad1f613bd7"/>
+      <arc id="140500883179648" source="cefd171b-ffe5-430f-9c7a-3f6f324d2fd8" target="exi_node_b14898ac-344c-4b43-884f-e07f0e7e5128"/>
+      <arc id="140501140568240" source="4e286a5c-2b17-4fe3-9fdf-54be887cfd69" target="ent_node_e01f9548-819f-4554-8dbe-6d74d564ffd8"/>
+      <arc id="140500092147936" source="node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b" target="exi_node_a71e765c-8fc3-4501-baa5-17ca630fefa3"/>
+      <arc id="140501136520432" source="exi_node_aa61bb96-5391-4b2c-90f0-65d25d50f641" target="node_c3424b07-da87-478e-80ef-0b40594263f6"/>
+      <arc id="140501136520528" source="exi_node_a71e765c-8fc3-4501-baa5-17ca630fefa3" target="node_e04a5717-58b2-44fa-b1be-c90503ff91ed"/>
+      <arc id="140501149364576" source="exi_node_9ec69920-7309-4ee8-93d0-b73641c9b397" target="cefd171b-ffe5-430f-9c7a-3f6f324d2fd8"/>
+      <arc id="140501136520576" source="exi_node_73a0ff88-765f-407f-8631-6491ad63fc01" target="node_347fdfe0-dd3e-4b2f-acc0-e637c5b0e9cf"/>
+      <arc id="140500883179936" source="node_e16ce8fe-5b59-49f7-846d-82bfb8084ece" target="ent_node_c5baf373-6ef6-4277-a6ab-b42710b38cdb"/>
+      <arc id="140501149365680" source="exi_node_1318634e-3f80-4615-b7ad-37aa7aabf031" target="d51a009a-7efb-4f5c-ba6a-9f46df738a6a"/>
+      <arc id="140500883180992" source="node_59ef069a-740a-4a34-8c3f-7b4394ea1c4a" target="sink"/>
+      <arc id="140500902723008" source="ent_node_f69fb725-7031-4a7c-b8d8-64c95b157635" target="node_86d57ed9-af72-48f0-848f-437502a1b348"/>
+      <arc id="140501140568528" source="node_86d57ed9-af72-48f0-848f-437502a1b348" target="exi_node_1318634e-3f80-4615-b7ad-37aa7aabf031"/>
+      <arc id="140501149357584" source="node_c5baf373-6ef6-4277-a6ab-b42710b38cdb" target="exi_node_aa61bb96-5391-4b2c-90f0-65d25d50f641"/>
+      <arc id="140500092147216" source="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44" target="node_59ef069a-740a-4a34-8c3f-7b4394ea1c4a"/>
+      <arc id="140501136520720" source="exi_node_73a0ff88-765f-407f-8631-6491ad63fc01" target="node_60346c8c-3604-4bd7-bab8-3a5e11d6c645"/>
+      <arc id="140501468201504" source="node_6b5bf78a-45bf-4989-96c5-32ad1f613bd7" target="ent_node_e01f9548-819f-4554-8dbe-6d74d564ffd8"/>
+      <arc id="140501140568624" source="8d1d604b-e1e7-4143-862a-b67f97d0a13e" target="ent_node_f69fb725-7031-4a7c-b8d8-64c95b157635"/>
+      <arc id="140501149357632" source="node_9bfb3b7a-e8ca-46fe-8e66-83652423b97c" target="ent_node_38f49e8b-a66c-4188-b18b-95258da5ca46"/>
+      <arc id="140500883181136" source="d51a009a-7efb-4f5c-ba6a-9f46df738a6a" target="ent_node_38f49e8b-a66c-4188-b18b-95258da5ca46"/>
+      <arc id="140501149359696" source="node_62b50829-711c-48b6-98b9-171941b5c7af" target="ent_node_f69fb725-7031-4a7c-b8d8-64c95b157635"/>
+      <arc id="140501134498400" source="exi_node_7dd8d705-3a77-4c0c-a6ef-437676fbaf55" target="31b9b3c1-3ffb-402f-a235-3307253e85c6"/>
+      <arc id="140501149358688" source="c2c009b1-4e78-4ac8-a63d-7012dd7693a3" target="ent_node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb"/>
+      <arc id="140501136520816" source="exi_node_a71e765c-8fc3-4501-baa5-17ca630fefa3" target="node_e16ce8fe-5b59-49f7-846d-82bfb8084ece"/>
+      <arc id="140501136520864" source="exi_node_1318634e-3f80-4615-b7ad-37aa7aabf031" target="node_9bfb3b7a-e8ca-46fe-8e66-83652423b97c"/>
+      <arc id="140500092149424" source="1c3c1505-6742-43fe-9ce0-60b0854414e8" target="exi_node_78785db7-7eab-4769-a880-6b5e0a7f8253"/>
+      <arc id="140500092146352" source="ent_node_e01f9548-819f-4554-8dbe-6d74d564ffd8" target="node_b35e95d2-5487-4363-953c-aac8269ffcb4"/>
+      <arc id="140500902723248" source="exi_node_8436639f-d87a-4b68-a319-f52c1ea756a1" target="node_f90fdf54-795f-459c-8bdb-8fac710927d3"/>
+      <arc id="140501468203712" source="node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb" target="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44"/>
+      <arc id="140501149358784" source="31b9b3c1-3ffb-402f-a235-3307253e85c6" target="exi_node_7b13bec9-6078-4aa5-acfd-3a2c33ca59db"/>
+      <arc id="140500092149472" source="node_1160270d-c428-4be6-982e-819721b87c25" target="exi_node_8436639f-d87a-4b68-a319-f52c1ea756a1"/>
+      <arc id="140500092146400" source="exi_node_aa61bb96-5391-4b2c-90f0-65d25d50f641" target="node_62b50829-711c-48b6-98b9-171941b5c7af"/>
+      <arc id="140500902723296" source="exi_node_78785db7-7eab-4769-a880-6b5e0a7f8253" target="node_1160270d-c428-4be6-982e-819721b87c25"/>
+      <arc id="140501493503744" source="0474611f-ddea-4116-b5e5-bae3396a2679" target="exi_node_9ec69920-7309-4ee8-93d0-b73641c9b397"/>
+      <arc id="140500883180320" source="node_e04a5717-58b2-44fa-b1be-c90503ff91ed" target="ent_node_acdc4582-479c-4f0b-9a98-0b1d30967be0"/>
+      <arc id="140501136520000" source="node_60346c8c-3604-4bd7-bab8-3a5e11d6c645" target="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44"/>
+      <arc id="140500092147552" source="7d547062-1278-4250-bc74-1e2e098f347d" target="exi_node_73a0ff88-765f-407f-8631-6491ad63fc01"/>
+      <arc id="140501468204912" source="exi_node_7b13bec9-6078-4aa5-acfd-3a2c33ca59db" target="7d547062-1278-4250-bc74-1e2e098f347d"/>
+      <arc id="140500883180416" source="node_38f49e8b-a66c-4188-b18b-95258da5ca46" target="ent_node_acdc4582-479c-4f0b-9a98-0b1d30967be0"/>
+      <arc id="140501140567952" source="node_80dee176-f563-4f30-a627-3ee94e714bbb" target="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44"/>
+      <arc id="140500092120992" source="ent_node_38f49e8b-a66c-4188-b18b-95258da5ca46" target="node_38f49e8b-a66c-4188-b18b-95258da5ca46"/>
+      <arc id="140501149356960" source="node_f90fdf54-795f-459c-8bdb-8fac710927d3" target="ent_node_f2fa3b92-5b6e-4b9c-869b-f4afe3ce3cdb"/>
+      <arc id="140500883180464" source="node_c3424b07-da87-478e-80ef-0b40594263f6" target="ent_node_acdc4582-479c-4f0b-9a98-0b1d30967be0"/>
+      <arc id="140501496567744" source="node_347fdfe0-dd3e-4b2f-acc0-e637c5b0e9cf" target="ent_node_c45d6a6b-a308-48c8-be0b-270b819efe44"/>
+      <arc id="140500092147648" source="node_4666784d-ec89-4348-8829-e561e3c55a1a" target="exi_node_7dd8d705-3a77-4c0c-a6ef-437676fbaf55"/>
+      <arc id="140501136520144" source="node_b35e95d2-5487-4363-953c-aac8269ffcb4" target="ent_node_c9526fb4-b3f9-4e1c-9e66-ece4430bee7b"/>
+      <arc id="140501140570064" source="exi_node_7dd8d705-3a77-4c0c-a6ef-437676fbaf55" target="0474611f-ddea-4116-b5e5-bae3396a2679"/>
+      <arc id="140501496832976" source="ent_node_acdc4582-479c-4f0b-9a98-0b1d30967be0" target="node_acdc4582-479c-4f0b-9a98-0b1d30967be0"/>
+      <arc id="140501496890320" source="ent_node_c5baf373-6ef6-4277-a6ab-b42710b38cdb" target="node_c5baf373-6ef6-4277-a6ab-b42710b38cdb"/>
+      <arc id="140500092149712" source="source" target="node_4666784d-ec89-4348-8829-e561e3c55a1a"/>
+      <arc id="140501149359072" source="exi_node_b14898ac-344c-4b43-884f-e07f0e7e5128" target="4e286a5c-2b17-4fe3-9fdf-54be887cfd69"/>
+      <arc id="140501134497776" source="exi_node_7b13bec9-6078-4aa5-acfd-3a2c33ca59db" target="8d1d604b-e1e7-4143-862a-b67f97d0a13e"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>
