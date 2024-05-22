@@ -170,6 +170,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30, 35, 40, 45 ,50 ]
         elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 35, 40]
+        elif 'Production' in dataset_name:
+            prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
         for prefix in prefix_lengths:
             CONF['prefix_length'] = prefix
@@ -266,6 +268,7 @@ if __name__ == '__main__':
         #'sepsis_cases_2_start': [16],
         #'sepsis_cases_3_start': [16],
         #'sepsis_cases_3': [14],
+        'Production': [10],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
