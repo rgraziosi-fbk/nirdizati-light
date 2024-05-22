@@ -61,7 +61,7 @@ class DatasetConfs:
             self.case_id_col = {dataset: "Case ID"}
             self.activity_col = {dataset: "Activity"}
             self.resource_col = {dataset: "Resource"}
-            self.timestamp_col = {dataset: "Complete Timestamp"}
+            self.timestamp_col = {dataset: "time:timestamp"}
             self.label_col = {dataset: "label"}
             self.neg_label = {dataset: "regular"}
             self.pos_label = {dataset: "deviant"}
@@ -71,7 +71,8 @@ class DatasetConfs:
             self.static_num_cols = {dataset: ["Work_Order_Qty"]}
             self.dynamic_cat_cols = {dataset: ["Activity", "Resource", "Report_Type", "Resource.1"]}
             self.dynamic_num_cols = {dataset: ["Qty_Completed", "Qty_for_MRB", "activity_duration", "hour", "weekday", "month",
-                                         "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr", "open_cases"]}
+                                         "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr", "open_cases",
+                                               'start:timestamp']}
         elif dataset_name in ['BPIC17_O_CANCELLED', 'BPIC17_O_ACCEPTED', 'BPIC17_O_REFUSED']:
             #### BPIC2017 settings ####
             dataset = dataset_name
