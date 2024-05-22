@@ -130,7 +130,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'bpic2012_2_start' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
+            if dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2012_2_start' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -167,9 +167,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         if 'sepsis' in dataset_name:
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         elif 'bpic2015' in dataset_name:
-            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
+            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30, 35, 40, 45 ,50 ]
         elif 'bpic2012' in dataset_name:
-            prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 35, 40]
 
         for prefix in prefix_lengths:
             CONF['prefix_length'] = prefix
@@ -244,7 +244,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 results_df = results_df._append(pd.Series(data_row, index=columns), ignore_index = True)
 
             # Define the file path
-            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_from_full_traces' + '.csv'
+            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_no_waiting_time_sim' + '.csv'
 
             # Write the DataFrame to a CSV file in append mode
             results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -258,8 +258,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'bpic2012_2_start': [45],
-        'bpic2015_2_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
+        #'bpic2012_2_start_old': [45],
+        'bpic2012_2_start': [45],
+        #'bpic2015_2_start': [55],
         #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'sepsis_cases_1_start': [16],
         #'sepsis_cases_2_start': [16],

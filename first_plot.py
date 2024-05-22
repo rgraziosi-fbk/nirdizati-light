@@ -6,12 +6,11 @@ import seaborn as sns
 
 # Set the desired color palette
 sns.set_palette("tab10")
-datasets = ['sepsis_cases_1_start', 'sepsis_cases_2_start']
+datasets = ['sepsis_cases_1_start','sepsis_cases_2_start','sepsis_cases_3_start','bpic2012_2_start_old','bpic2012_2_start','bpic2015_2_start']
 for dataset in datasets:
-    for file in os.listdir('experiments/'):
-        if dataset in file and 'mcc' in file and file.endswith('from_full_traces.csv'):
-            results = pd.read_csv('experiments/' + file, sep=',')
-#    results = pd.read_csv('experiments/model_performances_Mcc_sepsis.csv', sep= ';')
+    for file in os.listdir('experiments/new_results/'):
+        if dataset in file and 'mcc' in file and file.endswith('no_waiting_time_sim.csv'):
+            results = pd.read_csv('experiments/new_results/' + file, sep=',')
 
     prefix = list(results['Prefix Length'].unique())
     model = list(results['Model'].unique())
@@ -83,9 +82,11 @@ for dataset in datasets:
             axes[idx_aug+idx_m].set_xticklabels(prefix)
             axes[idx_m].set_title(model[idx_m], fontsize=20)
             axes[idx_m].set_title(model[idx_m], fontsize=20)
+            if dataset == 'sepsis_cases_1_start':
+                axes[idx_aug+idx_m].set_ylim(-0.2, 0.4)
         axes[idx_aug].set_ylabel(f"Augmentation Factor: {aug}", fontsize=12)
     fig.legend(['Initial', 'Baseline', 'Sim+CF'],ncols=3, loc='upper center', fontsize=20,bbox_to_anchor=(0.5, 0.97))
     fig.suptitle(dataset+'_updated',fontsize=30,y=0.995)
     #plt.tight_layout()
     plt.savefig(
-        'experiments/plots_after_change/' + dataset + '_Mcc.png')
+        'experiments/full_plots/' + dataset + '_Mcc.png')

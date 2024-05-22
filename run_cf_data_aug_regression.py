@@ -24,8 +24,8 @@ import ast
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
-
-
+#print(tf.executing_eagerly()) # check if eager execution is enable or not
+# Check if eager execution is enabled
 def dict_mean(dict_list):
     mean_dict = {}
     for key in dict_list[0].keys():
@@ -131,7 +131,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start' or dataset_name=='sepsis_cases_1_start':
+            if dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start' or dataset_name=='sepsis_cases_1_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -169,9 +169,10 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
         if 'sepsis' in dataset_name:
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+            prefix_lengths =  [13, 14]
         elif 'bpic2015' in dataset_name:
-            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
-        elif 'BPI_Challenge_2012' in dataset_name:
+            prefix_lengths =  [14 ,15, 20 , 25, 30]
+        elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 
         for prefix in prefix_lengths:
@@ -196,8 +197,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 'hyperparameter_optimisation_evaluations': 20,
                 'time_encoding': TimeEncodingType.NONE.value,
                 'target_event': None,
-                'seed': 42,
-                'simulation': True  ## if True the simulation of TRAIN + CF is run
+                'seed': 666,
+                'simulation': CONF['simulation']  ## if True the simulation of TRAIN + CF is run
             }
 
 
@@ -294,6 +295,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             # Define the file path
             file_path = 'experiments/new_results/model_performances_regression_' + REGRESSION_CONF[
                 'hyperparameter_optimisation_target'] +'_'+ dataset_name + '_no_waiting_time_sim' + '.csv'
+            #file_path = 'experiments/new_results/test' + '.csv'
 
             # Write the DataFrame to a CSV file in append mode
             results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -307,16 +309,17 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-         #'bpic2012_2': [45],
-        #'bpic2015_2_start': [55],
+         #'bpic2012_2_start_old': [45],
+         #'bpic2012_2_start': [45],
+        'bpic2015_2_start': [55],
         #'bpic2015_4_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20 ,25 ,30 ,35, 40],
-         'sepsis_cases_1_start': [20],
-         #'sepsis_cases_2_start': [20],
-         #'sepsis_cases_3_start': [20],
+         #'sepsis_cases_1_start': [16],
+         #'sepsis_cases_2_start': [16],
+         #'sepsis_cases_3_start': [16],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3, 0.5, 0.7]:
+            for augmentation_factor in [0.7]:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join(dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],

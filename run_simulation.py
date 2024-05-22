@@ -13,6 +13,7 @@ import pm4py
 from pm4py.objects.log.util import sorting
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from operator import itemgetter
+# Check if eager execution is enabled
 
 ATTRIBUTES = {
         'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
@@ -59,9 +60,12 @@ ATTRIBUTES = {
                              'EVENT': ['event_nr', 'hour','lifecycle:transition', 'month',
                                        'question', 'timesincecasestart','timesincelastevent', 'timesincemidnight',
                                                                                                  'weekday']},
-        'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
+        'bpic2012_2_start_old': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
                                                                     "timesincelastevent",
-                                                                    "timesincecasestart", "event_nr"]}
+                                                                    "timesincecasestart", "event_nr"]},
+        'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
+                                                                            "timesincelastevent",
+                                                                            "timesincecasestart", "event_nr"]}
 
               }
 

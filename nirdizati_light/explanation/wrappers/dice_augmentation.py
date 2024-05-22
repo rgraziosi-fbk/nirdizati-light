@@ -71,7 +71,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
-                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           heuristic=heuristic,random_seed=random_seed,adapted=True
                                                                            )
             elif method == 'multi_objective_genetic':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',

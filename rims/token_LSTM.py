@@ -54,6 +54,9 @@ ATTRIBUTES = {
                                                                                                  'weekday']},
         'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
                                                                     "timesincelastevent",
+                                                                    "timesincecasestart", "event_nr"]},
+    'bpic2012_2_start_old': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
+                                                                    "timesincelastevent",
                                                                     "timesincecasestart", "event_nr"]}
 
               }
@@ -187,7 +190,7 @@ class Token(object):
             buffer.append(queue)
             buffer = buffer + attrib
             resource_task.release(resource_task_request)
-            print(*buffer)
+            #print(*buffer)
             writer.writerow(buffer)
             resource.release(request_resource)
             #self.update_marking(trans)

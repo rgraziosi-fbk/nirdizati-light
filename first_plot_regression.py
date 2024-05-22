@@ -6,11 +6,11 @@ import seaborn as sns
 
 # Set the desired color palette
 sns.set_palette("tab10")
-datasets = ['sepsis_cases_1_start', 'sepsis_cases_2_start', 'sepsis_cases_3_start']
+datasets = ['sepsis_cases_1_start', 'sepsis_cases_2_start', 'sepsis_cases_3_start', 'bpic2015_2_start']
 for dataset in datasets:
-    for file in os.listdir('experiments/'):
+    for file in os.listdir('experiments/new_results/'):
         if dataset in file and 'mae' in file and file.endswith('.csv'):
-            results = pd.read_csv('experiments/' + file, sep=',')
+            results = pd.read_csv('experiments/new_results/' + file, sep=',')
 #    results = pd.read_csv('experiments/model_performances_Mcc_sepsis.csv', sep= ';')
 
     prefix = list(results['Prefix Length'].unique())
@@ -46,10 +46,10 @@ for dataset in datasets:
         plt.show()
     '''
     #augmentation_factors = [0.3, 0.5, 0.7]
-    initial_metrics = ['Initial Rmse', 'Initial Mae', 'Initial Mape']
-    augmented_metrics = ['Augmented Rmse', 'Augmented Mae', 'Augmented Mape']
+    initial_metrics = ['Initial Rmse', 'Initial Mae', 'Initial Mape', 'Initial Rscore']
+    augmented_metrics = ['Augmented Rmse', 'Augmented Mae', 'Augmented Mape','Augmented Rscore']
 
-    fig, axes = plt.subplots(nrows=3, ncols=len(initial_metrics), figsize=(15, 8))
+    fig, axes = plt.subplots(nrows=3, ncols=len(initial_metrics), figsize=(16, 10))
 
     # Iterate over augmentation factors
     for idx_metric, (initial_metric, augmented_metric) in enumerate(zip(initial_metrics, augmented_metrics)):
@@ -78,6 +78,8 @@ for dataset in datasets:
                     baseline.append(results_baseline[results_baseline['Prefix Length'] == p][augmented_metric].mean())
                 axes[idx_aug][idx_metric].plot(initial, color='green', linewidth=3)
                 axes[idx_aug][idx_metric].plot(baseline, color='blue', linewidth=3)
+                axes[idx_aug][idx_metric].set_xticks(range(len(prefix)))  # Set xticks based on prefix length
+                axes[idx_aug][idx_metric].set_xticklabels(prefix)
                 axes[idx_aug][idx_metric].plot(sim, color='red', linewidth=3)
                 axes[idx_aug][idx_metric].set_title(f"{initial_metric.split(' ')[1]}", fontsize=12)
             axes[idx_aug][0].set_ylabel(f"Augmentation Factor: {aug}", fontsize=12)
@@ -85,4 +87,4 @@ for dataset in datasets:
     fig.suptitle(dataset,fontsize=30,y=0.995)
     #plt.tight_layout()
     plt.savefig(
-        'experiments/plots/' + dataset + '_regression.png')
+        'experiments/full_plots/' + dataset + '_regression.png')
