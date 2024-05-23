@@ -21,6 +21,54 @@ class DatasetConfs:
             self.dynamic_num_cols = {dataset: ["expense", "timesincelastevent", "timesincecasestart", "timesincemidnight", "event_nr",
                                          "month", "weekday", "hour", "open_cases"]}
             self.static_num_cols = {dataset: ["amount", "points"]}
+        elif dataset_name in ['PurchasingExample']:
+            #### Purchasing log settings ####
+            dataset = dataset_name
+            if where_is_the_file != '':
+                self.filename = {dataset: where_is_the_file}
+            else:
+                self.filename = {dataset: ''}
+
+            self.case_id_col = {dataset: "Case ID"}
+            self.activity_col = {dataset: "concept:name"}
+            self.resource_col = {dataset: "org:resource"}
+            self.timestamp_col = {dataset: "time:timestamp"}
+            self.label_col = {dataset: "label"}
+            self.neg_label = {dataset: "regular"}
+            self.pos_label = {dataset: "deviant"}
+
+            # features for classifier
+            self.static_cat_cols = {dataset: ["lifecycle:transition"]}
+            self.dynamic_cat_cols = {dataset: ["concept:name", "Resource"]}
+            self.dynamic_num_cols = {
+                dataset: ["hour", "weekday", "month",
+                          "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
+                          'start:timestamp']}
+            self.static_num_cols = {dataset: []}
+        elif dataset_name in ['SynLoan']:
+            #### Purchasing log settings ####
+            dataset = dataset_name
+            if where_is_the_file != '':
+                self.filename = {dataset: where_is_the_file}
+            else:
+                self.filename = {dataset: ''}
+
+            self.case_id_col = {dataset: "Case ID"}
+            self.activity_col = {dataset: "concept:name"}
+            self.resource_col = {dataset: "org:resource"}
+            self.timestamp_col = {dataset: "time:timestamp"}
+            self.label_col = {dataset: "label"}
+            self.neg_label = {dataset: "regular"}
+            self.pos_label = {dataset: "deviant"}
+
+            # features for classifier
+            self.static_cat_cols = {dataset: []}
+            self.dynamic_cat_cols = {dataset: ["concept:name", "org:resource"]}
+            self.dynamic_num_cols = {
+                dataset: ["hour", "weekday", "month", "queue",
+                          "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
+                          'start:timestamp']}
+            self.static_num_cols = {dataset: ["amount"]}
         elif dataset_name in ["sepsis_cases_1","sepsis_cases_2","sepsis_cases_3","sepsis_cases_4","sepsis_cases_5"]:
             #### Sepsis Cases settings ####
             dataset = dataset_name
