@@ -65,8 +65,12 @@ ATTRIBUTES = {
                                                                     "timesincecasestart", "event_nr"]},
         'bpic2012_2_start': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
                                                                             "timesincelastevent",
-                                                                            "timesincecasestart", "event_nr"]}
-
+                                                                            "timesincecasestart", "event_nr"]},
+        'Productions': {'TRACE': ["Part_Desc_", "Report_Type", "Rework",
+                                              "Work_Order_Qty"],
+                        'EVENT': ["Qty_Completed", "Qty_for_MRB", "activity_duration", "event_nr",
+                        "hour", "lifecycle:transition", "month", "timesincecasestart", "timesincelastevent",
+                                  "timesincemidnight", "weekday"]}
               }
 
 def read_log_csv(self, path):
@@ -142,6 +146,7 @@ def read_contrafactual(contrafactual, attrib_event, attrib_trace):
             prefix = 'prefix_' + str(count_prefix)
         count_prefix = 1
     return contrafactual_traces, arrivals_CF
+
 
 def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key):
     simulation_process = SimulationProcess(env=env, params=params)

@@ -131,7 +131,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start' or dataset_name=='sepsis_cases_1_start':
+            if dataset_name == 'Productions' or dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start' or dataset_name=='sepsis_cases_1_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -174,7 +174,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths =  [14 ,15, 20 , 25, 30]
         elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
-        elif 'Production' in dataset_name:
+        elif 'Productions' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
 
         for prefix in prefix_lengths:
@@ -292,7 +292,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 data_row.extend([model, prefix_length, augmentation_factor, simulation])
 
                 # Append the data row to the DataFrame
-                results_df = results_df.append(pd.Series(data_row, index=columns), ignore_index=True)
+                results_df = results_df._append(pd.Series(data_row, index=columns), ignore_index=True)
 
             # Define the file path
             file_path = 'experiments/new_results/model_performances_regression_' + REGRESSION_CONF[
@@ -313,18 +313,18 @@ if __name__ == '__main__':
         ### prefix length
          #'bpic2012_2_start_old': [45],
          #'bpic2012_2_start': [45],
-        'bpic2015_2_start': [55],
+        #'bpic2015_2_start': [55],
         #'bpic2015_4_start': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20 ,25 ,30 ,35, 40],
          #'sepsis_cases_1_start': [16],
          #'sepsis_cases_2_start': [16],
          #'sepsis_cases_3_start': [16],
-        'Production': [10],
+        'Productions': [10],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.7]:
+            for augmentation_factor in [0.3]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'full.xes'),
+                    'data': os.path.join(dataset, 'ProductionsIRENE.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -334,7 +334,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,  # SHAP, LRP, ICE, DICE
                     'threshold': 13,

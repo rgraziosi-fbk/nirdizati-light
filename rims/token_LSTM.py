@@ -57,9 +57,13 @@ ATTRIBUTES = {
                                                                     "timesincecasestart", "event_nr"]},
     'bpic2012_2_start_old': {'TRACE': ['AMOUNT_REQ'],'EVENT': ["hour", "weekday", "month", "timesincemidnight",
                                                                     "timesincelastevent",
-                                                                    "timesincecasestart", "event_nr"]}
+                                                                    "timesincecasestart", "event_nr"]},
+    'Productions': {'TRACE': ["Part_Desc_", "Rework", "Report_Type",
+                                              "Work_Order_Qty"],
+                        'EVENT': ["Qty_Completed", "Qty_for_MRB", "activity_duration", "event_nr",
+                        "hour", "lifecycle:transition", "month", "timesincecasestart", "timesincelastevent",
+                                  "timesincemidnight", "weekday"]}}
 
-              }
 
 class Token(object):
 
@@ -112,6 +116,9 @@ class Token(object):
                 elif self.NAME_EXPERIMENT == 'BPI_Challenge_2012_W_Two_TS':
                     role = self.params.RESOURCE_ROLE["11169.0"]
                     resource = self.process.get_single_resource("11169.0")
+                elif self.NAME_EXPERIMENT == 'Productions':
+                    role = self.params.RESOURCE_ROLE["ID4932"]
+                    resource = self.process.get_single_resource("ID4932")
 
             if event[0] not in self.params.INDEX_AC:
                 if self.NAME_EXPERIMENT == 'bpic2015_2_start' or self.NAME_EXPERIMENT == 'bpic2015_4_start':
@@ -132,11 +139,11 @@ class Token(object):
             else:
                 waiting = self.process.get_predict_waiting(str(self.id), pr_wip_wait, transition, rp_oc,
                                                        self.start_time + timedelta(seconds=env.now), -1)
-            #if self.contrafactual is not None:
-            #    if self.see_activity:
-            #    yield env.timeout(waiting)
-            #else:
-            #    yield env.timeout(float(event[3]))
+            if self.contrafactual is not None:
+                if self.see_activity:
+                    yield env.timeout(waiting)
+            else:
+                yield env.timeout(float(event[3]))
 
             #### event attributes
             ### SEPSIS_ATTRIB_EVENT = ['CRP', 'LacticAcid', 'Leucocytes', 'event_nr', 'hour', 'month', 'timesincecasestart', 'timesincelastevent', 'timesincemidnight', 'weekday']
@@ -159,8 +166,6 @@ class Token(object):
                     attrib.append((self.start_time + timedelta(seconds=env.now)).isoweekday())
                 else:
                     attrib.append(event[-3][a])  # event attributes
-            attrib.append(event[-2])  # trace attributes
-            attrib.append(event[-1])  # label
             time_previous_event = self.start_time + timedelta(seconds=env.now)
 
             yield request_resource
@@ -177,6 +182,10 @@ class Token(object):
             ac_wip = initial_ac_wip + 0#resource_task.count
 
             duration = self.process.get_predict_processing(str(self.id), pr_wip, transition, ac_wip, rp_oc, self.start_time + timedelta(seconds=env.now), -1)
+            if self.NAME_EXPERIMENT == 'Productions':
+                attrib[-1] = duration/60
+            attrib.append(event[-2])  # trace attributes
+            attrib.append(event[-1])  # label
             if event[1] == -1:
                 yield env.timeout(duration)
             else:
@@ -190,7 +199,7 @@ class Token(object):
             buffer.append(queue)
             buffer = buffer + attrib
             resource_task.release(resource_task_request)
-            #print(*buffer)
+            print(*buffer)
             writer.writerow(buffer)
             resource.release(request_resource)
             #self.update_marking(trans)

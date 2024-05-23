@@ -128,9 +128,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-2])
             df = pd.DataFrame.from_dict(dicts_trace, orient='index')
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
-            simulated_log.drop(columns=['key_0',
-                                        'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2012_2_start' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
+            simulated_log.drop(columns=['key_0','st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
+
+            if dataset_name == 'Productions' or dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -165,13 +165,19 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         # Have to do the prefixes loop here to get the results for each prefix length, train each predictive model again, add the counterfactuals and retrain with the updated_train_df
         #updated_train_df = pd.read_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'),index_col=[0])
         if 'sepsis' in dataset_name:
-            prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+            #[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+            prefix_lengths =  [2]
         elif 'bpic2015' in dataset_name:
             prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30, 35, 40, 45 ,50 ]
         elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 35, 40]
         elif 'Production' in dataset_name:
-            prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            prefix_lengths = [6]
+        elif 'bpic2012_2' in dataset_name:
+            #prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
+            prefix_lengths = [5]
+        elif 'BPI_Challenge_2012' in dataset_name:
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 
         for prefix in prefix_lengths:
             CONF['prefix_length'] = prefix
@@ -261,20 +267,16 @@ if __name__ == '__main__':
     dataset_list = {
         ### prefix length
         #'bpic2012_2_start_old': [45],
-        'bpic2012_2_start': [45],
+        'Productions': [6],
         #'bpic2015_2_start': [55],
-        #'bpic2015_4_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        #'sepsis_cases_1_start': [16],
-        #'sepsis_cases_2_start': [16],
-        #'sepsis_cases_3_start': [16],
-        #'sepsis_cases_3': [14],
-        'Production': [10],
+        #'bpic2015_2_start': [12],
+        #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
             for augmentation_factor in [0.3, 0.5, 0.7]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'full.xes'),
+                    'data': os.path.join(dataset, 'ProductionsIRENE.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -291,7 +293,7 @@ if __name__ == '__main__':
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
                     'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
-                    'hyperparameter_optimisation_evaluations': 30,
+                    'hyperparameter_optimisation_evaluations': 20,
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,

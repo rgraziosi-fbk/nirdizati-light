@@ -50,7 +50,7 @@ class DatasetConfs:
             self.dynamic_num_cols = {dataset: ["start:timestamp", "timesincemidnight",
                                          "timesincelastevent", "timesincecasestart", "event_nr", "open_cases","Leucocytes","CRP","LacticAcid","month", "weekday", "hour"]}
             self.static_num_cols = {dataset: ['Age']}
-        elif dataset_name is "Production":
+        elif dataset_name is "Productions":
             #### Production log settings ####
             dataset = dataset_name
             if where_is_the_file != '':
@@ -67,11 +67,11 @@ class DatasetConfs:
             self.pos_label = {dataset: "deviant"}
 
             # features for classifier
-            self.static_cat_cols = {dataset: ["Part_Desc_", "Rework"]}
+            self.static_cat_cols = {dataset: ["Part_Desc_", "Rework", "Report_Type"]}
             self.static_num_cols = {dataset: ["Work_Order_Qty"]}
-            self.dynamic_cat_cols = {dataset: ["Activity", "Resource", "Report_Type", "Resource.1"]}
+            self.dynamic_cat_cols = {dataset: ["Activity", "org:resource", "Resource.1"]}
             self.dynamic_num_cols = {dataset: ["Qty_Completed", "Qty_for_MRB", "activity_duration", "hour", "weekday", "month",
-                                         "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr", "open_cases",
+                                         "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
                                                'start:timestamp']}
         elif dataset_name in ['BPIC17_O_CANCELLED', 'BPIC17_O_ACCEPTED', 'BPIC17_O_REFUSED']:
             #### BPIC2017 settings ####
