@@ -186,7 +186,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         elif 'PurchasingExample' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'SynLoan' in dataset_name:
-            prefix_lengths = [1,2,3,4,5,6,7,8,9]
+            prefix_lengths = [5]
 
         for prefix in prefix_lengths:
             CONF['prefix_length'] = prefix
@@ -280,13 +280,13 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        'PurchasingExample': [10]
+        'SynLoan': [5]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
             for augmentation_factor in [0.5]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'PurchasingExample_labelled.xes'),
+                    'data': os.path.join(dataset, 'SynLoan_labelled.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,

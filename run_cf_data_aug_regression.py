@@ -131,7 +131,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0',
                                         'st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            if dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start' or dataset_name=='sepsis_cases_1_start':
+            if dataset_name == 'SynLoan' or dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'bpic2012_2_start_old' or dataset_name == 'bpic2015_2_start' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start' or dataset_name=='sepsis_cases_1_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                 columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)

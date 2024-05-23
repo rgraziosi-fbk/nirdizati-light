@@ -69,7 +69,7 @@ ATTRIBUTES = {
                                              "timesincelastevent",
                                              "timesincemidnight", "weekday"]},
             'SynLoan': {'TRACE': ['amount'],
-                               'EVENT': ["event_nr", "lifecycle:transition"
+                               'EVENT': ["event_nr", "lifecycle:transition",
                                          "hour", "month", "timesincecasestart",
                                          "timesincelastevent",
                                          "timesincemidnight", "weekday", "queue"]}
