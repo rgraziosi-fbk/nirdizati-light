@@ -70,8 +70,17 @@ ATTRIBUTES = {
                                               "Work_Order_Qty"],
                         'EVENT': ["Qty_Completed", "Qty_for_MRB", "activity_duration", "event_nr",
                         "hour", "lifecycle:transition", "month", "timesincecasestart", "timesincelastevent",
-                                  "timesincemidnight", "weekday"]}
-              }
+                                  "timesincemidnight", "weekday"]},
+        'PurchasingExample': {'TRACE': ['lifecycle:transition'],
+                                'EVENT': ["event_nr",
+                                "hour", "month", "timesincecasestart", "timesincelastevent",
+                                          "timesincemidnight", "weekday"]},
+        'SynLoan': {'TRACE': ['amount'],
+                                       'EVENT': ["event_nr", "lifecycle:transition"
+                                                 "hour", "month", "timesincecasestart",
+                                                 "timesincelastevent",
+                                                 "timesincemidnight", "weekday", "queue"]}
+}
 
 def read_log_csv(self, path):
     dataframe = pd.read_csv(path, sep=',')
