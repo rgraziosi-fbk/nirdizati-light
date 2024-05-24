@@ -129,11 +129,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             df = pd.DataFrame.from_dict(dicts_trace, orient='index')
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0','st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-
+            simulated_log.rename(columns={'queue.1': 'queue'}, inplace=True)
             if dataset_name == 'SynLoan' or dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
-                columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
+                    columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
             if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
                 simulated_log['org:group'] = simulated_log['org:resource']
             simulated_log['lifecycle:transition'] = 'complete'
@@ -180,13 +180,13 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'bpic2012_2' in dataset_name:
             #prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
-            prefix_lengths = [5]
+            prefix_lengths = [1, 2, 3, 4]
         elif 'BPI_Challenge_2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
         elif 'PurchasingExample' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'SynLoan' in dataset_name:
-            prefix_lengths = [5]
+            prefix_lengths = [1, 2, 3, 4]
 
         for prefix in prefix_lengths:
             CONF['prefix_length'] = prefix
@@ -296,7 +296,7 @@ if __name__ == '__main__':
                     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
                     'attribute_encoding': EncodingTypeAttribute.LABEL.value,  # LABEL, ONEHOT
                     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
-                    'predictive_models': [ClassificationMethods.RANDOM_FOREST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
+                    'predictive_models': [ClassificationMethods.XGBOOST.value],  # RANDOM_FOREST, LSTM, PERCEPTRON
                     'explanator': ExplainerType.DICE_AUGMENTATION.value,
                     'augmentation_factor': augmentation_factor,# SHAP, LRP, ICE, DICE
                     'threshold': 13,
