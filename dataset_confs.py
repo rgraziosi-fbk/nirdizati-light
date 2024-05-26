@@ -45,6 +45,54 @@ class DatasetConfs:
                           "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
                           'start:timestamp']}
             self.static_num_cols = {dataset: []}
+        elif dataset_name in ['ConsultaDataMining201618']:
+            #### Purchasing log settings ####
+            dataset = dataset_name
+            if where_is_the_file != '':
+                self.filename = {dataset: where_is_the_file}
+            else:
+                self.filename = {dataset: ''}
+
+            self.case_id_col = {dataset: "Case ID"}
+            self.activity_col = {dataset: "concept:name"}
+            self.resource_col = {dataset: "org:resource"}
+            self.timestamp_col = {dataset: "time:timestamp"}
+            self.label_col = {dataset: "label"}
+            self.neg_label = {dataset: "regular"}
+            self.pos_label = {dataset: "deviant"}
+
+            # features for classifier
+            self.static_cat_cols = {dataset: ["lifecycle:transition"]}
+            self.dynamic_cat_cols = {dataset: ["concept:name", "Resource"]}
+            self.dynamic_num_cols = {
+                dataset: ["hour", "weekday", "month",
+                          "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
+                          'start:timestamp']}
+            self.static_num_cols = {dataset: []}
+        elif dataset_name in ['cvs_pharmacy']:
+            #### Purchasing log settings ####
+            dataset = dataset_name
+            if where_is_the_file != '':
+                self.filename = {dataset: where_is_the_file}
+            else:
+                self.filename = {dataset: ''}
+
+            self.case_id_col = {dataset: "Case ID"}
+            self.activity_col = {dataset: "concept:name"}
+            self.resource_col = {dataset: "org:resource"}
+            self.timestamp_col = {dataset: "time:timestamp"}
+            self.label_col = {dataset: "label"}
+            self.neg_label = {dataset: "regular"}
+            self.pos_label = {dataset: "deviant"}
+
+            # features for classifier
+            self.static_cat_cols = {dataset: ["lifecycle:transition"]}
+            self.dynamic_cat_cols = {dataset: ["concept:name", "org:Resource"]}
+            self.dynamic_num_cols = {
+                dataset: ["hour", "weekday", "month", "resourceCost",
+                          "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
+                          'start:timestamp']}
+            self.static_num_cols = {dataset: []}
         elif dataset_name in ['SynLoan']:
             #### Purchasing log settings ####
             dataset = dataset_name

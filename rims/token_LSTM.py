@@ -72,7 +72,18 @@ ATTRIBUTES = {
                                'EVENT': ["event_nr", "lifecycle:transition",
                                          "hour", "month", "timesincecasestart",
                                          "timesincelastevent",
-                                         "timesincemidnight", "weekday", "queue"]}
+                                         "timesincemidnight", "weekday", "queue"]},
+
+            'cvs_pharmacy': {'TRACE': ['lifecycle:transition'],
+                             'EVENT': ["event_nr", "resourceCost",
+                                       "hour", "month", "timesincecasestart",
+                                       "timesincelastevent",
+                                       "timesincemidnight", "weekday"]},
+            'ConsultaDataMining201618': {'TRACE': ['lifecycle:transition'],
+                                  'EVENT': ["event_nr",
+                                            "hour", "month", "timesincecasestart",
+                                            "timesincelastevent",
+                                            "timesincemidnight", "weekday"]}
 }
 
 
@@ -105,10 +116,11 @@ class Token(object):
         ### register trace in process ###
         resource_trace = self.process.get_resource_trace()
         resource_trace_request = resource_trace.request()
+        yield resource_trace_request
         time_previous_event = self.start_time
         while event is not None:
-            yield resource_trace_request
             buffer = [self.id, event[0]]
+            #### arrive timestamps
             buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for waiting time
             if str(event[2]) != 0 and str(event[2]) in self.params.RESOURCE_TO_ROLE_LSTM:
@@ -130,6 +142,12 @@ class Token(object):
                 elif self.NAME_EXPERIMENT == 'Productions':
                     role = self.params.RESOURCE_ROLE["ID4932"]
                     resource = self.process.get_single_resource("ID4932")
+                elif self.NAME_EXPERIMENT == 'ConsultaDataMining201618':
+                    role = self.params.RESOURCE_ROLE["19019"]
+                    resource = self.process.get_single_resource("19019")
+                elif self.NAME_EXPERIMENT == 'cvs_pharmacy':
+                    role = self.params.RESOURCE_ROLE["Pharmacy System-000001"]
+                    resource = self.process.get_single_resource("Pharmacy System-000001")
 
             if event[0] not in self.params.INDEX_AC:
                 if self.NAME_EXPERIMENT == 'bpic2015_2_start' or self.NAME_EXPERIMENT == 'bpic2015_4_start':
@@ -139,7 +157,6 @@ class Token(object):
             pr_wip_wait = self.pr_wip_initial + resource_trace.count
             #rp_oc = self.process.get_occupations_resource(role)
             rp_oc = self.process.get_occupations_all_role(role)
-            request_resource = resource.request_CF() if self.contrafactual else resource.request_original()
             if len(resource.queue) > 0:
                 queue = len(resource.queue[-1])
             else:
@@ -178,13 +195,14 @@ class Token(object):
                 else:
                     attrib.append(event[-3][a])  # event attributes
             time_previous_event = self.start_time + timedelta(seconds=env.now)
-
+            request_resource = resource.request_CF() if self.contrafactual else resource.request_original()
             yield request_resource
+            #### start:timestamp
+            buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### register event in process ###
             resource_task = self.process.get_resource_event(event[0])
             resource_task_request = resource_task.request()
             yield resource_task_request
-            buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
             ### call predictor for processing time
             pr_wip = self.pr_wip_initial + resource_trace.count
             #rp_oc = self.process.get_occupations_resource(resource.get_name())
@@ -204,6 +222,7 @@ class Token(object):
                     event[1] = 0
                 yield env.timeout(event[1])
             buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
+            resource.release(request_resource)
             buffer.append(resource.get_name())
             buffer.append(pr_wip_wait)
             buffer.append(ac_wip)
@@ -212,7 +231,6 @@ class Token(object):
             resource_task.release(resource_task_request)
             print(*buffer)
             writer.writerow(buffer)
-            resource.release(request_resource)
             #self.update_marking(trans)
             #trans = self.next_transition(syn)
             self.see_activity = True

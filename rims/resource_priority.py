@@ -31,6 +31,10 @@ class ResourcePriority(object):
     def release(self, request):
         self.resource_simpy.release(request)
 
+    def request(self):
+        self.queue.append(self.resource_simpy.queue)
+        return self.resource_simpy.request()
+
     def request_original(self):
         self.queue.append(self.resource_simpy.queue)
         request = self.resource_simpy.request(-1)

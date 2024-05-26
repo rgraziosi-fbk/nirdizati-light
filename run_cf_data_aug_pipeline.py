@@ -130,7 +130,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
             simulated_log.drop(columns=['key_0','st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
             simulated_log.rename(columns={'queue.1': 'queue'}, inplace=True)
-            if dataset_name == 'SynLoan' or dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
+            if dataset_name == 'cvs_pharmacy' or dataset_name == 'ConsultaDataMining201618' or dataset_name == 'SynLoan' or dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
             simulated_log.rename(
                     columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
@@ -187,6 +187,10 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'SynLoan' in dataset_name:
             prefix_lengths = [1, 2, 3, 4]
+        elif 'ConsultaDataMining201618' in dataset_name:
+            prefix_lengths = [5]
+        elif "cvs_pharmacy" in dataset_name:
+            prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8]
 
         for prefix in prefix_lengths:
             CONF['prefix_length'] = prefix
@@ -280,13 +284,15 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        'SynLoan': [5]
+        #'SynLoan': [5],
+        'ConsultaDataMining201618': [5]
+        #"cvs_pharmacy": [8]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.5]:
+            for augmentation_factor in [0.3]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'SynLoan_labelled.xes'),
+                    'data': os.path.join(dataset, 'ConsultaDataMining201618_label.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
