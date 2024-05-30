@@ -89,11 +89,11 @@ ATTRIBUTES = {
 
 class Token(object):
 
-    def __init__(self, id, start, params, process: SimulationProcess, sequence, contrafactual, NAME_EXPERIMENT, rp_feature='all_role'):
+    def __init__(self, id, params, process: SimulationProcess, sequence, contrafactual, NAME_EXPERIMENT, rp_feature='all_role'):
         self.id = id
         self.net, self.am, self.fm = pm4py.read_pnml(params.PATH_PETRINET)
         self.process = process
-        self.start_time = start
+        self.start_time = params.START_SIMULATION
         self.pr_wip_initial = params.PR_WIP_INITIAL
         self.rp_feature = rp_feature
         self.params = params

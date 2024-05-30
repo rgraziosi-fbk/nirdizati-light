@@ -60,4 +60,3 @@ class Parameters(object):
                 for idx, key in enumerate(roles):
                     for resource in roles[key]:
                         self.RESOURCE_TO_ROLE_LSTM[resource] = key
-

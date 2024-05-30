@@ -174,7 +174,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
     writer = csv.writer(f)
     writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] +
                     ATTRIBUTES[NAME_EXPERIMENT]['EVENT'] + ['attrib_trace', 'label'])
-    #prev = params.START_SIMULATION
+    params.START_SIMULATION = arrivals[0][1]
     prev = arrivals[0][1]
     for i in range(0, len(arrivals)):
         next = arrivals[i][1]
@@ -183,9 +183,9 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
         yield env.timeout(interval)
         if str(arrivals[i][0]) in key:
             id_arrival = str(arrivals[i][0])
-            env.process(Token(id_arrival, arrivals[i][1], params, simulation_process, [], contrafactual[arrivals[i][0]].copy(), NAME_EXPERIMENT).simulation(env, writer, type))
+            env.process(Token(id_arrival, params, simulation_process, [], contrafactual[arrivals[i][0]].copy(), NAME_EXPERIMENT).simulation(env, writer, type))
         else:
-            env.process(Token(arrivals[i][0], arrivals[i][1], params, simulation_process, log[arrivals[i][0]].copy(), False, NAME_EXPERIMENT).simulation(env, writer, type))
+            env.process(Token(arrivals[i][0], params, simulation_process, log[arrivals[i][0]].copy(), False, NAME_EXPERIMENT).simulation(env, writer, type))
 
 
 def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
