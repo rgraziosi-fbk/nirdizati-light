@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 
-from nirdizati_light.log.common import get_log
+from nirdizati_light.log.common import get_log, split_train_val_test
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
 from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
 from nirdizati_light.encoding.time_encoding import TimeEncodingType
@@ -19,23 +19,31 @@ random.seed(SEED)
 np.random.seed(SEED)
 
 CONF = {
-    'data': os.path.join('datasets', 'bpic2012_2.csv'),         # path to log
-    'train_val_test_split': [0.7, 0.15, 0.15],                      # train-validation-test set split percentages
+    # path to log
+    'data': os.path.join('datasets', 'bpic2012_2.csv'),
+    # train-validation-test set split percentages
+    'train_val_test_split': [0.7, 0.1, 0.2],
 
-    'output': 'output_data',                                        # path to output folder
+    # path to output folder
+    'output': 'output_data',
 
-    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,     #
-    'prefix_length': 20,                                            # 
+    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+    'prefix_length': 20,
 
-    'padding': True,                                                # whether to use padding or not in encoding
-    'feature_selection': EncodingType.SIMPLE.value,           # which encoding to use
-    'attribute_encoding': EncodingTypeAttribute.LABEL.value,        # which attribute encoding to use
-    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,                   # which time encoding to use
+    # whether to use padding or not in encoding
+    'padding': True,
+    # which encoding to use
+    'feature_selection': EncodingType.SIMPLE.value,
+    # which attribute encoding to use
+    'attribute_encoding': EncodingTypeAttribute.LABEL.value,
+    # which time encoding to use
+    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,
 
-    'task_generation_type': TaskGenerationType.ONLY_THIS.value,     #
-    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,             # 
+    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
     
-    'predictive_models': [                                          # list of predictive models to train
+    # list of predictive models to train
+    'predictive_models': [
          ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
         # ClassificationMethods.LSTM.value,
@@ -46,10 +54,13 @@ CONF = {
         # ClassificationMethods.XGBOOST.value,
     ],
     
-    'hyperparameter_optimisation_target': HyperoptTarget.F1.value,  # which metric to optimize hyperparameters for
-    'hyperparameter_optimisation_evaluations': 15,                  # number of hyperparameter configurations to try
+    # which metric to optimize hyperparameters for
+    'hyperparameter_optimisation_target': HyperoptTarget.F1.value,
+    # number of hyperparameter configurations to try
+    'hyperparameter_optimisation_evaluations': 15,
 
-    'explanator': ExplainerType.DICE.value,                         # explainability method to use
+    # explainability method to use
+    'explanator': ExplainerType.DICE.value,
     
     'target_event': None,
     'seed': SEED,
@@ -74,7 +85,7 @@ encoder, full_df = get_encoded_df(
 
 print('Splitting in train, validation and test...')
 train_size, val_size, test_size = CONF['train_val_test_split']
-train_df, val_df, test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
+train_df, val_df, test_df = split_train_val_test(full_df, train_size, val_size, test_size, shuffle=False, seed=CONF['seed'])
 
 print('Instantiating predictive models...')
 predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df,test_df) for predictive_model in CONF['predictive_models']]
