@@ -107,8 +107,6 @@ cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
 full_df = pd.concat([train_df, val_df, test_df])
 cf_dataset.loc[len(cf_dataset)] = 0
 
-exit()
-
 explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         query_instances=test_df_correct.iloc[:, 1:],
         method='multi_objective_genetic', optimization='multiobjective',
