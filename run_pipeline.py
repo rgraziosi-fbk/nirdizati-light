@@ -18,10 +18,8 @@ SEED = 1234
 random.seed(SEED)
 np.random.seed(SEED)
 
-LOG_NAME = 'bpic2012_O_ACCEPTED-COMPLETE'
-
 CONF = {
-    'data': os.path.join('datasets', 'sepsis_cases_1.csv'),         # path to log
+    'data': os.path.join('datasets', 'bpic2012_2.csv'),         # path to log
     'train_val_test_split': [0.7, 0.15, 0.15],                      # train-validation-test set split percentages
 
     'output': 'output_data',                                        # path to output folder
@@ -30,7 +28,7 @@ CONF = {
     'prefix_length': 20,                                            # 
 
     'padding': True,                                                # whether to use padding or not in encoding
-    'feature_selection': EncodingType.SIMPLE_TRACE.value,           # which encoding to use
+    'feature_selection': EncodingType.SIMPLE.value,           # which encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,        # which attribute encoding to use
     'time_encoding': TimeEncodingType.NONE.value,                   # which time encoding to use
 
@@ -61,7 +59,18 @@ print('Loading log...')
 log = get_log(filepath=CONF['data'], separator=';')
 
 print('Encoding traces...')
-encoder, full_df = get_encoded_df(log=log, CONF=CONF)
+encoder, full_df = get_encoded_df(
+  log=log,
+  feature_encoding_type=CONF['feature_selection'],
+  prefix_length=CONF['prefix_length'],
+  prefix_length_strategy=CONF['prefix_length_strategy'],
+  time_encoding_type=CONF['time_encoding'],
+  attribute_encoding=CONF['attribute_encoding'],
+  padding=CONF['padding'],
+  labeling_type=CONF['labeling_type'],
+  task_generation_type=CONF['task_generation_type'],
+  target_event=CONF['target_event'],
+)
 
 print('Splitting in train, validation and test...')
 train_size, val_size, test_size = CONF['train_val_test_split']
@@ -97,6 +106,8 @@ test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] ==
 cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
 full_df = pd.concat([train_df, val_df, test_df])
 cf_dataset.loc[len(cf_dataset)] = 0
+
+exit()
 
 explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         query_instances=test_df_correct.iloc[:, 1:],
