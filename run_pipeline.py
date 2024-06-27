@@ -21,7 +21,7 @@ np.random.seed(SEED)
 LOG_NAME = 'bpic2012_O_ACCEPTED-COMPLETE'
 
 CONF = {
-    'data': os.path.join('..','datasets', LOG_NAME, 'full.xes'),         # path to log
+    'data': os.path.join('datasets', 'sepsis_cases_1.csv'),         # path to log
     'train_val_test_split': [0.7, 0.15, 0.15],                      # train-validation-test set split percentages
 
     'output': 'output_data',                                        # path to output folder
@@ -58,7 +58,7 @@ CONF = {
 }
 
 print('Loading log...')
-log = get_log(filepath=CONF['data'])
+log = get_log(filepath=CONF['data'], separator=';')
 
 print('Encoding traces...')
 encoder, full_df = get_encoded_df(log=log, CONF=CONF)
