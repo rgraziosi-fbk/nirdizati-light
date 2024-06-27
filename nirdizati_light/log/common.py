@@ -21,4 +21,7 @@ def get_log(filepath, separator=';', case_id_key='case:concept:name'):
     else:
         raise ValueError("Unsupported file extension")
     
+    # ensure case id column is of type str
+    log[case_id_key] = log[case_id_key].astype(str)
+    
     return pm4py.convert_to_event_log(log, case_id_key=case_id_key)
