@@ -90,7 +90,7 @@ actual = test_df['label']
 initial_result = evaluate_classifier(actual, predicted, scores)
 results = evaluate_classifiers(predictive_models,actual)
 plot_model_comparison(results)
-print(f'Evaluation: {initial_rexsult}')
+print(f'Evaluation: {initial_result}')
 
 print('Computing explanation...')
 test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] == 0)]
