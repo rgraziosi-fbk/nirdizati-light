@@ -30,7 +30,7 @@ CONF = {
     'padding': True,                                                # whether to use padding or not in encoding
     'feature_selection': EncodingType.SIMPLE.value,           # which encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,        # which attribute encoding to use
-    'time_encoding': TimeEncodingType.NONE.value,                   # which time encoding to use
+    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,                   # which time encoding to use
 
     'task_generation_type': TaskGenerationType.ONLY_THIS.value,     #
     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,             # 
