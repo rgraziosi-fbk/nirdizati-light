@@ -29,9 +29,11 @@ class PredictiveModel:
     :param nirdizati_light.predictive_model.common.ClassificationMethods model_type: type of predictive model
     :param pandas.DataFrame train_df: training data to train model
     :param pandas.DataFrame validate_df: validation data to evaluate model
+    :param pandas.DataFrame test_df: test data to evaluate model
+    :param dict hyperopt_space: space to perform hyperparameter optimization on; if not provided, fallbacks to default values
     """
 
-    def __init__(self, CONF, model_type, train_df, validate_df, test_df):
+    def __init__(self, CONF, model_type, train_df, validate_df, test_df, hyperopt_space=None):
         self.model_type = model_type
         self.config = None
         self.model = None
@@ -44,6 +46,8 @@ class PredictiveModel:
         self.full_test_df = test_df
         self.test_df = drop_columns(test_df)
         self.test_df_shaped = None
+
+        self.hyperopt_space = hyperopt_space
 
         if model_type is ClassificationMethods.LSTM.value:
             self.train_tensor = get_tensor(CONF, self.train_df)
@@ -130,12 +134,12 @@ class PredictiveModel:
 
     def _fit_model(self, model, config=None):
         if self.model_type is ClassificationMethods.LSTM.value:
-            MAX_NUM_EPOCHS = 500
+            MAX_NUM_EPOCHS = config['max_num_epochs']
 
             train_tensor = torch.tensor(self.train_tensor, dtype=torch.float32)
             validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
 
-            early_stopper = EarlyStopper(patience=5, min_delta=0.01)
+            early_stopper = EarlyStopper(patience=config['early_stop_patience'], min_delta=config['early_stop_min_delta'])
 
             for _ in range(MAX_NUM_EPOCHS):
                 # training

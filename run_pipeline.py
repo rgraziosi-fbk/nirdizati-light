@@ -2,6 +2,8 @@ import os
 import random
 import numpy as np
 import pandas as pd
+from hyperopt import hp
+from hyperopt.pyll import scope
 
 from nirdizati_light.log.common import get_log, split_train_val_test
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
@@ -44,20 +46,30 @@ CONF = {
     
     # list of predictive models to train
     'predictive_models': [
-         ClassificationMethods.RANDOM_FOREST.value,
+        ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
-        # ClassificationMethods.LSTM.value,
-         ClassificationMethods.MLP.value,
+        ClassificationMethods.LSTM.value,
+        #  ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
         # ClassificationMethods.SVM.value,
         # ClassificationMethods.XGBOOST.value,
     ],
+
+    # list of custom hyperparameter optimization spaces (None = use default space)
+    'hyperopt_spaces': [
+        None,
+        {
+            'max_num_epochs': 20,
+            'lstm_hidden_size': 500,
+        },
+        # None,
+    ],
     
     # which metric to optimize hyperparameters for
     'hyperparameter_optimisation_target': HyperoptTarget.F1.value,
     # number of hyperparameter configurations to try
-    'hyperparameter_optimisation_evaluations': 15,
+    'hyperparameter_optimisation_evaluations': 5,
 
     # explainability method to use
     'explanator': ExplainerType.DICE.value,
@@ -88,7 +100,7 @@ train_size, val_size, test_size = CONF['train_val_test_split']
 train_df, val_df, test_df = split_train_val_test(full_df, train_size, val_size, test_size, shuffle=False, seed=CONF['seed'])
 
 print('Instantiating predictive models...')
-predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df,test_df) for predictive_model in CONF['predictive_models']]
+predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df, hyperopt_space=CONF['hyperopt_spaces'][i]) for i, predictive_model in enumerate(CONF['predictive_models'])]
 
 print('Running hyperparameter optimization...')
 best_candidates,best_model_idx, best_model_model, best_model_config = retrieve_best_model(
