@@ -16,13 +16,15 @@ from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_mod
 from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers,plot_model_comparison
 from nirdizati_light.explanation.common import ExplainerType, explain
 
+from custom_model_example import CustomModelExample
+
 SEED = 1234
 random.seed(SEED)
 np.random.seed(SEED)
 
 CONF = {
     # path to log
-    'data': os.path.join('datasets', 'bpic2012_2.csv'),
+    'data': os.path.join('datasets', 'sepsis_cases_1.csv'),
     # train-validation-test set split percentages
     'train_val_test_split': [0.7, 0.1, 0.2],
 
@@ -30,7 +32,7 @@ CONF = {
     'output': 'output_data',
 
     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
-    'prefix_length': 20,
+    'prefix_length': 15,
 
     # whether to use padding or not in encoding
     'padding': True,
@@ -39,17 +41,18 @@ CONF = {
     # which attribute encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,
     # which time encoding to use
-    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,
+    'time_encoding': TimeEncodingType.NONE.value,
 
     'task_generation_type': TaskGenerationType.ONLY_THIS.value,
     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
     
     # list of predictive models to train
     'predictive_models': [
-        ClassificationMethods.RANDOM_FOREST.value,
+        # ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
+        ClassificationMethods.CUSTOM_PYTORCH.value,
         ClassificationMethods.LSTM.value,
-        #  ClassificationMethods.MLP.value,
+         ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
         # ClassificationMethods.SVM.value,
@@ -58,12 +61,22 @@ CONF = {
 
     # list of custom hyperparameter optimization spaces (None = use default space)
     'hyperopt_spaces': [
-        None,
-        {
-            'max_num_epochs': 20,
-            'lstm_hidden_size': 500,
-        },
         # None,
+        {
+            'max_num_epochs': 10,
+            'lstm_hidden_size': 400,
+            'lstm_num_layers': 2,
+            'lr': 3e-4,
+            'early_stop_patience': 10,
+        },
+        {
+            'max_num_epochs': 50,
+            'lstm_hidden_size': 400,
+            'lstm_num_layers': 3,
+            'lr': 3e-4,
+            'early_stop_patience': 50,
+        },
+        None,
     ],
     
     # which metric to optimize hyperparameters for
@@ -100,7 +113,24 @@ train_size, val_size, test_size = CONF['train_val_test_split']
 train_df, val_df, test_df = split_train_val_test(full_df, train_size, val_size, test_size, shuffle=False, seed=CONF['seed'])
 
 print('Instantiating predictive models...')
-predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df, hyperopt_space=CONF['hyperopt_spaces'][i]) for i, predictive_model in enumerate(CONF['predictive_models'])]
+predictive_models = []
+
+for i, predictive_model_type in enumerate(CONF['predictive_models']):
+    custom_model_class = None
+    if predictive_model_type is ClassificationMethods.CUSTOM_PYTORCH.value:
+        custom_model_class = CustomModelExample
+
+    predictive_models.append(
+        PredictiveModel(
+            CONF,
+            predictive_model_type,
+            train_df,
+            val_df,
+            test_df,
+            hyperopt_space=CONF['hyperopt_spaces'][i],
+            custom_model_class=custom_model_class
+        )
+    )
 
 print('Running hyperparameter optimization...')
 best_candidates,best_model_idx, best_model_model, best_model_config = retrieve_best_model(

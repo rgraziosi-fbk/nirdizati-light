@@ -16,7 +16,7 @@ dependencies = [
   "numpy~=1.23.3",
   "hyperopt~=0.2.7",
   "dateparser~=1.2.0",
-  "holidays~=0.51",
+  "holidays==0.28",
   "funcy~=2.0.0",
   "xgboost~=2.0.3",
   "pymoo~=0.6.0.1",

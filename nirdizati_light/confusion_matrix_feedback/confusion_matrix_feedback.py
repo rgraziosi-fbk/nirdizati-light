@@ -9,15 +9,16 @@ from nirdizati_light.predictive_model.predictive_model import drop_columns
 def compute_feedback(CONF, explanations, predictive_model, test_df, encoder, top_k=None):
     if predictive_model.model_type not in ClassificationMethods:
         raise Exception('Only supported classification methods')
-    if predictive_model.model_type is not ClassificationMethods.LSTM.value:
-        predicted = predictive_model.model.predict(drop_columns(test_df))
-    elif predictive_model.model_type is ClassificationMethods.LSTM.value:
+    
+    if predictive_model.model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
         probabilities = predictive_model.model.predict(get_tensor(CONF, drop_columns(test_df)))
         indices = np.argmax(probabilities, axis=1)
         onehot_enc = list(encoder._label_dict_decoder['label'].keys())
         predicted = []
         for i in indices:
             predicted.append(onehot_enc[i])
+    else:
+        predicted = predictive_model.model.predict(drop_columns(test_df))
 
     actual = test_df['label']
 
