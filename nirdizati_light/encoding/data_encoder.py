@@ -8,9 +8,8 @@ PADDING_VALUE = 0
 #onehot and minmaxscaler not fully done
 
 class Encoder:
-    def __init__(self, df: DataFrame = None, attribute_encoding=None,feature_selection=None,prefix_length=None):
+    def __init__(self, df: DataFrame = None, attribute_encoding=None, prefix_length=None):
         self.attribute_encoding = attribute_encoding
-        self.feature_selection = feature_selection
         self.prefix_length = prefix_length
         self._label_encoder = {}
         self._numeric_encoder = {}
@@ -18,6 +17,7 @@ class Encoder:
         self._label_dict_decoder = {}
         self._scaled_values = {}
         self._unscaled_values = {}
+        
         for column in df:
             if column != 'trace_id':
                 if not is_numeric_dtype(df[column].dtype):#or (is_numeric_dtype(df[column].dtype) and np.any(df[column] < 0)):

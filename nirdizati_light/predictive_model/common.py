@@ -12,6 +12,7 @@ class ClassificationMethods(Enum):
     SGDCLASSIFIER = 'SGDClassifier'
     PERCEPTRON = 'perceptron'
     LSTM = 'lstm'
+    CUSTOM_PYTORCH = 'customPytorch'
     MLP = 'mlp'
     SVM = 'svc'
     DT = 'DecisionTree'
