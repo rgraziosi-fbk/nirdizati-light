@@ -61,7 +61,6 @@ class PredictiveModel:
             self.validate_label = shape_label_df(self.full_validate_df)
             self.test_label = shape_label_df(self.full_test_df)
 
-            
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()
@@ -208,6 +207,12 @@ class PredictiveModel:
             scores = np.amax(probabilities, axis=1)
         else:
             predicted = self.model.predict(data)
-            scores = self.model.predict_proba(data)[:, 1]
+            
+            if hasattr(self.model, 'predict_proba'):
+                scores = self.model.predict_proba(data)[:, 1]
+            else:
+                # Handle the case where predict_proba is not available
+                # For example, this may be the case for SGDClassifier trained with certain losses
+                scores = None
 
         return predicted, scores
