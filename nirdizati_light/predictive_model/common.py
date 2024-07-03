@@ -59,11 +59,17 @@ def get_tensor(df: DataFrame, prefix_length):
     return tensor
 
 def shape_label_df(df: DataFrame):
-
-    labels_list = df['label'].tolist()
-    labels = np.zeros((len(labels_list), int(max(df['label'].nunique(), int(max(df['label'].values))) +1)))
-    for label_idx, label_val in enumerate(labels_list):
-        labels[int(label_idx), int(label_val)] = 1
+    # Extract unique labels and sort them
+    unique_labels = np.sort(df['label'].unique())
+    # Create a mapping from label values to indices
+    label_to_index = {label: index for index, label in enumerate(unique_labels)}
+    
+    # Initialize the one-hot encoded array
+    labels = np.zeros((len(df), len(unique_labels)))
+    
+    # Fill the one-hot encoded array
+    for i, label_val in enumerate(df['label']):
+        labels[i, label_to_index[label_val]] = 1
 
     return labels
 
