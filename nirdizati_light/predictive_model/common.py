@@ -22,7 +22,7 @@ class RegressionMethods(Enum):
     RANDOM_FOREST = 'randomForestRegressor'
 
 
-def get_tensor(CONF, df: DataFrame):
+def get_tensor(df: DataFrame, prefix_length):
     trace_attributes = [att for att in df.columns if 'prefix_' not in att]
     event_attributes = [att[:-2] for att in df.columns if att[-2:] == '_1']
 
