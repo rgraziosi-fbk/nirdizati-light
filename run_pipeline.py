@@ -48,8 +48,8 @@ CONF = {
     
     # list of predictive models to train
     'predictive_models': [
-        # ClassificationMethods.RANDOM_FOREST.value,
-        #ClassificationMethods.KNN.value,
+        ClassificationMethods.RANDOM_FOREST.value,
+        ClassificationMethods.KNN.value,
         ClassificationMethods.CUSTOM_PYTORCH.value,
         ClassificationMethods.LSTM.value,
          ClassificationMethods.MLP.value,
@@ -61,7 +61,8 @@ CONF = {
 
     # list of custom hyperparameter optimization spaces (None = use default space)
     'hyperopt_spaces': [
-        # None,
+        None,
+        None,
         {
             'max_num_epochs': 10,
             'lstm_hidden_size': 400,
@@ -122,11 +123,11 @@ for i, predictive_model_type in enumerate(CONF['predictive_models']):
 
     predictive_models.append(
         PredictiveModel(
-            CONF,
             predictive_model_type,
             train_df,
             val_df,
             test_df,
+            prefix_length=CONF['prefix_length'],
             hyperopt_space=CONF['hyperopt_spaces'][i],
             custom_model_class=custom_model_class
         )

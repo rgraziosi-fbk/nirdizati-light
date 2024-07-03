@@ -26,15 +26,16 @@ class PredictiveModel:
     """
     A class representing a predictive model
 
-    :param dict CONF: configuration dictionary (the only required attribute is 'prefix_length')
     :param nirdizati_light.predictive_model.common.ClassificationMethods model_type: type of predictive model
     :param pandas.DataFrame train_df: training data to train model
     :param pandas.DataFrame validate_df: validation data to evaluate model
     :param pandas.DataFrame test_df: test data to evaluate model
+    :param int prefix_length: length of prefix to consider
     :param dict hyperopt_space: space to perform hyperparameter optimization on; if not provided, fallbacks to default values
+    :param class custom_model_class: class of a custom PyTorch module
     """
 
-    def __init__(self, CONF, model_type, train_df, validate_df, test_df, hyperopt_space=None, custom_model_class=None):
+    def __init__(self, model_type, train_df, validate_df, test_df, prefix_length, hyperopt_space=None, custom_model_class=None):
         self.model_type = model_type
         self.config = None
         self.model = None
@@ -52,12 +53,15 @@ class PredictiveModel:
         self.custom_model_class = custom_model_class
 
         if model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
-            self.train_tensor = get_tensor(CONF, self.train_df)
-            self.validate_tensor = get_tensor(CONF, self.validate_df)
-            self.test_tensor = get_tensor(CONF, self.test_df)
+            self.train_tensor = get_tensor(self.train_df, prefix_length)
+            self.validate_tensor = get_tensor(self.validate_df, prefix_length)
+            self.test_tensor = get_tensor(self.test_df, prefix_length)
+
             self.train_label = shape_label_df(self.full_train_df)
             self.validate_label = shape_label_df(self.full_validate_df)
             self.test_label = shape_label_df(self.full_test_df)
+
+            
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()

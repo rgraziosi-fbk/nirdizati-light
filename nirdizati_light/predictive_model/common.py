@@ -34,7 +34,7 @@ def get_tensor(CONF, df: DataFrame):
                         for feat_name, feat_values in trace.items()
                         if feat_name in trace_attributes + [event_attribute + '_' + str(prefix_index) for event_attribute in event_attributes]
                     ))
-                for prefix_index in range(1, CONF['prefix_length'] + 1)
+                for prefix_index in range(1, prefix_length + 1)
             }
             for trace_index, trace in df.iterrows()
     }
@@ -47,7 +47,7 @@ def get_tensor(CONF, df: DataFrame):
 
     tensor = np.zeros((
         len(df),                # sample
-        CONF['prefix_length'],  # time steps
+        prefix_length,          # time steps
         flattened_features      # features x single time step (trace and event attributes)
     ))
 
