@@ -23,13 +23,11 @@
 
             <h2>Contents</h2>
             <ul>
-  <li><a href="#introduction">Introduction</a>
-  <ul>
-    <li><a href="#documentation">Documentation</a></li>
-    <li><a href="#notebook">Notebook</a></li>
-    <li><a href="#installation">Installation</a></li>
-    <li><a href="#example">Example</a></li>
-  </ul></li>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#documentation">Documentation</a></li>
+  <li><a href="#notebook">Notebook</a></li>
+  <li><a href="#installation">Installation</a></li>
+  <li><a href="#examples">Examples</a></li>
 </ul>
 
 
@@ -62,9 +60,9 @@
                     <h1 class="modulename">
 nirdizati_light    </h1>
 
-                        <div class="docstring"><h1 id="introduction">Introduction</h1>
+                        <div class="docstring"><h2 id="introduction">Introduction</h2>
 
-<p>nirdizati light is a Python library for predictive process mining that focuses on the following aspects:</p>
+<p>nirdizati-light is a Python library for predictive process mining that focuses on the following aspects:</p>
 
 <ul>
 <li>trace encoding</li>
@@ -76,7 +74,7 @@ nirdizati_light    </h1>
 
 <h2 id="documentation">Documentation</h2>
 
-<p>Documentation for nirdizati light can be found at <a href="https://rgraziosi-fbk.github.io/nirdizati-light/nirdizati_light.html">this link</a>.</p>
+<p>Documentation for nirdizati-light can be found at <a href="https://rgraziosi-fbk.github.io/nirdizati-light/nirdizati_light.html">this link</a>.</p>
 
 <h2 id="notebook">Notebook</h2>
 
@@ -89,117 +87,15 @@ nirdizati_light    </h1>
 <li>In your project, run <code>pip install -e &lt;path-to-nirdizati-light-folder&gt;</code></li>
 </ol>
 
-<h2 id="example">Example</h2>
+<h2 id="examples">Examples</h2>
 
-<p>The following is an example script for training and optimizing hyperparameters for multiple models on next activity classification. Then, explainability techniques are applied to the best trained model.</p>
+<h3 id="simple-pipeline">Simple pipeline</h3>
 
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<p>The <a href="https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_simple_pipeline.py">run_simple_pipeline.py</a> script defines a list of models to train and evaluate. Hyperparameter optimization is performed using default hyperopt spaces. It is the easiest example to get started with nirdizati-light.</p>
 
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/log/common.html">nirdizati_light.log.common</a></span> <span class="kn">import</span> <span class="n">get_log</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/encoding/common.html">nirdizati_light.encoding.common</a></span> <span class="kn">import</span> <span class="n">get_encoded_df</span><span class="p">,</span> <span class="n">EncodingType</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/encoding/constants.html">nirdizati_light.encoding.constants</a></span> <span class="kn">import</span> <span class="n">TaskGenerationType</span><span class="p">,</span> <span class="n">PrefixLengthStrategy</span><span class="p">,</span> <span class="n">EncodingTypeAttribute</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/encoding/time_encoding.html">nirdizati_light.encoding.time_encoding</a></span> <span class="kn">import</span> <span class="n">TimeEncodingType</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/labeling/common.html">nirdizati_light.labeling.common</a></span> <span class="kn">import</span> <span class="n">LabelTypes</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/predictive_model/common.html">nirdizati_light.predictive_model.common</a></span> <span class="kn">import</span> <span class="n">ClassificationMethods</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/predictive_model/predictive_model.html">nirdizati_light.predictive_model.predictive_model</a></span> <span class="kn">import</span> <span class="n">PredictiveModel</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/hyperparameter_optimisation/common.html">nirdizati_light.hyperparameter_optimisation.common</a></span> <span class="kn">import</span> <span class="n">retrieve_best_model</span><span class="p">,</span> <span class="n">HyperoptTarget</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/evaluation/common.html">nirdizati_light.evaluation.common</a></span> <span class="kn">import</span> <span class="n">evaluate_classifier</span>
-<span class="kn">from</span> <span class="nn"><a href="nirdizati_light/explanation/common.html">nirdizati_light.explanation.common</a></span> <span class="kn">import</span> <span class="n">ExplainerType</span><span class="p">,</span> <span class="n">explain</span>
+<h3 id="full-pipeline">Full pipeline</h3>
 
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">1234</span>
-<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
-
-<span class="n">LOG_NAME</span> <span class="o">=</span> <span class="s1">&#39;bpic2012_O_ACCEPTED-COMPLETE&#39;</span>
-
-<span class="n">CONF</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="n">LOG_NAME</span><span class="p">,</span> <span class="s1">&#39;full.xes&#39;</span><span class="p">),</span>         <span class="c1"># path to log</span>
-    <span class="s1">&#39;train_val_test_split&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>                      <span class="c1"># train-validation-test set split percentages</span>
-
-    <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s1">&#39;output_data&#39;</span><span class="p">,</span>                                        <span class="c1"># path to output folder</span>
-
-    <span class="s1">&#39;prefix_length_strategy&#39;</span><span class="p">:</span> <span class="n">PrefixLengthStrategy</span><span class="o">.</span><span class="n">FIXED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>     <span class="c1">#</span>
-    <span class="s1">&#39;prefix_length&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>                                            <span class="c1"># </span>
-
-    <span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                                                <span class="c1"># whether to use padding or not in encoding</span>
-    <span class="s1">&#39;feature_selection&#39;</span><span class="p">:</span> <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE_TRACE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>           <span class="c1"># which encoding to use</span>
-    <span class="s1">&#39;attribute_encoding&#39;</span><span class="p">:</span> <span class="n">EncodingTypeAttribute</span><span class="o">.</span><span class="n">LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>        <span class="c1"># which attribute encoding to use</span>
-    <span class="s1">&#39;time_encoding&#39;</span><span class="p">:</span> <span class="n">TimeEncodingType</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>                   <span class="c1"># which time encoding to use</span>
-
-    <span class="s1">&#39;task_generation_type&#39;</span><span class="p">:</span> <span class="n">TaskGenerationType</span><span class="o">.</span><span class="n">ONLY_THIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>     <span class="c1">#</span>
-    <span class="s1">&#39;labeling_type&#39;</span><span class="p">:</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>             <span class="c1"># </span>
-
-    <span class="s1">&#39;predictive_models&#39;</span><span class="p">:</span> <span class="p">[</span>                                          <span class="c1"># list of predictive models to train</span>
-        <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">RANDOM_FOREST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-        <span class="n">ClassificationMethods</span><span class="o">.</span><span class="n">KNN</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-        <span class="c1"># ClassificationMethods.LSTM.value,</span>
-        <span class="c1"># ClassificationMethods.MLP.value,</span>
-        <span class="c1"># ClassificationMethods.PERCEPTRON.value,</span>
-        <span class="c1"># ClassificationMethods.SGDCLASSIFIER.value,</span>
-        <span class="c1"># ClassificationMethods.SVM.value,</span>
-        <span class="c1"># ClassificationMethods.XGBOOST.value,</span>
-    <span class="p">],</span>
-
-    <span class="s1">&#39;hyperparameter_optimisation_target&#39;</span><span class="p">:</span> <span class="n">HyperoptTarget</span><span class="o">.</span><span class="n">F1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>  <span class="c1"># which metric to optimize hyperparameters for</span>
-    <span class="s1">&#39;hyperparameter_optimisation_evaluations&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>                  <span class="c1"># number of hyperparameter configurations to try</span>
-
-    <span class="s1">&#39;explanator&#39;</span><span class="p">:</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">DICE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>                         <span class="c1"># explainability method to use</span>
-
-    <span class="s1">&#39;target_event&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="n">SEED</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading log...&#39;</span><span class="p">)</span>
-<span class="n">log</span> <span class="o">=</span> <span class="n">get_log</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Encoding traces...&#39;</span><span class="p">)</span>
-<span class="n">encoder</span><span class="p">,</span> <span class="n">full_df</span> <span class="o">=</span> <span class="n">get_encoded_df</span><span class="p">(</span><span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span> <span class="n">CONF</span><span class="o">=</span><span class="n">CONF</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Splitting in train, validation and test...&#39;</span><span class="p">)</span>
-<span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">,</span> <span class="n">test_size</span> <span class="o">=</span> <span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;train_val_test_split&#39;</span><span class="p">]</span>
-<span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">full_df</span><span class="p">,[</span><span class="nb">int</span><span class="p">(</span><span class="n">train_size</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">full_df</span><span class="p">)),</span> <span class="nb">int</span><span class="p">((</span><span class="n">train_size</span><span class="o">+</span><span class="n">val_size</span><span class="p">)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">full_df</span><span class="p">))])</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Instantiating predictive models...&#39;</span><span class="p">)</span>
-<span class="n">predictive_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">PredictiveModel</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">)</span> <span class="k">for</span> <span class="n">predictive_model</span> <span class="ow">in</span> <span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;predictive_models&#39;</span><span class="p">]]</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running hyperparameter optimization...&#39;</span><span class="p">)</span>
-<span class="n">_</span><span class="p">,</span> <span class="n">best_model_idx</span><span class="p">,</span> <span class="n">best_model_model</span><span class="p">,</span> <span class="n">best_model_config</span> <span class="o">=</span> <span class="n">retrieve_best_model</span><span class="p">(</span>
-    <span class="n">predictive_models</span><span class="p">,</span>
-    <span class="n">max_evaluations</span><span class="o">=</span><span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;hyperparameter_optimisation_evaluations&#39;</span><span class="p">],</span>
-    <span class="n">target</span><span class="o">=</span><span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;hyperparameter_optimisation_target&#39;</span><span class="p">]</span>
-<span class="p">)</span>
-
-<span class="n">best_model</span> <span class="o">=</span> <span class="n">predictive_models</span><span class="p">[</span><span class="n">best_model_idx</span><span class="p">]</span>
-<span class="n">best_model</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">best_model_model</span>
-<span class="n">best_model</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">best_model_config</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Best model is </span><span class="si">{</span><span class="n">best_model</span><span class="o">.</span><span class="n">model_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Evaluating best model...&#39;</span><span class="p">)</span>
-<span class="n">predicted</span><span class="p">,</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">best_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">actual</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
-
-<span class="n">initial_result</span> <span class="o">=</span> <span class="n">evaluate_classifier</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Evaluation: </span><span class="si">{</span><span class="n">initial_result</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing explanation...&#39;</span><span class="p">)</span>
-<span class="n">test_df_correct</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[(</span><span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">predicted</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span>
-<span class="n">cf_dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">full_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">])</span>
-<span class="n">cf_dataset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">cf_dataset</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
-
-<span class="n">explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">best_model</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">full_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span>
-        <span class="n">query_instances</span><span class="o">=</span><span class="n">test_df_correct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span>
-        <span class="n">method</span><span class="o">=</span><span class="s1">&#39;multi_objective_genetic&#39;</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="s1">&#39;multiobjective&#39;</span><span class="p">,</span>
-        <span class="n">heuristic</span><span class="o">=</span><span class="s1">&#39;heuristic_2&#39;</span><span class="p">,</span> <span class="n">support</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
-        <span class="n">timestamp_col_name</span><span class="o">=</span><span class="s1">&#39;Complete Timestamp&#39;</span><span class="p">,</span> <span class="c1"># name of the timestamp column in the log</span>
-        <span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;./experiments/process_models/process_models&#39;</span><span class="p">,</span>
-        <span class="n">random_seed</span><span class="o">=</span><span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;seed&#39;</span><span class="p">],</span> <span class="n">adapted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filtering</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</code></pre>
-</div>
+<p>The <a href="(https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_full_pipeline.py)">run_full_pipeline.py</a> script extends the simple pipeline by also configuring custom hyperparameter optimization search spaces and defining a custom Pytorch model to train and evaluate. This pipeline is more complex and shows off the full capabilities of nirdizati-light.</p>
 </div>
 
                         <input id="mod-nirdizati_light-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
