@@ -2,8 +2,6 @@ import os
 import random
 import numpy as np
 import pandas as pd
-from hyperopt import hp
-from hyperopt.pyll import scope
 
 from nirdizati_light.log.common import get_log, split_train_val_test
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
@@ -16,15 +14,13 @@ from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_mod
 from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers,plot_model_comparison
 from nirdizati_light.explanation.common import ExplainerType, explain
 
-from custom_model_example import CustomModelExample
-
 SEED = 1234
 random.seed(SEED)
 np.random.seed(SEED)
 
 CONF = {
     # path to log
-    'data': os.path.join('datasets', 'sepsis_cases_1.csv'),
+    'data': os.path.join('datasets', 'BPIC11_f1.csv'),
     # train-validation-test set split percentages
     'train_val_test_split': [0.7, 0.1, 0.2],
 
@@ -37,53 +33,34 @@ CONF = {
     # whether to use padding or not in encoding
     'padding': True,
     # which encoding to use
-    'feature_selection': EncodingType.SIMPLE.value,
+    'feature_selection': EncodingType.SIMPLE_TRACE.value,
     # which attribute encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,
     # which time encoding to use
-    'time_encoding': TimeEncodingType.NONE.value,
+    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,
 
-    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
+    # the label to be predicted (e.g. outcome, next activity)
     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
+    # whether the model should be trained on the specified prefix length (ONLY_THIS) or to every prefix in range [1, prefix_length] (ALL_IN_ONE)
+    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
     
-    # list of predictive models to train
+    # list of predictive models and their respective hyperparameter optimization space
+    # if it is None, then the default hyperopt space will be used; otherwise, the provided space will be used
     'predictive_models': [
         ClassificationMethods.RANDOM_FOREST.value,
-        ClassificationMethods.KNN.value,
-        ClassificationMethods.CUSTOM_PYTORCH.value,
+        #ClassificationMethods.KNN.value,
         ClassificationMethods.LSTM.value,
          ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
-        # ClassificationMethods.SVM.value,
+        ClassificationMethods.SVM.value,
         # ClassificationMethods.XGBOOST.value,
-    ],
-
-    # list of custom hyperparameter optimization spaces (None = use default space)
-    'hyperopt_spaces': [
-        None,
-        None,
-        {
-            'max_num_epochs': 10,
-            'lstm_hidden_size': 400,
-            'lstm_num_layers': 2,
-            'lr': 3e-4,
-            'early_stop_patience': 10,
-        },
-        {
-            'max_num_epochs': 50,
-            'lstm_hidden_size': 400,
-            'lstm_num_layers': 3,
-            'lr': 3e-4,
-            'early_stop_patience': 50,
-        },
-        None,
     ],
     
     # which metric to optimize hyperparameters for
     'hyperparameter_optimisation_target': HyperoptTarget.F1.value,
     # number of hyperparameter configurations to try
-    'hyperparameter_optimisation_evaluations': 5,
+    'hyperparameter_optimisation_evaluations': 3,
 
     # explainability method to use
     'explanator': ExplainerType.DICE.value,
@@ -114,24 +91,7 @@ train_size, val_size, test_size = CONF['train_val_test_split']
 train_df, val_df, test_df = split_train_val_test(full_df, train_size, val_size, test_size, shuffle=False, seed=CONF['seed'])
 
 print('Instantiating predictive models...')
-predictive_models = []
-
-for i, predictive_model_type in enumerate(CONF['predictive_models']):
-    custom_model_class = None
-    if predictive_model_type is ClassificationMethods.CUSTOM_PYTORCH.value:
-        custom_model_class = CustomModelExample
-
-    predictive_models.append(
-        PredictiveModel(
-            predictive_model_type,
-            train_df,
-            val_df,
-            test_df,
-            prefix_length=CONF['prefix_length'],
-            hyperopt_space=CONF['hyperopt_spaces'][i],
-            custom_model_class=custom_model_class
-        )
-    )
+predictive_models = [PredictiveModel(predictive_model, train_df, val_df, test_df, prefix_length=CONF['prefix_length']) for predictive_model in CONF['predictive_models']]
 
 print('Running hyperparameter optimization...')
 best_candidates,best_model_idx, best_model_model, best_model_config = retrieve_best_model(
