@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nirdizati-light"
+name = "nirdizati_light"
 version = "0.1"
 dependencies = [
   "dice_ml @ git+https://github.com/abuliga/DiCE.git@origin/main",
