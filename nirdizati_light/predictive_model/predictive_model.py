@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import torch
+from torch.utils.data import DataLoader, TensorDataset
 from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
 from sklearn.calibration import CalibratedClassifierCV
@@ -25,13 +26,16 @@ class PredictiveModel:
     """
     A class representing a predictive model
 
-    :param dict CONF: configuration dictionary (the only required attribute is 'prefix_length')
     :param nirdizati_light.predictive_model.common.ClassificationMethods model_type: type of predictive model
     :param pandas.DataFrame train_df: training data to train model
     :param pandas.DataFrame validate_df: validation data to evaluate model
+    :param pandas.DataFrame test_df: test data to evaluate model
+    :param int prefix_length: length of prefix to consider
+    :param dict hyperopt_space: space to perform hyperparameter optimization on; if not provided, fallbacks to default values
+    :param class custom_model_class: class of a custom PyTorch module
     """
 
-    def __init__(self, CONF, model_type, train_df, validate_df, test_df):
+    def __init__(self, model_type, train_df, validate_df, test_df, prefix_length, hyperopt_space=None, custom_model_class=None):
         self.model_type = model_type
         self.config = None
         self.model = None
@@ -45,13 +49,18 @@ class PredictiveModel:
         self.test_df = drop_columns(test_df)
         self.test_df_shaped = None
 
-        if model_type is ClassificationMethods.LSTM.value:
-            self.train_tensor = get_tensor(CONF, self.train_df)
-            self.validate_tensor = get_tensor(CONF, self.validate_df)
-            self.test_tensor = get_tensor(CONF, self.test_df)
+        self.hyperopt_space = hyperopt_space
+        self.custom_model_class = custom_model_class
+
+        if model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
+            self.train_tensor = get_tensor(self.train_df, prefix_length)
+            self.validate_tensor = get_tensor(self.validate_df, prefix_length)
+            self.test_tensor = get_tensor(self.test_df, prefix_length)
+
             self.train_label = shape_label_df(self.full_train_df)
             self.validate_label = shape_label_df(self.full_validate_df)
             self.test_label = shape_label_df(self.full_test_df)
+
         elif model_type is ClassificationMethods.MLP.value:
             self.train_label = self.full_train_df['label'].nunique()
             self.validate_label = self.full_validate_df['label'].nunique()
@@ -63,8 +72,9 @@ class PredictiveModel:
             self._fit_model(self.model, config)
             actual = self.full_validate_df['label']
             
-            if self.model_type is ClassificationMethods.LSTM.value:
+            if self.model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
                 actual = np.array(actual.to_list())
+
             if self.model_type in [item.value for item in ClassificationMethods]:
                 predicted, scores = self.predict(test=False)
                 result = evaluate_classifier(actual, predicted, scores, loss=target)
@@ -123,38 +133,59 @@ class PredictiveModel:
                 torch.nn.Linear(int(config['lstm_hidden_size']), self.train_label.shape[1]),
                 torch.nn.Softmax(dim=1),
             ).to(torch.float32)
+        elif self.model_type is ClassificationMethods.CUSTOM_PYTORCH.value:
+            model = self.custom_model_class(
+                input_dim=self.train_tensor.shape[2],
+                output_dim=self.train_label.shape[1],
+                config=config,
+            ).to(torch.float32)
         else:
             raise Exception('unsupported model_type')
         
         return model
 
     def _fit_model(self, model, config=None):
-        if self.model_type is ClassificationMethods.LSTM.value:
-            MAX_NUM_EPOCHS = 500
+        if self.model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
+            MAX_NUM_EPOCHS = config['max_num_epochs']
 
-            train_tensor = torch.tensor(self.train_tensor, dtype=torch.float32)
-            validate_tensor = torch.tensor(self.validate_tensor, dtype=torch.float32)
+            train_dataset = TensorDataset(torch.tensor(self.train_tensor, dtype=torch.float32), torch.tensor(self.train_label, dtype=torch.float32))
+            validate_dataset = TensorDataset(torch.tensor(self.validate_tensor, dtype=torch.float32), torch.tensor(self.validate_label, dtype=torch.float32))
 
-            early_stopper = EarlyStopper(patience=5, min_delta=0.01)
+            train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
+            validate_loader = DataLoader(validate_dataset, batch_size=config['batch_size'], shuffle=False)
+
+            optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
+            criterion = torch.nn.CrossEntropyLoss()
+            
+            early_stopper = EarlyStopper(patience=config['early_stop_patience'], min_delta=config['early_stop_min_delta'])
 
             for _ in range(MAX_NUM_EPOCHS):
                 # training
                 model.train()
-                optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
-                criterion = torch.nn.CrossEntropyLoss()
-                optimizer.zero_grad()
-                output = model(train_tensor)
-                loss = criterion(output, torch.tensor(self.train_label, dtype=torch.float32))
-                loss.backward()
-                optimizer.step()
+
+                for inputs, labels in train_loader:
+                    output = model(inputs)
+                    loss = criterion(output, labels)
+                    
+                    optimizer.zero_grad()
+                    loss.backward()
+                    optimizer.step()
                 
                 # validation
                 model.eval()
-                validate_loss = criterion(model(validate_tensor), torch.tensor(self.validate_label, dtype=torch.float32))
+                validate_loss = 0
+                
+                with torch.no_grad():
+                    for inputs, labels in validate_loader:
+                        output = model(inputs)
+                        validate_loss += criterion(output, labels).item()
+                
+                validate_loss /= len(validate_loader)
+
                 if early_stopper.early_stop(validate_loss):             
                     break
 
-        elif self.model_type not in (ClassificationMethods.LSTM.value):
+        else:
             model.fit(self.train_df, self.full_train_df['label'])
 
     def predict(self, test=True):
@@ -168,16 +199,20 @@ class PredictiveModel:
 
         data = self.test_df if test else self.validate_df
 
-        if self.model_type is ClassificationMethods.LSTM.value:
+        if self.model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
             data_tensor = torch.tensor(self.test_tensor if test else self.validate_tensor, dtype=torch.float32)
 
             probabilities = self.model(data_tensor).detach().numpy()
             predicted = np.argmax(probabilities, axis=1)
             scores = np.amax(probabilities, axis=1)
-        elif self.model_type not in (ClassificationMethods.LSTM.value):
-            predicted = self.model.predict(data)
-            scores = self.model.predict_proba(data)[:, 1]
         else:
-            raise Exception('Unsupported model_type')
+            predicted = self.model.predict(data)
+            
+            if hasattr(self.model, 'predict_proba'):
+                scores = self.model.predict_proba(data)[:, 1]
+            else:
+                # Handle the case where predict_proba is not available
+                # For example, this may be the case for SGDClassifier trained with certain losses
+                scores = None
 
         return predicted, scores

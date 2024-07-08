@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 
-from nirdizati_light.log.common import get_log
+from nirdizati_light.log.common import get_log, split_train_val_test
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
 from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
 from nirdizati_light.encoding.time_encoding import TimeEncodingType
@@ -18,57 +18,80 @@ SEED = 1234
 random.seed(SEED)
 np.random.seed(SEED)
 
-LOG_NAME = 'bpic2012_O_ACCEPTED-COMPLETE'
-
 CONF = {
-    'data': os.path.join('..','datasets', LOG_NAME, 'full.xes'),         # path to log
-    'train_val_test_split': [0.7, 0.15, 0.15],                      # train-validation-test set split percentages
+    # path to log
+    'data': os.path.join('datasets', 'BPIC11_f1.csv'),
+    # train-validation-test set split percentages
+    'train_val_test_split': [0.7, 0.1, 0.2],
 
-    'output': 'output_data',                                        # path to output folder
+    # path to output folder
+    'output': 'output_data',
 
-    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,     #
-    'prefix_length': 20,                                            # 
+    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+    'prefix_length': 15,
 
-    'padding': True,                                                # whether to use padding or not in encoding
-    'feature_selection': EncodingType.SIMPLE_TRACE.value,           # which encoding to use
-    'attribute_encoding': EncodingTypeAttribute.LABEL.value,        # which attribute encoding to use
-    'time_encoding': TimeEncodingType.NONE.value,                   # which time encoding to use
+    # whether to use padding or not in encoding
+    'padding': True,
+    # which encoding to use
+    'feature_selection': EncodingType.SIMPLE_TRACE.value,
+    # which attribute encoding to use
+    'attribute_encoding': EncodingTypeAttribute.LABEL.value,
+    # which time encoding to use
+    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,
 
-    'task_generation_type': TaskGenerationType.ONLY_THIS.value,     #
-    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,             # 
+    # the label to be predicted (e.g. outcome, next activity)
+    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
+    # whether the model should be trained on the specified prefix length (ONLY_THIS) or to every prefix in range [1, prefix_length] (ALL_IN_ONE)
+    'task_generation_type': TaskGenerationType.ONLY_THIS.value,
     
-    'predictive_models': [                                          # list of predictive models to train
-         ClassificationMethods.RANDOM_FOREST.value,
+    # list of predictive models and their respective hyperparameter optimization space
+    # if it is None, then the default hyperopt space will be used; otherwise, the provided space will be used
+    'predictive_models': [
+        ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
-        # ClassificationMethods.LSTM.value,
+        ClassificationMethods.LSTM.value,
          ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
-        # ClassificationMethods.SVM.value,
+        ClassificationMethods.SVM.value,
         # ClassificationMethods.XGBOOST.value,
     ],
     
-    'hyperparameter_optimisation_target': HyperoptTarget.F1.value,  # which metric to optimize hyperparameters for
-    'hyperparameter_optimisation_evaluations': 15,                  # number of hyperparameter configurations to try
+    # which metric to optimize hyperparameters for
+    'hyperparameter_optimisation_target': HyperoptTarget.F1.value,
+    # number of hyperparameter configurations to try
+    'hyperparameter_optimisation_evaluations': 3,
 
-    'explanator': ExplainerType.DICE.value,                         # explainability method to use
+    # explainability method to use
+    'explanator': ExplainerType.DICE.value,
     
     'target_event': None,
     'seed': SEED,
 }
 
 print('Loading log...')
-log = get_log(filepath=CONF['data'])
+log = get_log(filepath=CONF['data'], separator=';')
 
 print('Encoding traces...')
-encoder, full_df = get_encoded_df(log=log, CONF=CONF)
+encoder, full_df = get_encoded_df(
+  log=log,
+  feature_encoding_type=CONF['feature_selection'],
+  prefix_length=CONF['prefix_length'],
+  prefix_length_strategy=CONF['prefix_length_strategy'],
+  time_encoding_type=CONF['time_encoding'],
+  attribute_encoding=CONF['attribute_encoding'],
+  padding=CONF['padding'],
+  labeling_type=CONF['labeling_type'],
+  task_generation_type=CONF['task_generation_type'],
+  target_event=CONF['target_event'],
+)
 
 print('Splitting in train, validation and test...')
 train_size, val_size, test_size = CONF['train_val_test_split']
-train_df, val_df, test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
+train_df, val_df, test_df = split_train_val_test(full_df, train_size, val_size, test_size, shuffle=False, seed=CONF['seed'])
 
 print('Instantiating predictive models...')
-predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df,test_df) for predictive_model in CONF['predictive_models']]
+predictive_models = [PredictiveModel(predictive_model, train_df, val_df, test_df, prefix_length=CONF['prefix_length']) for predictive_model in CONF['predictive_models']]
 
 print('Running hyperparameter optimization...')
 best_candidates,best_model_idx, best_model_model, best_model_config = retrieve_best_model(

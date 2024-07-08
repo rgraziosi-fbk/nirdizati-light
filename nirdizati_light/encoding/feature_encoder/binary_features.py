@@ -1,10 +1,11 @@
 from collections import Counter
 from datetime import timedelta
+from functools import reduce
 
 from pandas import DataFrame
 from pm4py.objects.log.obj import EventLog, Trace, Event
 
-from nirdizati_light.encoding.constants import get_max_prefix_length, get_prefix_length, TaskGenerationType
+from nirdizati_light.encoding.constants import PrefixLengthStrategy, get_max_prefix_length, get_prefix_length, TaskGenerationType
 from nirdizati_light.labeling.common import add_label_column
 
 PREFIX_ = 'prefix_'
@@ -29,8 +30,6 @@ def binary_features(log: EventLog, prefix_length, padding, prefix_length_strateg
     return DataFrame(columns=feature_list, data=encoded_data)
 
 
-
-
 def _data_complex(trace: Trace, prefix_length: int, additional_columns: dict) -> list:
     """Creates list in form [1, value1, value2, 2, ...]
 
@@ -38,6 +37,7 @@ def _data_complex(trace: Trace, prefix_length: int, additional_columns: dict) ->
     """
     data = [trace.attributes.get(att, 0) for att in additional_columns['trace_attributes']]
     return data
+
 
 def _trace_to_row(trace: Trace, prefix_length: int, columns: list, padding: bool = True, labeling_type: str = None,additional_columns: list = None) -> list:
     """Row in data frame"""
@@ -65,11 +65,22 @@ def _trace_to_row(trace: Trace, prefix_length: int, columns: list, padding: bool
     return trace_row
 
 
+# def _trace_to_row(trace: Trace, prefix_length: int, additional_columns, prefix_length_strategy: str, padding, columns: list, labeling_type) -> list:
+#     trace_row = [trace.attributes["concept:name"]]
+#     trace_row += _data_complex(trace, prefix_length, additional_columns)
+#     if padding or prefix_length_strategy == PrefixLengthStrategy.PERCENTAGE.value:
+#         trace_row += [0 for _ in range(len(trace_row), len(columns) - 1)]
+#     trace_row += [add_label_column(trace, labeling_type, prefix_length)]
+#     return trace_row
+
+
 def _get_global_trace_attributes(log: EventLog):
     # retrieves all traces in the log and returns their intersection
     attributes = list(reduce(set.intersection, [set(trace._get_attributes().keys()) for trace in log]))
     trace_attributes = [attr for attr in attributes if attr not in ["concept:name", "time:timestamp", "label"]]
     return sorted(trace_attributes)
+
+
 def _compute_columns(log: EventLog, prefix_length: int, padding: bool) -> list:
     """trace_id, prefixes, any other columns, label
 
@@ -77,6 +88,7 @@ def _compute_columns(log: EventLog, prefix_length: int, padding: bool) -> list:
     additional_columns = _compute_additional_columns(log)
     columns = ['trace_id']
     columns += additional_columns['trace_attributes']
+    ret_val = []
     ret_val += sorted(list({
        event['concept:name']
        for trace in log
@@ -86,17 +98,11 @@ def _compute_columns(log: EventLog, prefix_length: int, padding: bool) -> list:
     ret_val += ['label']
 
     return ret_val,additional_columns
-def _trace_to_row(trace: Trace, prefix_length: int, additional_columns, prefix_length_strategy: str, padding, columns: list, labeling_type) -> list:
-    trace_row = [trace.attributes["concept:name"]]
-    trace_row += _data_complex(trace, prefix_length, additional_columns)
-    if padding or prefix_length_strategy == PrefixLengthStrategy.PERCENTAGE.value:
-        trace_row += [0 for _ in range(len(trace_row), len(columns) - 1)]
-    trace_row += [add_label_column(trace, labeling_type, prefix_length)]
-    return trace_row
 
 
 def _compute_additional_columns(log) -> dict:
     return {'trace_attributes': _get_global_trace_attributes(log)}
+
 
 def _get_global_trace_attributes(log: EventLog):
     # retrieves all traces in the log and returns their intersection

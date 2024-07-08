@@ -94,11 +94,15 @@ def _get_space(model_type) -> dict:
             'warm_start': True
         }
 
-    elif model_type is ClassificationMethods.LSTM.value:
+    elif model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
         return {
+            'max_num_epochs': 200,
             'lr': hp.uniform('lr', 0.0001, 0.1),
             'lstm_hidden_size': hp.choice('lstm_hidden_size', np.arange(50, 200, dtype=int)),
             'lstm_num_layers': hp.choice('lstm_num_layers', np.arange(1, 3, dtype=int)),
+            'early_stop_patience': scope.int(hp.quniform('early_stop_patience', 5, 30, 5)),
+            'early_stop_min_delta': hp.uniform('early_stop_min_delta', 0.005, 0.05),
+            'batch_size': 128
         }
 
     else:
@@ -127,6 +131,11 @@ def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
         print(f'Running hyperparameter optimization on model {predictive_model.model_type}...')
 
         space = _get_space(predictive_model.model_type)
+
+        # update hyperopt space with the user provided one, if available
+        if predictive_model.hyperopt_space is not None:
+            space.update(predictive_model.hyperopt_space)
+
         trials = Trials()
 
         fmin(

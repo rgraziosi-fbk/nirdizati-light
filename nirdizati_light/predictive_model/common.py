@@ -12,6 +12,7 @@ class ClassificationMethods(Enum):
     SGDCLASSIFIER = 'SGDClassifier'
     PERCEPTRON = 'perceptron'
     LSTM = 'lstm'
+    CUSTOM_PYTORCH = 'customPytorch'
     MLP = 'mlp'
     SVM = 'svc'
     DT = 'DecisionTree'
@@ -21,7 +22,7 @@ class RegressionMethods(Enum):
     RANDOM_FOREST = 'randomForestRegressor'
 
 
-def get_tensor(CONF, df: DataFrame):
+def get_tensor(df: DataFrame, prefix_length):
     trace_attributes = [att for att in df.columns if 'prefix_' not in att]
     event_attributes = [att[:-2] for att in df.columns if att[-2:] == '_1']
 
@@ -33,7 +34,7 @@ def get_tensor(CONF, df: DataFrame):
                         for feat_name, feat_values in trace.items()
                         if feat_name in trace_attributes + [event_attribute + '_' + str(prefix_index) for event_attribute in event_attributes]
                     ))
-                for prefix_index in range(1, CONF['prefix_length'] + 1)
+                for prefix_index in range(1, prefix_length + 1)
             }
             for trace_index, trace in df.iterrows()
     }
@@ -46,7 +47,7 @@ def get_tensor(CONF, df: DataFrame):
 
     tensor = np.zeros((
         len(df),                # sample
-        CONF['prefix_length'],  # time steps
+        prefix_length,          # time steps
         flattened_features      # features x single time step (trace and event attributes)
     ))
 
@@ -58,9 +59,8 @@ def get_tensor(CONF, df: DataFrame):
     return tensor
 
 def shape_label_df(df: DataFrame):
-
     labels_list = df['label'].tolist()
-    labels = np.zeros((len(labels_list), int(max(df['label'].nunique(), int(max(df['label'].values))) +1)))
+    labels = np.zeros((len(labels_list), int(max(df['label'].nunique(), int(max(df['label'].values))) + 1)))
     for label_idx, label_val in enumerate(labels_list):
         labels[int(label_idx), int(label_val)] = 1
 
