@@ -44,7 +44,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
     else:
         ratio_cont = len(continuous_features)/len(categorical_features)
     time_start = datetime.now()
-    query_instances_for_cf = query_instances.iloc[:15,:-1]
+    query_instances_for_cf = query_instances.iloc[:1,:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method, encoder)
@@ -98,7 +98,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
         desired_cfs_all = list()
         x = query_instances_for_cf.iloc[[i]]
         
-        for k in [5,10,15,20]:
+        for k in [5]:
             time_start_i = datetime.now()
             if method == 'genetic_conformance':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
