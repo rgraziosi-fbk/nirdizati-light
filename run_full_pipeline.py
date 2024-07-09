@@ -160,10 +160,12 @@ cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
 full_df = pd.concat([train_df, val_df, test_df])
 cf_dataset.loc[len(cf_dataset)] = 0
 
-explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
+dice_results = explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         query_instances=test_df_correct.iloc[:, 1:],
         method='multi_objective_genetic', optimization='multiobjective',
         heuristic='heuristic_2', support=0.95,
         timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
         model_path='./experiments/process_models/process_models',
         random_seed=CONF['seed'], adapted=True, filtering=False)
+
+print('Explanation:',dice_results)

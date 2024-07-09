@@ -213,7 +213,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
             result_dataframe.to_csv(filename_results, index=False)
         else:
             result_dataframe.to_csv(filename_results, mode='a', index=False, header=False)
-
+    return dice_result
 def dice_model(predictive_model):
     if predictive_model.model_type is ClassificationMethods.RANDOM_FOREST.value:
         m = dice_ml.Model(model=predictive_model.model, backend='sklearn')
