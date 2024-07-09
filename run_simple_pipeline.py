@@ -20,7 +20,7 @@ np.random.seed(SEED)
 
 CONF = {
     # path to log
-    'data': os.path.join('..','datasets','bpic2012_O_ACCEPTED-COMPLETE', 'full.xes'),
+    'data': os.path.join('datasets', 'BPIC11_f1.csv'),
     # train-validation-test set split percentages
     'train_val_test_split': [0.7, 0.1, 0.2],
 
@@ -49,11 +49,11 @@ CONF = {
     'predictive_models': [
         ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
-        #ClassificationMethods.LSTM.value,
-        # ClassificationMethods.MLP.value,
+        ClassificationMethods.LSTM.value,
+         ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
-        #ClassificationMethods.SVM.value,
+        ClassificationMethods.SVM.value,
         # ClassificationMethods.XGBOOST.value,
     ],
     
@@ -128,5 +128,3 @@ cf_result = explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
         model_path='./experiments/process_models/process_models',
         random_seed=CONF['seed'], adapted=True, filtering=False)
-
-print(cf_result.cf_examples_list[0].final_cfs_df)
