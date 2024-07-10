@@ -44,7 +44,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
     else:
         ratio_cont = len(continuous_features)/len(categorical_features)
     time_start = datetime.now()
-    query_instances_for_cf = query_instances.iloc[:1,:-1]
+    query_instances_for_cf = query_instances.iloc[:2,:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method, encoder)
