@@ -8,6 +8,10 @@ nirdizati-light is a Python library for predictive process mining that focuses o
 - model evaluation
 - explainability
 
+## Demo video
+
+Video demonstration can be found at [this link](https://drive.google.com/file/d/1ZflptyPiuUC84JHncZf78uCR3ZaB-1Jd/view).
+
 ## Documentation
 
 Documentation for nirdizati-light can be found at [this link](https://rgraziosi-fbk.github.io/nirdizati-light/nirdizati_light.html).
