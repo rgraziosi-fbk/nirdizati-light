@@ -13,7 +13,6 @@ from nirdizati_light.encoding.feature_encoder.loreley_features import loreley_fe
 from nirdizati_light.encoding.feature_encoder.simple_features import simple_features
 from nirdizati_light.encoding.feature_encoder.binary_features import binary_features
 from nirdizati_light.encoding.feature_encoder.simple_trace_features import simple_trace_features
-# from src.encoding.feature_encoder.declare_features.declare_features import declare_features
 from nirdizati_light.encoding.time_encoding import TimeEncodingType, time_encoding
 from nirdizati_light.labeling.common import LabelTypes
 
@@ -24,7 +23,6 @@ class EncodingType(Enum):
     SIMPLE = 'simple'
     FREQUENCY = 'frequency'
     COMPLEX = 'complex'
-    DECLARE = 'declare'
     LORELEY = 'loreley'
     LORELEY_COMPLEX = 'loreley_complex'
     SIMPLE_TRACE = 'simple_trace'
@@ -38,7 +36,6 @@ ENCODE_LOG = {
     EncodingType.SIMPLE.value : simple_features,
     EncodingType.FREQUENCY.value : frequency_features,
     EncodingType.COMPLEX.value : complex_features,
-    # EncodingType.DECLARE.value : declare_features,
     EncodingType.LORELEY.value: loreley_features,
     EncodingType.LORELEY_COMPLEX.value: loreley_complex_features,
     EncodingType.SIMPLE_TRACE.value: simple_trace_features,
