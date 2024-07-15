@@ -104,7 +104,14 @@ def _get_space(model_type) -> dict:
             'early_stop_min_delta': hp.uniform('early_stop_min_delta', 0.005, 0.05),
             'batch_size': 128
         }
-
+    elif model_type is RegressionMethods.RANDOM_FOREST.value:
+        return {
+            'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
+            'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
+            'max_features': hp.choice('max_features', ['sqrt', 'log2', None]),
+            'criterion': hp.choice('criterion', ['squared_error', 'friedman_mse', 'poisson', 'absolute_error']),
+            'warm_start': True
+        }
     else:
         raise Exception('Unsupported model_type')
 
