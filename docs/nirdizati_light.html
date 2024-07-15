@@ -24,10 +24,12 @@
             <h2>Contents</h2>
             <ul>
   <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#demo-video">Demo video</a></li>
   <li><a href="#documentation">Documentation</a></li>
   <li><a href="#notebook">Notebook</a></li>
   <li><a href="#installation">Installation</a></li>
   <li><a href="#examples">Examples</a></li>
+  <li><a href="#features">Features</a></li>
 </ul>
 
 
@@ -72,6 +74,10 @@ nirdizati_light    </h1>
 <li>explainability</li>
 </ul>
 
+<h2 id="demo-video">Demo video</h2>
+
+<p>Video demonstration can be found at <a href="https://drive.google.com/file/d/1ZflptyPiuUC84JHncZf78uCR3ZaB-1Jd/view">this link</a>.</p>
+
 <h2 id="documentation">Documentation</h2>
 
 <p>Documentation for nirdizati-light can be found at <a href="https://rgraziosi-fbk.github.io/nirdizati-light/nirdizati_light.html">this link</a>.</p>
@@ -95,7 +101,65 @@ nirdizati_light    </h1>
 
 <h3 id="full-pipeline">Full pipeline</h3>
 
-<p>The <a href="(https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_full_pipeline.py)">run_full_pipeline.py</a> script extends the simple pipeline by also configuring custom hyperparameter optimization search spaces and defining a custom Pytorch model to train and evaluate. This pipeline is more complex and shows off the full capabilities of nirdizati-light.</p>
+<p>The <a href="https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_full_pipeline.py">run_full_pipeline.py</a> script extends the simple pipeline by also configuring custom hyperparameter optimization search spaces and defining a custom Pytorch model to train and evaluate. This pipeline is more complex and shows off the full capabilities of nirdizati-light.</p>
+
+<h2 id="features">Features</h2>
+
+<h3 id="encodings">Encodings</h3>
+
+<ul>
+<li>Simple encoding</li>
+<li>Simple trace encoding</li>
+<li>Frequency encoding</li>
+<li>Complex encoding</li>
+<li>Loreley encoding</li>
+<li>Loreley complex encoding</li>
+</ul>
+
+<h3 id="labeling-types">Labeling types</h3>
+
+<ul>
+<li>Next activity (classification)</li>
+<li>Attribute string, i.e. outcome (classification)</li>
+<li>Remaining time (regression)</li>
+<li>Duration (regression)</li>
+</ul>
+
+<h3 id="predictive-models-for-classification">Predictive models (for classification)</h3>
+
+<ul>
+<li>Random forest (scikit-learn)</li>
+<li>Decision tree (scikit-learn)</li>
+<li>KNN (scikit-learn)</li>
+<li>XGBoost (scikit-learn)</li>
+<li>SGD (scikit-learn)</li>
+<li>SVC (scikit-learn)</li>
+<li>LSTM (PyTorch)</li>
+<li>CustomPytorch, i.e. specify your own custom PyTorch model (PyTorch)</li>
+</ul>
+
+<h3 id="predictive-models-for-regression">Predictive models (for regression)</h3>
+
+<ul>
+<li>Random forest (scikit-learn)</li>
+</ul>
+
+<h3 id="hyperparameter-optimization-targets">Hyperparameter optimization targets</h3>
+
+<ul>
+<li>F1 score (classification)</li>
+<li>AUC (classification)</li>
+<li>Accuracy (classification)</li>
+<li>MAE (regression)</li>
+</ul>
+
+<h3 id="explainers">Explainers</h3>
+
+<ul>
+<li>ICE</li>
+<li>SHAP</li>
+<li>DiCE</li>
+</ul>
 </div>
 
                         <input id="mod-nirdizati_light-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
