@@ -13,7 +13,7 @@ from nirdizati_light.labeling.common import LabelTypes
 from nirdizati_light.predictive_model.common import ClassificationMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel
 from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers,plot_model_comparison
+from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers, plot_model_comparison_classification
 from nirdizati_light.explanation.common import ExplainerType, explain
 
 SEED = 1234
@@ -151,7 +151,7 @@ actual = test_df['label']
 
 initial_result = evaluate_classifier(actual, predicted, scores)
 results = evaluate_classifiers(predictive_models,actual)
-plot_model_comparison(results)
+plot_model_comparison_classification(results)
 print(f'Evaluation: {initial_result}')
 
 print('Computing explanation...')

@@ -1,5 +1,6 @@
 from enum import Enum
-import torch
+from typing import Optional, Union
+from predictive_model.predictive_model import PredictiveModel
 import hyperopt
 import numpy as np
 from hyperopt import Trials, hp, fmin
@@ -9,13 +10,16 @@ from nirdizati_light.predictive_model.common import ClassificationMethods, Regre
 
 
 class HyperoptTarget(Enum):
+    """
+    Available targets for hyperparameter optimisation
+    """
     AUC = 'auc'
     F1 = 'f1_score'
     MAE = 'mae'
     ACCURACY = 'accuracy'
 
 
-def _get_space(model_type) -> dict:
+def _get_space(model_type: Union[ClassificationMethods, RegressionMethods]) -> dict:
     if model_type is ClassificationMethods.RANDOM_FOREST.value:
         return {
             'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
@@ -116,16 +120,23 @@ def _get_space(model_type) -> dict:
         raise Exception('Unsupported model_type')
 
 
-def retrieve_best_model(predictive_models, max_evaluations, target, seed=None):
+def retrieve_best_model(
+    predictive_models: list[PredictiveModel],
+    max_evaluations: int,
+    target: HyperoptTarget,
+    seed: Optional[int]=None
+):
     """
-    Perform hyperparameter optimization on the given model
+    Perform hyperparameter optimization on the given model.
 
-    :param list predictive_models: list of models to perform optimization on (each model must be of class PredictiveModel)
-    :param int max_evaluations: maximum number of hyperparameter configurations to try
-    :param nirdizati_light.hyperparameter_optimisation.common.HyperoptTarget target: which target score to optimize for
-    :param int seed: optional seed value for reproducibility
+    Args:
+        predictive_models (list[PredictiveModel]): List of models to perform optimization on (each model must be of class PredictiveModel).
+        max_evaluations (int): Maximum number of hyperparameter configurations to try.
+        target (HyperoptTarget): Which target score to optimize for.
+        seed (Optional[int]): Optional seed value for reproducibility.
 
-    :return: a tuple containing the best candidates, the best model index, the best model and the best hyperparameter configuration
+    Returns:
+        tuple: A tuple containing the best candidates, the best model index, the best model, and the best hyperparameter configuration.
     """
 
     best_candidates = []

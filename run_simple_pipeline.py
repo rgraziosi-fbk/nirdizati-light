@@ -8,10 +8,10 @@ from nirdizati_light.encoding.common import get_encoded_df, EncodingType
 from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
 from nirdizati_light.encoding.time_encoding import TimeEncodingType
 from nirdizati_light.labeling.common import LabelTypes
-from nirdizati_light.predictive_model.common import ClassificationMethods
+from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel
 from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers,plot_model_comparison
+from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers, plot_model_comparison_classification
 from nirdizati_light.explanation.common import ExplainerType, explain
 
 SEED = 1234
@@ -105,14 +105,16 @@ best_model.model = best_model_model
 best_model.config = best_model_config
 print(f'Best model is {best_model.model_type}')
 
+best_model_weights = best_model.save('./models', 'best_model')
+print(f'Best model weights saved at: {best_model_weights}')
 
 print('Evaluating best model...')
 predicted, scores = best_model.predict(test=True)
 actual = test_df['label']
 
 initial_result = evaluate_classifier(actual, predicted, scores)
-results = evaluate_classifiers(predictive_models,actual)
-plot_model_comparison(results)
+results = evaluate_classifiers(predictive_models, actual)
+plot_model_comparison_classification(results)
 print(f'Evaluation: {initial_result}')
 
 print('Computing explanation...')

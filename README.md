@@ -53,7 +53,9 @@ The [run_full_pipeline.py](https://github.com/rgraziosi-fbk/nirdizati-light/blob
 - Remaining time (regression)
 - Duration (regression)
 
-### Predictive models (for classification)
+### Predictive models
+
+Classification:
 
 - Random forest (scikit-learn)
 - Decision tree (scikit-learn)
@@ -64,7 +66,7 @@ The [run_full_pipeline.py](https://github.com/rgraziosi-fbk/nirdizati-light/blob
 - LSTM (PyTorch)
 - CustomPytorch, i.e. specify your own custom PyTorch model (PyTorch)
 
-### Predictive models (for regression)
+Regression:
 
 - Random forest (scikit-learn)
 

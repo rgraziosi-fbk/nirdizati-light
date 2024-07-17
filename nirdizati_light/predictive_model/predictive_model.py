@@ -1,6 +1,9 @@
+import os
 import logging
 import numpy as np
 import torch
+from typing import Union, Optional, Type
+from torch.nn import Module
 from torch.utils.data import DataLoader, TensorDataset
 from hyperopt import STATUS_OK, STATUS_FAIL
 from pandas import DataFrame
@@ -24,18 +27,28 @@ def drop_columns(df: DataFrame) -> DataFrame:
 
 class PredictiveModel:
     """
-    A class representing a predictive model
+    A class representing a predictive model.
 
-    :param nirdizati_light.predictive_model.common.ClassificationMethods model_type: type of predictive model
-    :param pandas.DataFrame train_df: training data to train model
-    :param pandas.DataFrame validate_df: validation data to evaluate model
-    :param pandas.DataFrame test_df: test data to evaluate model
-    :param int prefix_length: length of prefix to consider
-    :param dict hyperopt_space: space to perform hyperparameter optimization on; if not provided, fallbacks to default values
-    :param class custom_model_class: class of a custom PyTorch module
+    Args:
+        model_type (Union[ClassificationMethods, RegressionMethods]): Type of predictive model.
+        train_df (DataFrame): Training data to train model.
+        validate_df (DataFrame): Validation data to evaluate model.
+        test_df (DataFrame): Test data to evaluate model.
+        prefix_length (int): Length of prefix to consider.
+        hyperopt_space (Optional[dict]): Space to perform hyperparameter optimization on; if not provided, fallbacks to default values. Defaults to None.
+        custom_model_class (Optional[Type[Module]]): Class of a custom PyTorch module. Defaults to None.
     """
 
-    def __init__(self, model_type, train_df, validate_df, test_df, prefix_length, hyperopt_space=None, custom_model_class=None):
+    def __init__(
+        self,
+        model_type: Union[ClassificationMethods, RegressionMethods],
+        train_df: DataFrame,
+        validate_df: DataFrame,
+        test_df: DataFrame,
+        prefix_length: int,
+        hyperopt_space: Optional[dict]=None,
+        custom_model_class: Optional[Type[Module]]=None
+    ):
         self.model_type = model_type
         self.config = None
         self.model = None
@@ -188,13 +201,15 @@ class PredictiveModel:
         else:
             model.fit(self.train_df, self.full_train_df['label'])
 
-    def predict(self, test=True):
+    def predict(self, test: bool=True) -> str:
         """
-        Perform predictions with the model and return them
+        Performs predictions with the model and returns them.
 
-        :param bool test: whether to perform predictions on test set (test=True) or on validation set (test=False)
+        Args:
+            test (bool): Whether to perform predictions on test set (`True`) or on validation set (`False`).
 
-        :return tuple: A tuple with predicted values and scores for predictions
+        Returns:
+            tuple: A tuple with predicted values and scores for predictions.
         """
 
         data = self.test_df if test else self.validate_df
@@ -216,3 +231,33 @@ class PredictiveModel:
                 scores = None
 
         return predicted, scores
+    
+
+    def save(self, path: str, name: str):
+        """
+        Save the model to the given path.
+
+        Args:
+            path (str): Path to save the model.
+            name (str): Name of the model.
+
+        Returns:
+            str: Path to the saved model.
+        """
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        path_with_name = os.path.join(path, name)
+        
+        if self.model_type in [ClassificationMethods.LSTM.value, ClassificationMethods.CUSTOM_PYTORCH.value]:
+            # save pytorch model
+            path_with_name += '.pt'
+            torch.save(self.model.state_dict(), path_with_name)
+        else:
+            # save scikit-learn model
+            path_with_name += '.joblib'
+            import joblib
+            joblib.dump(self.model, path_with_name)
+
+        return path_with_name

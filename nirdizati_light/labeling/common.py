@@ -16,6 +16,9 @@ def get_intercase_attributes(log, encoding):
     return kwargs
 
 class LabelTypes(Enum):
+    """
+    Possible labels for the predictive task
+    """
     NEXT_ACTIVITY = 'next_activity'
     ATTRIBUTE_STRING = 'label_attribute_string'
     REMAINING_TIME = 'remaining_time'
@@ -23,6 +26,9 @@ class LabelTypes(Enum):
     NO_LABEL = 'no_label'
 
 class ThresholdTypes(Enum):
+    """
+    ThresholdTypes
+    """
     THRESHOLD_MEAN = 'threshold_mean'
     THRESHOLD_CUSTOM = 'threshold_custom'
     NONE = 'none'

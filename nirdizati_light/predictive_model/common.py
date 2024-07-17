@@ -6,6 +6,9 @@ from pandas import DataFrame
 
 
 class ClassificationMethods(Enum):
+    """
+    Available classification methods
+    """
     RANDOM_FOREST = 'randomForestClassifier'
     KNN = 'knn'
     XGBOOST = 'xgboost'
@@ -19,6 +22,9 @@ class ClassificationMethods(Enum):
 
 
 class RegressionMethods(Enum):
+    """
+    Available regression methods
+    """
     RANDOM_FOREST = 'randomForestRegressor'
 
 
