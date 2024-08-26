@@ -35,6 +35,10 @@ The [run_simple_pipeline.py](https://github.com/rgraziosi-fbk/nirdizati-light/bl
 
 The [run_full_pipeline.py](https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_full_pipeline.py) script extends the simple pipeline by also configuring custom hyperparameter optimization search spaces and defining a custom Pytorch model to train and evaluate. This pipeline is more complex and shows off the full capabilities of nirdizati-light.
 
+### Simple regression pipeline
+
+The [run_simple_pipeline_regression.py](https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_simple_pipeline_regression.py) script performs regression on remaining time instead of classification.
+
 ## Features
 
 ### Encodings
