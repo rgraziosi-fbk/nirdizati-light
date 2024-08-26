@@ -1,4 +1,3 @@
-import os
 import random
 import numpy as np
 import pandas as pd
@@ -22,7 +21,7 @@ np.random.seed(SEED)
 
 CONF = {
     # path to log
-    'data': os.path.join('datasets', 'BPIC11_f1.csv'),
+    'data': 'BPIC11_f1.csv',
     # train-validation-test set split percentages
     'train_val_test_split': [0.7, 0.1, 0.2],
 
