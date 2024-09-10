@@ -11,7 +11,7 @@ setup(
       "pandas~=1.5.3",
       "pm4py~=2.7.11",
       "scikit-learn~=1.5.0",
-      "shap~=0.41.0",
+      "shap~= 0.44.1",
       "numpy~=1.23.3",
       "hyperopt~=0.2.7",
       "dateparser~=1.2.0",
