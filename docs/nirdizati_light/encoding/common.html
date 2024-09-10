@@ -46,9 +46,6 @@
                                 <a class="variable" href="#EncodingType.COMPLEX">COMPLEX</a>
                         </li>
                         <li>
-                                <a class="variable" href="#EncodingType.DECLARE">DECLARE</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#EncodingType.LORELEY">LORELEY</a>
                         </li>
                         <li>
@@ -104,20 +101,20 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span> <span class="nn">logging</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">pm4py.objects.log.obj</span> <span class="kn">import</span> <span class="n">EventLog</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.constants</span> <span class="kn">import</span> <span class="n">PrefixLengthStrategy</span><span class="p">,</span> <span class="n">TaskGenerationType</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.data_encoder</span> <span class="kn">import</span> <span class="n">Encoder</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.complex_features</span> <span class="kn">import</span> <span class="n">complex_features</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.frequency_features</span> <span class="kn">import</span> <span class="n">frequency_features</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.loreley_complex_features</span> <span class="kn">import</span> <span class="n">loreley_complex_features</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.loreley_features</span> <span class="kn">import</span> <span class="n">loreley_features</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.simple_features</span> <span class="kn">import</span> <span class="n">simple_features</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.binary_features</span> <span class="kn">import</span> <span class="n">binary_features</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.simple_trace_features</span> <span class="kn">import</span> <span class="n">simple_trace_features</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="c1"># from src.encoding.feature_encoder.declare_features.declare_features import declare_features</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span> <span class="nn">pm4py.objects.log.obj</span> <span class="kn">import</span> <span class="n">EventLog</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.constants</span> <span class="kn">import</span> <span class="n">PrefixLengthStrategy</span><span class="p">,</span> <span class="n">TaskGenerationType</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.data_encoder</span> <span class="kn">import</span> <span class="n">Encoder</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.complex_features</span> <span class="kn">import</span> <span class="n">complex_features</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.frequency_features</span> <span class="kn">import</span> <span class="n">frequency_features</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.loreley_complex_features</span> <span class="kn">import</span> <span class="n">loreley_complex_features</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.loreley_features</span> <span class="kn">import</span> <span class="n">loreley_features</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.simple_features</span> <span class="kn">import</span> <span class="n">simple_features</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.binary_features</span> <span class="kn">import</span> <span class="n">binary_features</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.feature_encoder.simple_trace_features</span> <span class="kn">import</span> <span class="n">simple_trace_features</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.encoding.time_encoding</span> <span class="kn">import</span> <span class="n">TimeEncodingType</span><span class="p">,</span> <span class="n">time_encoding</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="kn">from</span> <span class="nn">nirdizati_light.labeling.common</span> <span class="kn">import</span> <span class="n">LabelTypes</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
@@ -125,83 +122,103 @@
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="k">class</span> <span class="nc">EncodingType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="n">SIMPLE</span> <span class="o">=</span> <span class="s1">&#39;simple&#39;</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="n">FREQUENCY</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>    <span class="n">COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;complex&#39;</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>    <span class="n">DECLARE</span> <span class="o">=</span> <span class="s1">&#39;declare&#39;</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="n">LORELEY</span> <span class="o">=</span> <span class="s1">&#39;loreley&#39;</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="n">LORELEY_COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;loreley_complex&#39;</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="n">SIMPLE_TRACE</span> <span class="o">=</span> <span class="s1">&#39;simple_trace&#39;</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="n">BINARY</span> <span class="o">=</span> <span class="s1">&#39;binary&#39;</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="k">class</span> <span class="nc">EncodingTypeAttribute</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>    <span class="n">LABEL</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="n">ONEHOT</span> <span class="o">=</span> <span class="s1">&#39;onehot&#39;</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="n">ENCODE_LOG</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE</span><span class="o">.</span><span class="n">value</span> <span class="p">:</span> <span class="n">simple_features</span><span class="p">,</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="o">.</span><span class="n">value</span> <span class="p">:</span> <span class="n">frequency_features</span><span class="p">,</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">COMPLEX</span><span class="o">.</span><span class="n">value</span> <span class="p">:</span> <span class="n">complex_features</span><span class="p">,</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="c1"># EncodingType.DECLARE.value : declare_features,</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">LORELEY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">loreley_features</span><span class="p">,</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">LORELEY_COMPLEX</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">loreley_complex_features</span><span class="p">,</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE_TRACE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">simple_trace_features</span><span class="p">,</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">BINARY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">binary_features</span><span class="p">,</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="p">}</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="k">def</span> <span class="nf">get_encoded_df</span><span class="p">(</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">log</span><span class="p">:</span> <span class="n">EventLog</span><span class="p">,</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="n">encoder</span><span class="p">:</span> <span class="n">Encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="n">feature_encoding_type</span><span class="o">=</span><span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">prefix_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">prefix_length_strategy</span><span class="o">=</span><span class="n">PrefixLengthStrategy</span><span class="o">.</span><span class="n">FIXED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">time_encoding_type</span><span class="o">=</span><span class="n">TimeEncodingType</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="n">attribute_encoding</span><span class="o">=</span><span class="n">EncodingTypeAttribute</span><span class="o">.</span><span class="n">LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="n">padding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="n">labeling_type</span><span class="o">=</span><span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="n">task_generation_type</span><span class="o">=</span><span class="n">TaskGenerationType</span><span class="o">.</span><span class="n">ONLY_THIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="n">target_event</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="n">train_cols</span><span class="p">:</span> <span class="n">DataFrame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="n">train_df</span><span class="o">=</span><span class="kc">None</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Encoder</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    Encode log with the configuration provided in the CONF dictionary.</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">    :param EventLog log: EventLog object of the log</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">    :param dict CONF: dictionary for configuring the encoding</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    :param nirdizati_light.encoding.data_encoder.Encoder: if an encoder is provided, that encoder will be used instead of creating a new one</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">    Available trace encoding types</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>    <span class="n">SIMPLE</span> <span class="o">=</span> <span class="s1">&#39;simple&#39;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="n">FREQUENCY</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="n">COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;complex&#39;</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="n">LORELEY</span> <span class="o">=</span> <span class="s1">&#39;loreley&#39;</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="n">LORELEY_COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;loreley_complex&#39;</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>    <span class="n">SIMPLE_TRACE</span> <span class="o">=</span> <span class="s1">&#39;simple_trace&#39;</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>    <span class="n">BINARY</span> <span class="o">=</span> <span class="s1">&#39;binary&#39;</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="k">class</span> <span class="nc">EncodingTypeAttribute</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">    Available trace attributes encoding types</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="n">LABEL</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="n">ONEHOT</span> <span class="o">=</span> <span class="s1">&#39;onehot&#39;</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="n">ENCODE_LOG</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE</span><span class="o">.</span><span class="n">value</span> <span class="p">:</span> <span class="n">simple_features</span><span class="p">,</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">FREQUENCY</span><span class="o">.</span><span class="n">value</span> <span class="p">:</span> <span class="n">frequency_features</span><span class="p">,</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">COMPLEX</span><span class="o">.</span><span class="n">value</span> <span class="p">:</span> <span class="n">complex_features</span><span class="p">,</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">LORELEY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">loreley_features</span><span class="p">,</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">LORELEY_COMPLEX</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">loreley_complex_features</span><span class="p">,</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE_TRACE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">simple_trace_features</span><span class="p">,</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="n">EncodingType</span><span class="o">.</span><span class="n">BINARY</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">binary_features</span><span class="p">,</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="p">}</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="k">def</span> <span class="nf">get_encoded_df</span><span class="p">(</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">log</span><span class="p">:</span> <span class="n">EventLog</span><span class="p">,</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">encoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="n">feature_encoding_type</span><span class="p">:</span> <span class="n">EncodingType</span> <span class="o">=</span> <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="n">prefix_length_strategy</span><span class="p">:</span> <span class="n">PrefixLengthStrategy</span> <span class="o">=</span> <span class="n">PrefixLengthStrategy</span><span class="o">.</span><span class="n">FIXED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="n">time_encoding_type</span><span class="p">:</span> <span class="n">TimeEncodingType</span> <span class="o">=</span> <span class="n">TimeEncodingType</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="n">attribute_encoding</span><span class="p">:</span> <span class="n">EncodingTypeAttribute</span> <span class="o">=</span> <span class="n">EncodingTypeAttribute</span><span class="o">.</span><span class="n">LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="n">padding</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="n">labeling_type</span><span class="p">:</span> <span class="n">LabelTypes</span> <span class="o">=</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="n">task_generation_type</span><span class="p">:</span> <span class="n">TaskGenerationType</span> <span class="o">=</span> <span class="n">TaskGenerationType</span><span class="o">.</span><span class="n">ONLY_THIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="n">target_event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="n">train_cols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="n">train_df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Encoder</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    Encodes an event log into a DataFrame using specified encoding configurations.</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    :return: A tuple containing the encoder and the encoded log as a Pandas dataframe</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Features encoding (</span><span class="si">{</span><span class="n">feature_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">ENCODE_LOG</span><span class="p">[</span><span class="n">feature_encoding_type</span><span class="p">](</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="n">log</span><span class="p">,</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">,</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="n">prefix_length_strategy</span><span class="o">=</span><span class="n">prefix_length_strategy</span><span class="p">,</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>        <span class="n">labeling_type</span><span class="o">=</span><span class="n">labeling_type</span><span class="p">,</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="n">generation_type</span><span class="o">=</span><span class="n">task_generation_type</span><span class="p">,</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="n">feature_list</span><span class="o">=</span><span class="n">train_cols</span><span class="p">,</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="n">target_event</span><span class="o">=</span><span class="n">target_event</span><span class="p">,</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time encoding (</span><span class="si">{</span><span class="n">time_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">time_encoding</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_encoding_type</span><span class="p">)</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dataframe alignment&#39;</span><span class="p">)</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="k">if</span> <span class="n">train_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">_</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">encoder</span><span class="p">:</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoder initialization&#39;</span><span class="p">)</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="n">encoder</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">attribute_encoding</span><span class="o">=</span><span class="n">attribute_encoding</span><span class="p">,</span> <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">)</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoding&#39;</span><span class="p">)</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="k">return</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">df</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    This method allows for the customization of the encoding process through various parameters, including the type of feature encoding, prefix length, time encoding, and more.</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    The method returns a tuple containing the encoder used and the resulting DataFrame.</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">    Args:</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">        log (EventLog): The event log to be encoded.</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">        encoder (Optional[Encoder]): The encoder to be used. If None, a default encoder based on the feature encoding type will be used.</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">        feature_encoding_type (EncodingType): The type of feature encoding to use. Defaults to EncodingType.SIMPLE.</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        prefix_length (int): The length of the prefix to consider for each case. Defaults to 10.</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        prefix_length_strategy (PrefixLengthStrategy): The strategy to use for prefix length (e.g., fixed, percentage). Defaults to PrefixLengthStrategy.FIXED.</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        time_encoding_type (TimeEncodingType): The type of time encoding to use. Defaults to TimeEncodingType.NONE.</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">        attribute_encoding (EncodingTypeAttribute): The type of attribute encoding to use. Defaults to EncodingTypeAttribute.LABEL.</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">        padding (bool): Whether to pad sequences to a fixed length. Defaults to True.</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        labeling_type (LabelTypes): The type of labeling to use for the encoded log. Defaults to LabelTypes.ATTRIBUTE_STRING.</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        task_generation_type (TaskGenerationType): The type of task generation to use. Defaults to TaskGenerationType.ONLY_THIS.</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        target_event (Optional[str]): The target event to consider for encoding. Defaults to None.</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        train_cols (Optional[DataFrame]): The DataFrame containing the training columns. Defaults to None.</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">        train_df (Optional[DataFrame]): The training DataFrame. Defaults to None.</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">    Returns:</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="sd">        Tuple[Encoder, DataFrame]: A tuple containing the encoder and the encoded DataFrame.</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Features encoding (</span><span class="si">{</span><span class="n">feature_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">ENCODE_LOG</span><span class="p">[</span><span class="n">feature_encoding_type</span><span class="p">](</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="n">log</span><span class="p">,</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">,</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">prefix_length_strategy</span><span class="o">=</span><span class="n">prefix_length_strategy</span><span class="p">,</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">labeling_type</span><span class="o">=</span><span class="n">labeling_type</span><span class="p">,</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">generation_type</span><span class="o">=</span><span class="n">task_generation_type</span><span class="p">,</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="n">feature_list</span><span class="o">=</span><span class="n">train_cols</span><span class="p">,</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="n">target_event</span><span class="o">=</span><span class="n">target_event</span><span class="p">,</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="p">)</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time encoding (</span><span class="si">{</span><span class="n">time_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">time_encoding</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_encoding_type</span><span class="p">)</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dataframe alignment&#39;</span><span class="p">)</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="k">if</span> <span class="n">train_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="n">_</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">encoder</span><span class="p">:</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoder initialization&#39;</span><span class="p">)</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="n">encoder</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">attribute_encoding</span><span class="o">=</span><span class="n">attribute_encoding</span><span class="p">,</span> <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">)</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoding&#39;</span><span class="p">)</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="k">return</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">df</span>
 </span></pre></div>
 
 
@@ -230,77 +247,20 @@
     </div>
     <a class="headerlink" href="#EncodingType"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="EncodingType-24"><a href="#EncodingType-24"><span class="linenos">24</span></a><span class="k">class</span> <span class="nc">EncodingType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-</span><span id="EncodingType-25"><a href="#EncodingType-25"><span class="linenos">25</span></a>    <span class="n">SIMPLE</span> <span class="o">=</span> <span class="s1">&#39;simple&#39;</span>
-</span><span id="EncodingType-26"><a href="#EncodingType-26"><span class="linenos">26</span></a>    <span class="n">FREQUENCY</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
-</span><span id="EncodingType-27"><a href="#EncodingType-27"><span class="linenos">27</span></a>    <span class="n">COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;complex&#39;</span>
-</span><span id="EncodingType-28"><a href="#EncodingType-28"><span class="linenos">28</span></a>    <span class="n">DECLARE</span> <span class="o">=</span> <span class="s1">&#39;declare&#39;</span>
-</span><span id="EncodingType-29"><a href="#EncodingType-29"><span class="linenos">29</span></a>    <span class="n">LORELEY</span> <span class="o">=</span> <span class="s1">&#39;loreley&#39;</span>
-</span><span id="EncodingType-30"><a href="#EncodingType-30"><span class="linenos">30</span></a>    <span class="n">LORELEY_COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;loreley_complex&#39;</span>
-</span><span id="EncodingType-31"><a href="#EncodingType-31"><span class="linenos">31</span></a>    <span class="n">SIMPLE_TRACE</span> <span class="o">=</span> <span class="s1">&#39;simple_trace&#39;</span>
-</span><span id="EncodingType-32"><a href="#EncodingType-32"><span class="linenos">32</span></a>    <span class="n">BINARY</span> <span class="o">=</span> <span class="s1">&#39;binary&#39;</span>
+</span><span id="EncodingType-25"><a href="#EncodingType-25"><span class="linenos">25</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="EncodingType-26"><a href="#EncodingType-26"><span class="linenos">26</span></a><span class="sd">    Available trace encoding types</span>
+</span><span id="EncodingType-27"><a href="#EncodingType-27"><span class="linenos">27</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="EncodingType-28"><a href="#EncodingType-28"><span class="linenos">28</span></a>    <span class="n">SIMPLE</span> <span class="o">=</span> <span class="s1">&#39;simple&#39;</span>
+</span><span id="EncodingType-29"><a href="#EncodingType-29"><span class="linenos">29</span></a>    <span class="n">FREQUENCY</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
+</span><span id="EncodingType-30"><a href="#EncodingType-30"><span class="linenos">30</span></a>    <span class="n">COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;complex&#39;</span>
+</span><span id="EncodingType-31"><a href="#EncodingType-31"><span class="linenos">31</span></a>    <span class="n">LORELEY</span> <span class="o">=</span> <span class="s1">&#39;loreley&#39;</span>
+</span><span id="EncodingType-32"><a href="#EncodingType-32"><span class="linenos">32</span></a>    <span class="n">LORELEY_COMPLEX</span> <span class="o">=</span> <span class="s1">&#39;loreley_complex&#39;</span>
+</span><span id="EncodingType-33"><a href="#EncodingType-33"><span class="linenos">33</span></a>    <span class="n">SIMPLE_TRACE</span> <span class="o">=</span> <span class="s1">&#39;simple_trace&#39;</span>
+</span><span id="EncodingType-34"><a href="#EncodingType-34"><span class="linenos">34</span></a>    <span class="n">BINARY</span> <span class="o">=</span> <span class="s1">&#39;binary&#39;</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Create a collection of name/value pairs.</p>
-
-<p>Example enumeration:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Color</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">RED</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="gp">... </span>    <span class="n">BLUE</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="gp">... </span>    <span class="n">GREEN</span> <span class="o">=</span> <span class="mi">3</span>
-</code></pre>
-</div>
-
-<p>Access them by:</p>
-
-<ul>
-<li>attribute access::</li>
-</ul>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span>
-<span class="go">&lt;Color.RED: 1&gt;</span>
-</code></pre>
-</div>
-
-<ul>
-<li>value lookup:</li>
-</ul>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">&lt;Color.RED: 1&gt;</span>
-</code></pre>
-</div>
-
-<ul>
-<li>name lookup:</li>
-</ul>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
-<span class="go">&lt;Color.RED: 1&gt;</span>
-</code></pre>
-</div>
-
-<p>Enumerations can be iterated over, and know how many members they have:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
-<span class="go">3</span>
-</code></pre>
-</div>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
-<span class="go">[&lt;Color.RED: 1&gt;, &lt;Color.BLUE: 2&gt;, &lt;Color.GREEN: 3&gt;]</span>
-</code></pre>
-</div>
-
-<p>Methods can be added to enumerations, and members can have their own
-attributes -- see the documentation for details.</p>
+            <div class="docstring"><p>Available trace encoding types</p>
 </div>
 
 
@@ -336,18 +296,6 @@ attributes -- see the documentation for details.</p>
         
     </div>
     <a class="headerlink" href="#EncodingType.COMPLEX"></a>
-    
-    
-
-                            </div>
-                            <div id="EncodingType.DECLARE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">DECLARE</span>        =
-<span class="default_value">&lt;<a href="#EncodingType.DECLARE">EncodingType.DECLARE</a>: &#39;declare&#39;&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#EncodingType.DECLARE"></a>
     
     
 
@@ -422,72 +370,16 @@ attributes -- see the documentation for details.</p>
 
     </div>
     <a class="headerlink" href="#EncodingTypeAttribute"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="EncodingTypeAttribute-34"><a href="#EncodingTypeAttribute-34"><span class="linenos">34</span></a><span class="k">class</span> <span class="nc">EncodingTypeAttribute</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-</span><span id="EncodingTypeAttribute-35"><a href="#EncodingTypeAttribute-35"><span class="linenos">35</span></a>    <span class="n">LABEL</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span>
-</span><span id="EncodingTypeAttribute-36"><a href="#EncodingTypeAttribute-36"><span class="linenos">36</span></a>    <span class="n">ONEHOT</span> <span class="o">=</span> <span class="s1">&#39;onehot&#39;</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="EncodingTypeAttribute-36"><a href="#EncodingTypeAttribute-36"><span class="linenos">36</span></a><span class="k">class</span> <span class="nc">EncodingTypeAttribute</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="EncodingTypeAttribute-37"><a href="#EncodingTypeAttribute-37"><span class="linenos">37</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="EncodingTypeAttribute-38"><a href="#EncodingTypeAttribute-38"><span class="linenos">38</span></a><span class="sd">    Available trace attributes encoding types</span>
+</span><span id="EncodingTypeAttribute-39"><a href="#EncodingTypeAttribute-39"><span class="linenos">39</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="EncodingTypeAttribute-40"><a href="#EncodingTypeAttribute-40"><span class="linenos">40</span></a>    <span class="n">LABEL</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span>
+</span><span id="EncodingTypeAttribute-41"><a href="#EncodingTypeAttribute-41"><span class="linenos">41</span></a>    <span class="n">ONEHOT</span> <span class="o">=</span> <span class="s1">&#39;onehot&#39;</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Create a collection of name/value pairs.</p>
-
-<p>Example enumeration:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Color</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">RED</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="gp">... </span>    <span class="n">BLUE</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="gp">... </span>    <span class="n">GREEN</span> <span class="o">=</span> <span class="mi">3</span>
-</code></pre>
-</div>
-
-<p>Access them by:</p>
-
-<ul>
-<li>attribute access::</li>
-</ul>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span>
-<span class="go">&lt;Color.RED: 1&gt;</span>
-</code></pre>
-</div>
-
-<ul>
-<li>value lookup:</li>
-</ul>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">&lt;Color.RED: 1&gt;</span>
-</code></pre>
-</div>
-
-<ul>
-<li>name lookup:</li>
-</ul>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
-<span class="go">&lt;Color.RED: 1&gt;</span>
-</code></pre>
-</div>
-
-<p>Enumerations can be iterated over, and know how many members they have:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
-<span class="go">3</span>
-</code></pre>
-</div>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
-<span class="go">[&lt;Color.RED: 1&gt;, &lt;Color.BLUE: 2&gt;, &lt;Color.GREEN: 3&gt;]</span>
-</code></pre>
-</div>
-
-<p>Methods can be added to enumerations, and members can have their own
-attributes -- see the documentation for details.</p>
+            <div class="docstring"><p>Available trace attributes encoding types</p>
 </div>
 
 
@@ -544,81 +436,111 @@ attributes -- see the documentation for details.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_encoded_df</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">log</span><span class="p">:</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">EventLog</span>,</span><span class="param">	<span class="n">encoder</span><span class="p">:</span> <span class="n"><a href="data_encoder.html#Encoder">nirdizati_light.encoding.data_encoder.Encoder</a></span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">feature_encoding_type</span><span class="o">=</span><span class="s1">&#39;simple&#39;</span>,</span><span class="param">	<span class="n">prefix_length</span><span class="o">=</span><span class="mi">10</span>,</span><span class="param">	<span class="n">prefix_length_strategy</span><span class="o">=</span><span class="s1">&#39;fixed&#39;</span>,</span><span class="param">	<span class="n">time_encoding_type</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>,</span><span class="param">	<span class="n">attribute_encoding</span><span class="o">=</span><span class="s1">&#39;label&#39;</span>,</span><span class="param">	<span class="n">padding</span><span class="o">=</span><span class="kc">True</span>,</span><span class="param">	<span class="n">labeling_type</span><span class="o">=</span><span class="s1">&#39;label_attribute_string&#39;</span>,</span><span class="param">	<span class="n">task_generation_type</span><span class="o">=</span><span class="s1">&#39;only_this&#39;</span>,</span><span class="param">	<span class="n">target_event</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">train_cols</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">train_df</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="data_encoder.html#Encoder">nirdizati_light.encoding.data_encoder.Encoder</a></span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+        <span class="name">get_encoded_df</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">log</span><span class="p">:</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">EventLog</span>,</span><span class="param">	<span class="n">encoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="data_encoder.html#Encoder">nirdizati_light.encoding.data_encoder.Encoder</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">feature_encoding_type</span><span class="p">:</span> <span class="n"><a href="#EncodingType">EncodingType</a></span> <span class="o">=</span> <span class="s1">&#39;simple&#39;</span>,</span><span class="param">	<span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>,</span><span class="param">	<span class="n">prefix_length_strategy</span><span class="p">:</span> <span class="n"><a href="constants.html#PrefixLengthStrategy">nirdizati_light.encoding.constants.PrefixLengthStrategy</a></span> <span class="o">=</span> <span class="s1">&#39;fixed&#39;</span>,</span><span class="param">	<span class="n">time_encoding_type</span><span class="p">:</span> <span class="n"><a href="time_encoding.html#TimeEncodingType">nirdizati_light.encoding.time_encoding.TimeEncodingType</a></span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>,</span><span class="param">	<span class="n">attribute_encoding</span><span class="p">:</span> <span class="n"><a href="#EncodingTypeAttribute">EncodingTypeAttribute</a></span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span>,</span><span class="param">	<span class="n">padding</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">labeling_type</span><span class="p">:</span> <span class="n"><a href="../labeling/common.html#LabelTypes">nirdizati_light.labeling.common.LabelTypes</a></span> <span class="o">=</span> <span class="s1">&#39;label_attribute_string&#39;</span>,</span><span class="param">	<span class="n">task_generation_type</span><span class="p">:</span> <span class="n"><a href="constants.html#TaskGenerationType">nirdizati_light.encoding.constants.TaskGenerationType</a></span> <span class="o">=</span> <span class="s1">&#39;only_this&#39;</span>,</span><span class="param">	<span class="n">target_event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">train_cols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">train_df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="data_encoder.html#Encoder">nirdizati_light.encoding.data_encoder.Encoder</a></span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="get_encoded_df-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#get_encoded_df"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_encoded_df-50"><a href="#get_encoded_df-50"><span class="linenos"> 50</span></a><span class="k">def</span> <span class="nf">get_encoded_df</span><span class="p">(</span>
-</span><span id="get_encoded_df-51"><a href="#get_encoded_df-51"><span class="linenos"> 51</span></a>    <span class="n">log</span><span class="p">:</span> <span class="n">EventLog</span><span class="p">,</span>
-</span><span id="get_encoded_df-52"><a href="#get_encoded_df-52"><span class="linenos"> 52</span></a>    <span class="n">encoder</span><span class="p">:</span> <span class="n">Encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="get_encoded_df-53"><a href="#get_encoded_df-53"><span class="linenos"> 53</span></a>    <span class="n">feature_encoding_type</span><span class="o">=</span><span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="get_encoded_df-54"><a href="#get_encoded_df-54"><span class="linenos"> 54</span></a>    <span class="n">prefix_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</span><span id="get_encoded_df-55"><a href="#get_encoded_df-55"><span class="linenos"> 55</span></a>    <span class="n">prefix_length_strategy</span><span class="o">=</span><span class="n">PrefixLengthStrategy</span><span class="o">.</span><span class="n">FIXED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="get_encoded_df-56"><a href="#get_encoded_df-56"><span class="linenos"> 56</span></a>    <span class="n">time_encoding_type</span><span class="o">=</span><span class="n">TimeEncodingType</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="get_encoded_df-57"><a href="#get_encoded_df-57"><span class="linenos"> 57</span></a>    <span class="n">attribute_encoding</span><span class="o">=</span><span class="n">EncodingTypeAttribute</span><span class="o">.</span><span class="n">LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="get_encoded_df-58"><a href="#get_encoded_df-58"><span class="linenos"> 58</span></a>    <span class="n">padding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="get_encoded_df-59"><a href="#get_encoded_df-59"><span class="linenos"> 59</span></a>    <span class="n">labeling_type</span><span class="o">=</span><span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="get_encoded_df-60"><a href="#get_encoded_df-60"><span class="linenos"> 60</span></a>    <span class="n">task_generation_type</span><span class="o">=</span><span class="n">TaskGenerationType</span><span class="o">.</span><span class="n">ONLY_THIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="get_encoded_df-61"><a href="#get_encoded_df-61"><span class="linenos"> 61</span></a>    <span class="n">target_event</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="get_encoded_df-62"><a href="#get_encoded_df-62"><span class="linenos"> 62</span></a>    <span class="n">train_cols</span><span class="p">:</span> <span class="n">DataFrame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="get_encoded_df-63"><a href="#get_encoded_df-63"><span class="linenos"> 63</span></a>    <span class="n">train_df</span><span class="o">=</span><span class="kc">None</span>
-</span><span id="get_encoded_df-64"><a href="#get_encoded_df-64"><span class="linenos"> 64</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Encoder</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
-</span><span id="get_encoded_df-65"><a href="#get_encoded_df-65"><span class="linenos"> 65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="get_encoded_df-66"><a href="#get_encoded_df-66"><span class="linenos"> 66</span></a><span class="sd">    Encode log with the configuration provided in the CONF dictionary.</span>
-</span><span id="get_encoded_df-67"><a href="#get_encoded_df-67"><span class="linenos"> 67</span></a>
-</span><span id="get_encoded_df-68"><a href="#get_encoded_df-68"><span class="linenos"> 68</span></a><span class="sd">    :param EventLog log: EventLog object of the log</span>
-</span><span id="get_encoded_df-69"><a href="#get_encoded_df-69"><span class="linenos"> 69</span></a><span class="sd">    :param dict CONF: dictionary for configuring the encoding</span>
-</span><span id="get_encoded_df-70"><a href="#get_encoded_df-70"><span class="linenos"> 70</span></a><span class="sd">    :param nirdizati_light.encoding.data_encoder.Encoder: if an encoder is provided, that encoder will be used instead of creating a new one</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_encoded_df-54"><a href="#get_encoded_df-54"><span class="linenos"> 54</span></a><span class="k">def</span> <span class="nf">get_encoded_df</span><span class="p">(</span>
+</span><span id="get_encoded_df-55"><a href="#get_encoded_df-55"><span class="linenos"> 55</span></a>    <span class="n">log</span><span class="p">:</span> <span class="n">EventLog</span><span class="p">,</span>
+</span><span id="get_encoded_df-56"><a href="#get_encoded_df-56"><span class="linenos"> 56</span></a>    <span class="n">encoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="get_encoded_df-57"><a href="#get_encoded_df-57"><span class="linenos"> 57</span></a>    <span class="n">feature_encoding_type</span><span class="p">:</span> <span class="n">EncodingType</span> <span class="o">=</span> <span class="n">EncodingType</span><span class="o">.</span><span class="n">SIMPLE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="get_encoded_df-58"><a href="#get_encoded_df-58"><span class="linenos"> 58</span></a>    <span class="n">prefix_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+</span><span id="get_encoded_df-59"><a href="#get_encoded_df-59"><span class="linenos"> 59</span></a>    <span class="n">prefix_length_strategy</span><span class="p">:</span> <span class="n">PrefixLengthStrategy</span> <span class="o">=</span> <span class="n">PrefixLengthStrategy</span><span class="o">.</span><span class="n">FIXED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="get_encoded_df-60"><a href="#get_encoded_df-60"><span class="linenos"> 60</span></a>    <span class="n">time_encoding_type</span><span class="p">:</span> <span class="n">TimeEncodingType</span> <span class="o">=</span> <span class="n">TimeEncodingType</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="get_encoded_df-61"><a href="#get_encoded_df-61"><span class="linenos"> 61</span></a>    <span class="n">attribute_encoding</span><span class="p">:</span> <span class="n">EncodingTypeAttribute</span> <span class="o">=</span> <span class="n">EncodingTypeAttribute</span><span class="o">.</span><span class="n">LABEL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="get_encoded_df-62"><a href="#get_encoded_df-62"><span class="linenos"> 62</span></a>    <span class="n">padding</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="get_encoded_df-63"><a href="#get_encoded_df-63"><span class="linenos"> 63</span></a>    <span class="n">labeling_type</span><span class="p">:</span> <span class="n">LabelTypes</span> <span class="o">=</span> <span class="n">LabelTypes</span><span class="o">.</span><span class="n">ATTRIBUTE_STRING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="get_encoded_df-64"><a href="#get_encoded_df-64"><span class="linenos"> 64</span></a>    <span class="n">task_generation_type</span><span class="p">:</span> <span class="n">TaskGenerationType</span> <span class="o">=</span> <span class="n">TaskGenerationType</span><span class="o">.</span><span class="n">ONLY_THIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="get_encoded_df-65"><a href="#get_encoded_df-65"><span class="linenos"> 65</span></a>    <span class="n">target_event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="get_encoded_df-66"><a href="#get_encoded_df-66"><span class="linenos"> 66</span></a>    <span class="n">train_cols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="get_encoded_df-67"><a href="#get_encoded_df-67"><span class="linenos"> 67</span></a>    <span class="n">train_df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="get_encoded_df-68"><a href="#get_encoded_df-68"><span class="linenos"> 68</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Encoder</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="get_encoded_df-69"><a href="#get_encoded_df-69"><span class="linenos"> 69</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="get_encoded_df-70"><a href="#get_encoded_df-70"><span class="linenos"> 70</span></a><span class="sd">    Encodes an event log into a DataFrame using specified encoding configurations.</span>
 </span><span id="get_encoded_df-71"><a href="#get_encoded_df-71"><span class="linenos"> 71</span></a>
-</span><span id="get_encoded_df-72"><a href="#get_encoded_df-72"><span class="linenos"> 72</span></a><span class="sd">    :return: A tuple containing the encoder and the encoded log as a Pandas dataframe</span>
-</span><span id="get_encoded_df-73"><a href="#get_encoded_df-73"><span class="linenos"> 73</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="get_encoded_df-74"><a href="#get_encoded_df-74"><span class="linenos"> 74</span></a>
-</span><span id="get_encoded_df-75"><a href="#get_encoded_df-75"><span class="linenos"> 75</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Features encoding (</span><span class="si">{</span><span class="n">feature_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-</span><span id="get_encoded_df-76"><a href="#get_encoded_df-76"><span class="linenos"> 76</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">ENCODE_LOG</span><span class="p">[</span><span class="n">feature_encoding_type</span><span class="p">](</span>
-</span><span id="get_encoded_df-77"><a href="#get_encoded_df-77"><span class="linenos"> 77</span></a>        <span class="n">log</span><span class="p">,</span>
-</span><span id="get_encoded_df-78"><a href="#get_encoded_df-78"><span class="linenos"> 78</span></a>        <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">,</span>
-</span><span id="get_encoded_df-79"><a href="#get_encoded_df-79"><span class="linenos"> 79</span></a>        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
-</span><span id="get_encoded_df-80"><a href="#get_encoded_df-80"><span class="linenos"> 80</span></a>        <span class="n">prefix_length_strategy</span><span class="o">=</span><span class="n">prefix_length_strategy</span><span class="p">,</span>
-</span><span id="get_encoded_df-81"><a href="#get_encoded_df-81"><span class="linenos"> 81</span></a>        <span class="n">labeling_type</span><span class="o">=</span><span class="n">labeling_type</span><span class="p">,</span>
-</span><span id="get_encoded_df-82"><a href="#get_encoded_df-82"><span class="linenos"> 82</span></a>        <span class="n">generation_type</span><span class="o">=</span><span class="n">task_generation_type</span><span class="p">,</span>
-</span><span id="get_encoded_df-83"><a href="#get_encoded_df-83"><span class="linenos"> 83</span></a>        <span class="n">feature_list</span><span class="o">=</span><span class="n">train_cols</span><span class="p">,</span>
-</span><span id="get_encoded_df-84"><a href="#get_encoded_df-84"><span class="linenos"> 84</span></a>        <span class="n">target_event</span><span class="o">=</span><span class="n">target_event</span><span class="p">,</span>
-</span><span id="get_encoded_df-85"><a href="#get_encoded_df-85"><span class="linenos"> 85</span></a>    <span class="p">)</span>
-</span><span id="get_encoded_df-86"><a href="#get_encoded_df-86"><span class="linenos"> 86</span></a>
-</span><span id="get_encoded_df-87"><a href="#get_encoded_df-87"><span class="linenos"> 87</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time encoding (</span><span class="si">{</span><span class="n">time_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-</span><span id="get_encoded_df-88"><a href="#get_encoded_df-88"><span class="linenos"> 88</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">time_encoding</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_encoding_type</span><span class="p">)</span>
-</span><span id="get_encoded_df-89"><a href="#get_encoded_df-89"><span class="linenos"> 89</span></a>
-</span><span id="get_encoded_df-90"><a href="#get_encoded_df-90"><span class="linenos"> 90</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dataframe alignment&#39;</span><span class="p">)</span>
-</span><span id="get_encoded_df-91"><a href="#get_encoded_df-91"><span class="linenos"> 91</span></a>    <span class="k">if</span> <span class="n">train_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="get_encoded_df-92"><a href="#get_encoded_df-92"><span class="linenos"> 92</span></a>        <span class="n">_</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="get_encoded_df-93"><a href="#get_encoded_df-93"><span class="linenos"> 93</span></a>
-</span><span id="get_encoded_df-94"><a href="#get_encoded_df-94"><span class="linenos"> 94</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">encoder</span><span class="p">:</span>
-</span><span id="get_encoded_df-95"><a href="#get_encoded_df-95"><span class="linenos"> 95</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoder initialization&#39;</span><span class="p">)</span>
-</span><span id="get_encoded_df-96"><a href="#get_encoded_df-96"><span class="linenos"> 96</span></a>        <span class="n">encoder</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">attribute_encoding</span><span class="o">=</span><span class="n">attribute_encoding</span><span class="p">,</span> <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">)</span>
-</span><span id="get_encoded_df-97"><a href="#get_encoded_df-97"><span class="linenos"> 97</span></a>
-</span><span id="get_encoded_df-98"><a href="#get_encoded_df-98"><span class="linenos"> 98</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoding&#39;</span><span class="p">)</span>
-</span><span id="get_encoded_df-99"><a href="#get_encoded_df-99"><span class="linenos"> 99</span></a>    <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-</span><span id="get_encoded_df-100"><a href="#get_encoded_df-100"><span class="linenos">100</span></a>
-</span><span id="get_encoded_df-101"><a href="#get_encoded_df-101"><span class="linenos">101</span></a>    <span class="k">return</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">df</span>
+</span><span id="get_encoded_df-72"><a href="#get_encoded_df-72"><span class="linenos"> 72</span></a><span class="sd">    This method allows for the customization of the encoding process through various parameters, including the type of feature encoding, prefix length, time encoding, and more.</span>
+</span><span id="get_encoded_df-73"><a href="#get_encoded_df-73"><span class="linenos"> 73</span></a>
+</span><span id="get_encoded_df-74"><a href="#get_encoded_df-74"><span class="linenos"> 74</span></a><span class="sd">    The method returns a tuple containing the encoder used and the resulting DataFrame.</span>
+</span><span id="get_encoded_df-75"><a href="#get_encoded_df-75"><span class="linenos"> 75</span></a>
+</span><span id="get_encoded_df-76"><a href="#get_encoded_df-76"><span class="linenos"> 76</span></a><span class="sd">    Args:</span>
+</span><span id="get_encoded_df-77"><a href="#get_encoded_df-77"><span class="linenos"> 77</span></a><span class="sd">        log (EventLog): The event log to be encoded.</span>
+</span><span id="get_encoded_df-78"><a href="#get_encoded_df-78"><span class="linenos"> 78</span></a><span class="sd">        encoder (Optional[Encoder]): The encoder to be used. If None, a default encoder based on the feature encoding type will be used.</span>
+</span><span id="get_encoded_df-79"><a href="#get_encoded_df-79"><span class="linenos"> 79</span></a><span class="sd">        feature_encoding_type (EncodingType): The type of feature encoding to use. Defaults to EncodingType.SIMPLE.</span>
+</span><span id="get_encoded_df-80"><a href="#get_encoded_df-80"><span class="linenos"> 80</span></a><span class="sd">        prefix_length (int): The length of the prefix to consider for each case. Defaults to 10.</span>
+</span><span id="get_encoded_df-81"><a href="#get_encoded_df-81"><span class="linenos"> 81</span></a><span class="sd">        prefix_length_strategy (PrefixLengthStrategy): The strategy to use for prefix length (e.g., fixed, percentage). Defaults to PrefixLengthStrategy.FIXED.</span>
+</span><span id="get_encoded_df-82"><a href="#get_encoded_df-82"><span class="linenos"> 82</span></a><span class="sd">        time_encoding_type (TimeEncodingType): The type of time encoding to use. Defaults to TimeEncodingType.NONE.</span>
+</span><span id="get_encoded_df-83"><a href="#get_encoded_df-83"><span class="linenos"> 83</span></a><span class="sd">        attribute_encoding (EncodingTypeAttribute): The type of attribute encoding to use. Defaults to EncodingTypeAttribute.LABEL.</span>
+</span><span id="get_encoded_df-84"><a href="#get_encoded_df-84"><span class="linenos"> 84</span></a><span class="sd">        padding (bool): Whether to pad sequences to a fixed length. Defaults to True.</span>
+</span><span id="get_encoded_df-85"><a href="#get_encoded_df-85"><span class="linenos"> 85</span></a><span class="sd">        labeling_type (LabelTypes): The type of labeling to use for the encoded log. Defaults to LabelTypes.ATTRIBUTE_STRING.</span>
+</span><span id="get_encoded_df-86"><a href="#get_encoded_df-86"><span class="linenos"> 86</span></a><span class="sd">        task_generation_type (TaskGenerationType): The type of task generation to use. Defaults to TaskGenerationType.ONLY_THIS.</span>
+</span><span id="get_encoded_df-87"><a href="#get_encoded_df-87"><span class="linenos"> 87</span></a><span class="sd">        target_event (Optional[str]): The target event to consider for encoding. Defaults to None.</span>
+</span><span id="get_encoded_df-88"><a href="#get_encoded_df-88"><span class="linenos"> 88</span></a><span class="sd">        train_cols (Optional[DataFrame]): The DataFrame containing the training columns. Defaults to None.</span>
+</span><span id="get_encoded_df-89"><a href="#get_encoded_df-89"><span class="linenos"> 89</span></a><span class="sd">        train_df (Optional[DataFrame]): The training DataFrame. Defaults to None.</span>
+</span><span id="get_encoded_df-90"><a href="#get_encoded_df-90"><span class="linenos"> 90</span></a>
+</span><span id="get_encoded_df-91"><a href="#get_encoded_df-91"><span class="linenos"> 91</span></a><span class="sd">    Returns:</span>
+</span><span id="get_encoded_df-92"><a href="#get_encoded_df-92"><span class="linenos"> 92</span></a><span class="sd">        Tuple[Encoder, DataFrame]: A tuple containing the encoder and the encoded DataFrame.</span>
+</span><span id="get_encoded_df-93"><a href="#get_encoded_df-93"><span class="linenos"> 93</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_encoded_df-94"><a href="#get_encoded_df-94"><span class="linenos"> 94</span></a>
+</span><span id="get_encoded_df-95"><a href="#get_encoded_df-95"><span class="linenos"> 95</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Features encoding (</span><span class="si">{</span><span class="n">feature_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span><span id="get_encoded_df-96"><a href="#get_encoded_df-96"><span class="linenos"> 96</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">ENCODE_LOG</span><span class="p">[</span><span class="n">feature_encoding_type</span><span class="p">](</span>
+</span><span id="get_encoded_df-97"><a href="#get_encoded_df-97"><span class="linenos"> 97</span></a>        <span class="n">log</span><span class="p">,</span>
+</span><span id="get_encoded_df-98"><a href="#get_encoded_df-98"><span class="linenos"> 98</span></a>        <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">,</span>
+</span><span id="get_encoded_df-99"><a href="#get_encoded_df-99"><span class="linenos"> 99</span></a>        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+</span><span id="get_encoded_df-100"><a href="#get_encoded_df-100"><span class="linenos">100</span></a>        <span class="n">prefix_length_strategy</span><span class="o">=</span><span class="n">prefix_length_strategy</span><span class="p">,</span>
+</span><span id="get_encoded_df-101"><a href="#get_encoded_df-101"><span class="linenos">101</span></a>        <span class="n">labeling_type</span><span class="o">=</span><span class="n">labeling_type</span><span class="p">,</span>
+</span><span id="get_encoded_df-102"><a href="#get_encoded_df-102"><span class="linenos">102</span></a>        <span class="n">generation_type</span><span class="o">=</span><span class="n">task_generation_type</span><span class="p">,</span>
+</span><span id="get_encoded_df-103"><a href="#get_encoded_df-103"><span class="linenos">103</span></a>        <span class="n">feature_list</span><span class="o">=</span><span class="n">train_cols</span><span class="p">,</span>
+</span><span id="get_encoded_df-104"><a href="#get_encoded_df-104"><span class="linenos">104</span></a>        <span class="n">target_event</span><span class="o">=</span><span class="n">target_event</span><span class="p">,</span>
+</span><span id="get_encoded_df-105"><a href="#get_encoded_df-105"><span class="linenos">105</span></a>    <span class="p">)</span>
+</span><span id="get_encoded_df-106"><a href="#get_encoded_df-106"><span class="linenos">106</span></a>
+</span><span id="get_encoded_df-107"><a href="#get_encoded_df-107"><span class="linenos">107</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time encoding (</span><span class="si">{</span><span class="n">time_encoding_type</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span><span id="get_encoded_df-108"><a href="#get_encoded_df-108"><span class="linenos">108</span></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">time_encoding</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_encoding_type</span><span class="p">)</span>
+</span><span id="get_encoded_df-109"><a href="#get_encoded_df-109"><span class="linenos">109</span></a>
+</span><span id="get_encoded_df-110"><a href="#get_encoded_df-110"><span class="linenos">110</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dataframe alignment&#39;</span><span class="p">)</span>
+</span><span id="get_encoded_df-111"><a href="#get_encoded_df-111"><span class="linenos">111</span></a>    <span class="k">if</span> <span class="n">train_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="get_encoded_df-112"><a href="#get_encoded_df-112"><span class="linenos">112</span></a>        <span class="n">_</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="get_encoded_df-113"><a href="#get_encoded_df-113"><span class="linenos">113</span></a>
+</span><span id="get_encoded_df-114"><a href="#get_encoded_df-114"><span class="linenos">114</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">encoder</span><span class="p">:</span>
+</span><span id="get_encoded_df-115"><a href="#get_encoded_df-115"><span class="linenos">115</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoder initialization&#39;</span><span class="p">)</span>
+</span><span id="get_encoded_df-116"><a href="#get_encoded_df-116"><span class="linenos">116</span></a>        <span class="n">encoder</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">attribute_encoding</span><span class="o">=</span><span class="n">attribute_encoding</span><span class="p">,</span> <span class="n">prefix_length</span><span class="o">=</span><span class="n">prefix_length</span><span class="p">)</span>
+</span><span id="get_encoded_df-117"><a href="#get_encoded_df-117"><span class="linenos">117</span></a>
+</span><span id="get_encoded_df-118"><a href="#get_encoded_df-118"><span class="linenos">118</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Encoding&#39;</span><span class="p">)</span>
+</span><span id="get_encoded_df-119"><a href="#get_encoded_df-119"><span class="linenos">119</span></a>    <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+</span><span id="get_encoded_df-120"><a href="#get_encoded_df-120"><span class="linenos">120</span></a>
+</span><span id="get_encoded_df-121"><a href="#get_encoded_df-121"><span class="linenos">121</span></a>    <span class="k">return</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">df</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Encode log with the configuration provided in the CONF dictionary.</p>
+            <div class="docstring"><p>Encodes an event log into a DataFrame using specified encoding configurations.</p>
 
-<h6 id="parameters">Parameters</h6>
+<p>This method allows for the customization of the encoding process through various parameters, including the type of feature encoding, prefix length, time encoding, and more.</p>
+
+<p>The method returns a tuple containing the encoder used and the resulting DataFrame.</p>
+
+<h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>EventLog log</strong>:  EventLog object of the log</li>
-<li><strong>dict CONF</strong>:  dictionary for configuring the encoding</li>
-<li><strong><a href="data_encoder.html#Encoder">nirdizati_light.encoding.data_encoder.Encoder</a></strong>:  if an encoder is provided, that encoder will be used instead of creating a new one</li>
+<li><strong>log (EventLog):</strong>  The event log to be encoded.</li>
+<li><strong>encoder (Optional[Encoder]):</strong>  The encoder to be used. If None, a default encoder based on the feature encoding type will be used.</li>
+<li><strong>feature_encoding_type (EncodingType):</strong>  The type of feature encoding to use. Defaults to <a href="#EncodingType.SIMPLE">EncodingType.SIMPLE</a>.</li>
+<li><strong>prefix_length (int):</strong>  The length of the prefix to consider for each case. Defaults to 10.</li>
+<li><strong>prefix_length_strategy (PrefixLengthStrategy):</strong>  The strategy to use for prefix length (e.g., fixed, percentage). Defaults to PrefixLengthStrategy.FIXED.</li>
+<li><strong>time_encoding_type (TimeEncodingType):</strong>  The type of time encoding to use. Defaults to TimeEncodingType.NONE.</li>
+<li><strong>attribute_encoding (EncodingTypeAttribute):</strong>  The type of attribute encoding to use. Defaults to <a href="#EncodingTypeAttribute.LABEL">EncodingTypeAttribute.LABEL</a>.</li>
+<li><strong>padding (bool):</strong>  Whether to pad sequences to a fixed length. Defaults to True.</li>
+<li><strong>labeling_type (LabelTypes):</strong>  The type of labeling to use for the encoded log. Defaults to LabelTypes.ATTRIBUTE_STRING.</li>
+<li><strong>task_generation_type (TaskGenerationType):</strong>  The type of task generation to use. Defaults to TaskGenerationType.ONLY_THIS.</li>
+<li><strong>target_event (Optional[str]):</strong>  The target event to consider for encoding. Defaults to None.</li>
+<li><strong>train_cols (Optional[DataFrame]):</strong>  The DataFrame containing the training columns. Defaults to None.</li>
+<li><strong>train_df (Optional[DataFrame]):</strong>  The training DataFrame. Defaults to None.</li>
 </ul>
 
-<h6 id="returns">Returns</h6>
+<h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>A tuple containing the encoder and the encoded log as a Pandas dataframe</p>
+  <p>Tuple[Encoder, DataFrame]: A tuple containing the encoder and the encoded DataFrame.</p>
 </blockquote>
 </div>
 

@@ -1,4 +1,5 @@
 from math import sqrt
+from typing import Optional
 
 import numpy as np
 from sklearn.metrics import f1_score, roc_auc_score, precision_score, recall_score, accuracy_score, mean_absolute_error, \
@@ -12,7 +13,24 @@ def drop_columns(df: DataFrame) -> DataFrame:
     df = df.drop(['trace_id', 'label'],axis=1)
     return df
 
-def evaluate_classifier(y_true, y_pred, scores, loss=None) -> dict:
+def evaluate_classifier(y_true, y_pred, scores, loss: Optional[str]=None) -> dict:
+    """
+    Evaluate the performance of a classifier using various metrics.
+
+    This function calculates the AUC, F1 score, accuracy, precision, and recall of the classifier's predictions.
+    It handles exceptions by setting the metric value to None if an error occurs during calculation.
+    Optionally, if a loss metric is provided and exists in the evaluation, its value is updated in the evaluation dictionary.
+
+    Args:
+        y_true (1d array-like): The true labels of the data.
+        y_pred (1d array-like): The predicted labels by the classifier.
+        scores (1d array-like): The score/probability of the positive class.
+        loss (Optional[str]): The name of the metric to be treated as a loss (the higher, the better). Defaults to None.
+
+    Returns:
+        dict: A dictionary containing the evaluation metrics: 'auc', 'f1_score', 'accuracy', 'precision', 'recall', and optionally 'loss' if specified.
+
+    """
     evaluation = {}
 
     y_true = [str(el) for el in y_true]
@@ -44,7 +62,27 @@ def evaluate_classifier(y_true, y_pred, scores, loss=None) -> dict:
     return evaluation
 
 
-def evaluate_regressor(y_true, y_pred, loss=None):
+def evaluate_regressor(y_true, y_pred, loss: Optional[str]=None):
+    """
+    Evaluate the performance of a regression model.
+
+    This function calculates the Root Mean Square Error (RMSE), Mean Absolute Error (MAE),
+    and the R-squared score (R2 score) of the predictions made by a regression model. If a
+    specific loss metric is provided and exists in the evaluation, its value will be updated
+    in the evaluation dictionary.
+
+    Args:
+        y_true (1d array-like): True labels or actual values.
+        y_pred (1d array-like): Predicted labels or values by the regression model.
+        loss (Optional[str]): The key of the loss metric to be updated in the evaluation
+                              dictionary if it exists. Defaults to None.
+
+    Returns:
+        dict: A dictionary containing the calculated metrics ('rmse', 'mae', 'rscore') with
+              their corresponding values. If a metric cannot be calculated due to an exception,
+              its value will be set to None. If the 'loss' argument is provided and exists in
+              the evaluation, its value will be updated accordingly.
+    """
     evaluation = {}
 
     try:
@@ -116,7 +154,24 @@ def evaluate_classifiers(candidates,actual):
         results[str(candidate.model_type)] = result
     return results
 
-def plot_model_comparison(models_data):
+
+def plot_model_comparison_classification(models_data: dict):
+    """
+    Plots a comparison of different classification models based on their performance metrics.
+
+    This function takes a dictionary where each key is a model name and its value is another
+    dictionary containing performance metrics such as F1 score, accuracy, precision, and recall.
+    It then extracts these metrics and plots them for comparison.
+
+    Args:
+        models_data (dict): A dictionary where the key is the model name (str) and the value is another
+                            dictionary containing metrics. The metrics dictionary should have keys
+                            'f1_score', 'accuracy', 'precision', and 'recall', each mapping to a float
+                            representing the model's performance on that metric.
+
+    Returns:
+        None. This function is used for plotting the comparison and does not return anything.
+    """
     # Create lists to store data
     model_names = []
     f1_scores = []

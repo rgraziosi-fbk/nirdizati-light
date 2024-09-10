@@ -174,7 +174,7 @@ def is_special_occasion(date):
                'DE', 'GR', 'HU', 'IS', 'IN', 'IE', 'IL', 'IT', 'JM', 'JP', 'LT', 'MX', 'MA', 'NL', 'NZ', 'PL', 'PT',
                'RO', 'RU', 'SA', 'RS', 'SK', 'SI', 'ZA', 'ES', 'SE', 'CH', 'TR', 'UA', 'AE', 'GB', 'US']
     for country in countries:
-        holiday = holidays.CountryHoliday(country)
+        holiday = holidays.country_holidays(country)
         if date.strftime("%m-%d-%Y") in holiday:
             return True
     return False

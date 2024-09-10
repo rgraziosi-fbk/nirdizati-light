@@ -60,57 +60,93 @@
 
                         <label class="view-source-button" for="mod-common-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">import</span> <span class="nn">pm4py</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">import</span> <span class="nn">random</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">case_id_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;case:concept:name&#39;</span><span class="p">):</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">    Read a xes or csv log</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    </span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    :param str filepath: path to the log</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    :param str separator: in case of csv logs, the separator character used in the csv log</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">import</span> <span class="nn">random</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">import</span> <span class="nn">math</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">import</span> <span class="nn">logging</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">import</span> <span class="nn">pm4py</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span><span class="p">):</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    Reads a xes or csv log.</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    For csv logs, standard column names must be used: &#39;case:concept:name&#39; for the trace id, &#39;concept:name&#39; for the activity, and &#39;time:timestamp&#39; for the timestamp.</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    :return: a pm4py EventLog object</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xes&#39;</span><span class="p">):</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">read_xes</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="k">elif</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>        <span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">])</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported file extension&quot;</span><span class="p">)</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="c1"># ensure case id column is of type str</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">log</span><span class="p">[</span><span class="n">case_id_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">case_id_key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">return</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">convert_to_event_log</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">case_id_key</span><span class="o">=</span><span class="n">case_id_key</span><span class="p">)</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="k">def</span> <span class="nf">split_train_val_test</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">train_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">val_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">test_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">cases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">train_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[:</span><span class="n">train_size</span><span class="p">]</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">val_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">]</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="n">test_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">:]</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    Args:</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">        filepath (str): Path to the log.</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">        separator (str): In case of csv logs, the separator character used in the csv log.</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    Returns:</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">        A pm4py EventLog object.</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xes&#39;</span><span class="p">):</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">read_xes</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="k">elif</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">])</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported file extension&quot;</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="c1"># ensure case id column is of type str</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;case:concept:name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s1">&#39;case:concept:name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">return</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">convert_to_event_log</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">case_id_key</span><span class="o">=</span><span class="s1">&#39;case:concept:name&#39;</span><span class="p">)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="k">def</span> <span class="nf">split_train_val_test</span><span class="p">(</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="n">log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">train_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">val_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">test_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="p">):</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">    Splits a DataFrame containing event log data into training, validation, and test sets.</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)]</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)]</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="n">test_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)]</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    This function divides the DataFrame based on unique case identifiers (trace_id) into</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">    specified proportions for training, validation, and testing. It supports shuffling</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">    the cases before splitting to ensure random distribution.</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">    Args:</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">        log (pd.DataFrame): The input DataFrame containing the event log data.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">        train_perc (float): The proportion of the data to be used for the training set.</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">        val_perc (float): The proportion of the data to be used for the validation set.</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">        test_perc (float): The proportion of the data to be used for the test set. This parameter</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">            is not directly used in splitting but can be useful for validation.</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">        shuffle (bool): If True, the cases are shuffled before splitting. Defaults to False.</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">        seed (int): The seed for the random number generator when shuffling. Defaults to 42.</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="sd">    Returns:</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">        tuple: A tuple containing three pd.DataFrame objects for the training, validation, and test sets respectively.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="sd">    Raises:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="sd">        AssertionError: If the sum of the train, validation, and test percentage splits does not equal 1.</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">assert</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">train_perc</span> <span class="o">+</span> <span class="n">val_perc</span> <span class="o">+</span> <span class="n">test_perc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">),</span> <span class="s2">&quot;The sum of train_perc, val_perc, and test_perc should be equal to 1&quot;</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="n">cases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="n">val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>    <span class="n">train_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[:</span><span class="n">train_size</span><span class="p">]</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>    <span class="n">val_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">]</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>    <span class="n">test_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">:]</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)]</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)]</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>    <span class="n">test_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)]</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span>
 </span></pre></div>
 
 
@@ -132,49 +168,55 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_log</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span>,</span><span class="param">	<span class="n">case_id_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;case:concept:name&#39;</span></span><span class="return-annotation">):</span></span>
+        <span class="name">get_log</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="get_log-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#get_log"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_log-9"><a href="#get_log-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">case_id_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;case:concept:name&#39;</span><span class="p">):</span>
-</span><span id="get_log-10"><a href="#get_log-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="get_log-11"><a href="#get_log-11"><span class="linenos">11</span></a><span class="sd">    Read a xes or csv log</span>
-</span><span id="get_log-12"><a href="#get_log-12"><span class="linenos">12</span></a><span class="sd">    </span>
-</span><span id="get_log-13"><a href="#get_log-13"><span class="linenos">13</span></a><span class="sd">    :param str filepath: path to the log</span>
-</span><span id="get_log-14"><a href="#get_log-14"><span class="linenos">14</span></a><span class="sd">    :param str separator: in case of csv logs, the separator character used in the csv log</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_log-10"><a href="#get_log-10"><span class="linenos">10</span></a><span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span><span class="p">):</span>
+</span><span id="get_log-11"><a href="#get_log-11"><span class="linenos">11</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="get_log-12"><a href="#get_log-12"><span class="linenos">12</span></a><span class="sd">    Reads a xes or csv log.</span>
+</span><span id="get_log-13"><a href="#get_log-13"><span class="linenos">13</span></a>
+</span><span id="get_log-14"><a href="#get_log-14"><span class="linenos">14</span></a><span class="sd">    For csv logs, standard column names must be used: &#39;case:concept:name&#39; for the trace id, &#39;concept:name&#39; for the activity, and &#39;time:timestamp&#39; for the timestamp.</span>
 </span><span id="get_log-15"><a href="#get_log-15"><span class="linenos">15</span></a>
-</span><span id="get_log-16"><a href="#get_log-16"><span class="linenos">16</span></a><span class="sd">    :return: a pm4py EventLog object</span>
-</span><span id="get_log-17"><a href="#get_log-17"><span class="linenos">17</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="get_log-18"><a href="#get_log-18"><span class="linenos">18</span></a>    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xes&#39;</span><span class="p">):</span>
-</span><span id="get_log-19"><a href="#get_log-19"><span class="linenos">19</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">read_xes</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-</span><span id="get_log-20"><a href="#get_log-20"><span class="linenos">20</span></a>    <span class="k">elif</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
-</span><span id="get_log-21"><a href="#get_log-21"><span class="linenos">21</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
-</span><span id="get_log-22"><a href="#get_log-22"><span class="linenos">22</span></a>        <span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">])</span>
-</span><span id="get_log-23"><a href="#get_log-23"><span class="linenos">23</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="get_log-24"><a href="#get_log-24"><span class="linenos">24</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported file extension&quot;</span><span class="p">)</span>
-</span><span id="get_log-25"><a href="#get_log-25"><span class="linenos">25</span></a>    
-</span><span id="get_log-26"><a href="#get_log-26"><span class="linenos">26</span></a>    <span class="c1"># ensure case id column is of type str</span>
-</span><span id="get_log-27"><a href="#get_log-27"><span class="linenos">27</span></a>    <span class="n">log</span><span class="p">[</span><span class="n">case_id_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">case_id_key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-</span><span id="get_log-28"><a href="#get_log-28"><span class="linenos">28</span></a>    
-</span><span id="get_log-29"><a href="#get_log-29"><span class="linenos">29</span></a>    <span class="k">return</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">convert_to_event_log</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">case_id_key</span><span class="o">=</span><span class="n">case_id_key</span><span class="p">)</span>
+</span><span id="get_log-16"><a href="#get_log-16"><span class="linenos">16</span></a><span class="sd">    Args:</span>
+</span><span id="get_log-17"><a href="#get_log-17"><span class="linenos">17</span></a><span class="sd">        filepath (str): Path to the log.</span>
+</span><span id="get_log-18"><a href="#get_log-18"><span class="linenos">18</span></a><span class="sd">        separator (str): In case of csv logs, the separator character used in the csv log.</span>
+</span><span id="get_log-19"><a href="#get_log-19"><span class="linenos">19</span></a>
+</span><span id="get_log-20"><a href="#get_log-20"><span class="linenos">20</span></a><span class="sd">    Returns:</span>
+</span><span id="get_log-21"><a href="#get_log-21"><span class="linenos">21</span></a><span class="sd">        A pm4py EventLog object.</span>
+</span><span id="get_log-22"><a href="#get_log-22"><span class="linenos">22</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_log-23"><a href="#get_log-23"><span class="linenos">23</span></a>    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xes&#39;</span><span class="p">):</span>
+</span><span id="get_log-24"><a href="#get_log-24"><span class="linenos">24</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">read_xes</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</span><span id="get_log-25"><a href="#get_log-25"><span class="linenos">25</span></a>    <span class="k">elif</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+</span><span id="get_log-26"><a href="#get_log-26"><span class="linenos">26</span></a>        <span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
+</span><span id="get_log-27"><a href="#get_log-27"><span class="linenos">27</span></a>        <span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;time:timestamp&#39;</span><span class="p">])</span>
+</span><span id="get_log-28"><a href="#get_log-28"><span class="linenos">28</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="get_log-29"><a href="#get_log-29"><span class="linenos">29</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported file extension&quot;</span><span class="p">)</span>
+</span><span id="get_log-30"><a href="#get_log-30"><span class="linenos">30</span></a>    
+</span><span id="get_log-31"><a href="#get_log-31"><span class="linenos">31</span></a>    <span class="c1"># ensure case id column is of type str</span>
+</span><span id="get_log-32"><a href="#get_log-32"><span class="linenos">32</span></a>    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;case:concept:name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s1">&#39;case:concept:name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+</span><span id="get_log-33"><a href="#get_log-33"><span class="linenos">33</span></a>    
+</span><span id="get_log-34"><a href="#get_log-34"><span class="linenos">34</span></a>    <span class="k">return</span> <span class="n">pm4py</span><span class="o">.</span><span class="n">convert_to_event_log</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">case_id_key</span><span class="o">=</span><span class="s1">&#39;case:concept:name&#39;</span><span class="p">)</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Read a xes or csv log</p>
+            <div class="docstring"><p>Reads a xes or csv log.</p>
 
-<h6 id="parameters">Parameters</h6>
+<p>For csv logs, standard column names must be used: 'case:concept:name' for the trace id, 'concept:name' for the activity, and 'time:timestamp' for the timestamp.</p>
+
+<h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>str filepath</strong>:  path to the log</li>
-<li><strong>str separator</strong>:  in case of csv logs, the separator character used in the csv log</li>
+<li><strong>filepath (str):</strong>  Path to the log.</li>
+<li><strong>separator (str):</strong>  In case of csv logs, the separator character used in the csv log.</li>
 </ul>
 
-<h6 id="returns">Returns</h6>
+<h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>a pm4py EventLog object</p>
+  <p>A pm4py EventLog object.</p>
 </blockquote>
 </div>
 
@@ -191,31 +233,92 @@
 
     </div>
     <a class="headerlink" href="#split_train_val_test"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="split_train_val_test-32"><a href="#split_train_val_test-32"><span class="linenos">32</span></a><span class="k">def</span> <span class="nf">split_train_val_test</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">train_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">val_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">test_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
-</span><span id="split_train_val_test-33"><a href="#split_train_val_test-33"><span class="linenos">33</span></a>    <span class="n">cases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-</span><span id="split_train_val_test-34"><a href="#split_train_val_test-34"><span class="linenos">34</span></a>
-</span><span id="split_train_val_test-35"><a href="#split_train_val_test-35"><span class="linenos">35</span></a>    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
-</span><span id="split_train_val_test-36"><a href="#split_train_val_test-36"><span class="linenos">36</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-</span><span id="split_train_val_test-37"><a href="#split_train_val_test-37"><span class="linenos">37</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
-</span><span id="split_train_val_test-38"><a href="#split_train_val_test-38"><span class="linenos">38</span></a>
-</span><span id="split_train_val_test-39"><a href="#split_train_val_test-39"><span class="linenos">39</span></a>    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
-</span><span id="split_train_val_test-40"><a href="#split_train_val_test-40"><span class="linenos">40</span></a>    <span class="n">val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
-</span><span id="split_train_val_test-41"><a href="#split_train_val_test-41"><span class="linenos">41</span></a>
-</span><span id="split_train_val_test-42"><a href="#split_train_val_test-42"><span class="linenos">42</span></a>    <span class="n">train_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[:</span><span class="n">train_size</span><span class="p">]</span>
-</span><span id="split_train_val_test-43"><a href="#split_train_val_test-43"><span class="linenos">43</span></a>    <span class="n">val_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">]</span>
-</span><span id="split_train_val_test-44"><a href="#split_train_val_test-44"><span class="linenos">44</span></a>    <span class="n">test_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">:]</span>
-</span><span id="split_train_val_test-45"><a href="#split_train_val_test-45"><span class="linenos">45</span></a>
-</span><span id="split_train_val_test-46"><a href="#split_train_val_test-46"><span class="linenos">46</span></a>    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="split_train_val_test-37"><a href="#split_train_val_test-37"><span class="linenos">37</span></a><span class="k">def</span> <span class="nf">split_train_val_test</span><span class="p">(</span>
+</span><span id="split_train_val_test-38"><a href="#split_train_val_test-38"><span class="linenos">38</span></a>    <span class="n">log</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+</span><span id="split_train_val_test-39"><a href="#split_train_val_test-39"><span class="linenos">39</span></a>    <span class="n">train_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="split_train_val_test-40"><a href="#split_train_val_test-40"><span class="linenos">40</span></a>    <span class="n">val_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="split_train_val_test-41"><a href="#split_train_val_test-41"><span class="linenos">41</span></a>    <span class="n">test_perc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="split_train_val_test-42"><a href="#split_train_val_test-42"><span class="linenos">42</span></a>    <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="split_train_val_test-43"><a href="#split_train_val_test-43"><span class="linenos">43</span></a>    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+</span><span id="split_train_val_test-44"><a href="#split_train_val_test-44"><span class="linenos">44</span></a><span class="p">):</span>
+</span><span id="split_train_val_test-45"><a href="#split_train_val_test-45"><span class="linenos">45</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="split_train_val_test-46"><a href="#split_train_val_test-46"><span class="linenos">46</span></a><span class="sd">    Splits a DataFrame containing event log data into training, validation, and test sets.</span>
 </span><span id="split_train_val_test-47"><a href="#split_train_val_test-47"><span class="linenos">47</span></a>
-</span><span id="split_train_val_test-48"><a href="#split_train_val_test-48"><span class="linenos">48</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)]</span>
-</span><span id="split_train_val_test-49"><a href="#split_train_val_test-49"><span class="linenos">49</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)]</span>
-</span><span id="split_train_val_test-50"><a href="#split_train_val_test-50"><span class="linenos">50</span></a>    <span class="n">test_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)]</span>
+</span><span id="split_train_val_test-48"><a href="#split_train_val_test-48"><span class="linenos">48</span></a><span class="sd">    This function divides the DataFrame based on unique case identifiers (trace_id) into</span>
+</span><span id="split_train_val_test-49"><a href="#split_train_val_test-49"><span class="linenos">49</span></a><span class="sd">    specified proportions for training, validation, and testing. It supports shuffling</span>
+</span><span id="split_train_val_test-50"><a href="#split_train_val_test-50"><span class="linenos">50</span></a><span class="sd">    the cases before splitting to ensure random distribution.</span>
 </span><span id="split_train_val_test-51"><a href="#split_train_val_test-51"><span class="linenos">51</span></a>
-</span><span id="split_train_val_test-52"><a href="#split_train_val_test-52"><span class="linenos">52</span></a>    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span>
+</span><span id="split_train_val_test-52"><a href="#split_train_val_test-52"><span class="linenos">52</span></a><span class="sd">    Args:</span>
+</span><span id="split_train_val_test-53"><a href="#split_train_val_test-53"><span class="linenos">53</span></a><span class="sd">        log (pd.DataFrame): The input DataFrame containing the event log data.</span>
+</span><span id="split_train_val_test-54"><a href="#split_train_val_test-54"><span class="linenos">54</span></a><span class="sd">        train_perc (float): The proportion of the data to be used for the training set.</span>
+</span><span id="split_train_val_test-55"><a href="#split_train_val_test-55"><span class="linenos">55</span></a><span class="sd">        val_perc (float): The proportion of the data to be used for the validation set.</span>
+</span><span id="split_train_val_test-56"><a href="#split_train_val_test-56"><span class="linenos">56</span></a><span class="sd">        test_perc (float): The proportion of the data to be used for the test set. This parameter</span>
+</span><span id="split_train_val_test-57"><a href="#split_train_val_test-57"><span class="linenos">57</span></a><span class="sd">            is not directly used in splitting but can be useful for validation.</span>
+</span><span id="split_train_val_test-58"><a href="#split_train_val_test-58"><span class="linenos">58</span></a><span class="sd">        shuffle (bool): If True, the cases are shuffled before splitting. Defaults to False.</span>
+</span><span id="split_train_val_test-59"><a href="#split_train_val_test-59"><span class="linenos">59</span></a><span class="sd">        seed (int): The seed for the random number generator when shuffling. Defaults to 42.</span>
+</span><span id="split_train_val_test-60"><a href="#split_train_val_test-60"><span class="linenos">60</span></a>
+</span><span id="split_train_val_test-61"><a href="#split_train_val_test-61"><span class="linenos">61</span></a><span class="sd">    Returns:</span>
+</span><span id="split_train_val_test-62"><a href="#split_train_val_test-62"><span class="linenos">62</span></a><span class="sd">        tuple: A tuple containing three pd.DataFrame objects for the training, validation, and test sets respectively.</span>
+</span><span id="split_train_val_test-63"><a href="#split_train_val_test-63"><span class="linenos">63</span></a>
+</span><span id="split_train_val_test-64"><a href="#split_train_val_test-64"><span class="linenos">64</span></a><span class="sd">    Raises:</span>
+</span><span id="split_train_val_test-65"><a href="#split_train_val_test-65"><span class="linenos">65</span></a><span class="sd">        AssertionError: If the sum of the train, validation, and test percentage splits does not equal 1.</span>
+</span><span id="split_train_val_test-66"><a href="#split_train_val_test-66"><span class="linenos">66</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="split_train_val_test-67"><a href="#split_train_val_test-67"><span class="linenos">67</span></a>    <span class="k">assert</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">train_perc</span> <span class="o">+</span> <span class="n">val_perc</span> <span class="o">+</span> <span class="n">test_perc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">),</span> <span class="s2">&quot;The sum of train_perc, val_perc, and test_perc should be equal to 1&quot;</span>
+</span><span id="split_train_val_test-68"><a href="#split_train_val_test-68"><span class="linenos">68</span></a>
+</span><span id="split_train_val_test-69"><a href="#split_train_val_test-69"><span class="linenos">69</span></a>    <span class="n">cases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</span><span id="split_train_val_test-70"><a href="#split_train_val_test-70"><span class="linenos">70</span></a>
+</span><span id="split_train_val_test-71"><a href="#split_train_val_test-71"><span class="linenos">71</span></a>    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+</span><span id="split_train_val_test-72"><a href="#split_train_val_test-72"><span class="linenos">72</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="split_train_val_test-73"><a href="#split_train_val_test-73"><span class="linenos">73</span></a>        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+</span><span id="split_train_val_test-74"><a href="#split_train_val_test-74"><span class="linenos">74</span></a>
+</span><span id="split_train_val_test-75"><a href="#split_train_val_test-75"><span class="linenos">75</span></a>    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
+</span><span id="split_train_val_test-76"><a href="#split_train_val_test-76"><span class="linenos">76</span></a>    <span class="n">val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val_perc</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">))</span>
+</span><span id="split_train_val_test-77"><a href="#split_train_val_test-77"><span class="linenos">77</span></a>
+</span><span id="split_train_val_test-78"><a href="#split_train_val_test-78"><span class="linenos">78</span></a>    <span class="n">train_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[:</span><span class="n">train_size</span><span class="p">]</span>
+</span><span id="split_train_val_test-79"><a href="#split_train_val_test-79"><span class="linenos">79</span></a>    <span class="n">val_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">]</span>
+</span><span id="split_train_val_test-80"><a href="#split_train_val_test-80"><span class="linenos">80</span></a>    <span class="n">test_cases</span> <span class="o">=</span> <span class="n">cases</span><span class="p">[</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">:]</span>
+</span><span id="split_train_val_test-81"><a href="#split_train_val_test-81"><span class="linenos">81</span></a>
+</span><span id="split_train_val_test-82"><a href="#split_train_val_test-82"><span class="linenos">82</span></a>    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+</span><span id="split_train_val_test-83"><a href="#split_train_val_test-83"><span class="linenos">83</span></a>
+</span><span id="split_train_val_test-84"><a href="#split_train_val_test-84"><span class="linenos">84</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_cases</span><span class="p">)]</span>
+</span><span id="split_train_val_test-85"><a href="#split_train_val_test-85"><span class="linenos">85</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">val_cases</span><span class="p">)]</span>
+</span><span id="split_train_val_test-86"><a href="#split_train_val_test-86"><span class="linenos">86</span></a>    <span class="n">test_df</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;trace_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)]</span>
+</span><span id="split_train_val_test-87"><a href="#split_train_val_test-87"><span class="linenos">87</span></a>
+</span><span id="split_train_val_test-88"><a href="#split_train_val_test-88"><span class="linenos">88</span></a>    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">,</span> <span class="n">test_df</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Splits a DataFrame containing event log data into training, validation, and test sets.</p>
+
+<p>This function divides the DataFrame based on unique case identifiers (trace_id) into
+specified proportions for training, validation, and testing. It supports shuffling
+the cases before splitting to ensure random distribution.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>log (pd.DataFrame):</strong>  The input DataFrame containing the event log data.</li>
+<li><strong>train_perc (float):</strong>  The proportion of the data to be used for the training set.</li>
+<li><strong>val_perc (float):</strong>  The proportion of the data to be used for the validation set.</li>
+<li><strong>test_perc (float):</strong>  The proportion of the data to be used for the test set. This parameter
+is not directly used in splitting but can be useful for validation.</li>
+<li><strong>shuffle (bool):</strong>  If True, the cases are shuffled before splitting. Defaults to False.</li>
+<li><strong>seed (int):</strong>  The seed for the random number generator when shuffling. Defaults to 42.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>tuple: A tuple containing three pd.DataFrame objects for the training, validation, and test sets respectively.</p>
+</blockquote>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>AssertionError:</strong>  If the sum of the train, validation, and test percentage splits does not equal 1.</li>
+</ul>
+</div>
+
 
                 </section>
     </main>

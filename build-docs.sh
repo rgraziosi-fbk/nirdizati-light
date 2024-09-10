@@ -2,4 +2,4 @@
 
 pip install pdoc
 
-pdoc -o ./docs nirdizati_light
+pdoc -o ./docs --docformat google nirdizati_light

@@ -37,9 +37,6 @@
                                 <a class="variable" href="#ExplainerType.SHAP">SHAP</a>
                         </li>
                         <li>
-                                <a class="variable" href="#ExplainerType.ICE">ICE</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#ExplainerType.DICE">DICE</a>
                         </li>
                 </ul>
@@ -77,7 +74,7 @@
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="k">class</span> <span class="nc">ExplainerType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>    <span class="n">SHAP</span> <span class="o">=</span> <span class="s1">&#39;shap&#39;</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="n">ICE</span> <span class="o">=</span> <span class="s1">&#39;ice&#39;</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="c1"># ICE = &#39;ice&#39;</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="n">DICE</span> <span class="o">=</span> <span class="s1">&#39;dice&#39;</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
@@ -110,8 +107,8 @@
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">explainer</span> <span class="o">=</span> <span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;explanator&#39;</span><span class="p">]</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">if</span> <span class="n">explainer</span> <span class="ow">is</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">SHAP</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="n">shap_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span><span class="n">encoder</span><span class="p">,</span> <span class="n">test_df</span><span class="p">,</span> <span class="n">target_trace_id</span><span class="o">=</span><span class="n">target_trace_id</span><span class="p">)</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">elif</span> <span class="n">explainer</span> <span class="ow">is</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">ICE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="k">return</span> <span class="n">ice_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">target_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span><span class="n">explanation_target</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="c1"># elif explainer is ExplainerType.ICE.value:</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="c1">#     return ice_explain(CONF, predictive_model, encoder, target_df=test_df,explanation_target=column)</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="k">if</span> <span class="n">explainer</span> <span class="ow">is</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">DICE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="k">return</span> <span class="n">dice_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">query_instances</span><span class="o">=</span><span class="n">query_instances</span><span class="p">,</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>                            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="n">optimization</span><span class="p">,</span>
@@ -134,7 +131,7 @@
     <a class="headerlink" href="#ExplainerType"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="ExplainerType-8"><a href="#ExplainerType-8"><span class="linenos"> 8</span></a><span class="k">class</span> <span class="nc">ExplainerType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 </span><span id="ExplainerType-9"><a href="#ExplainerType-9"><span class="linenos"> 9</span></a>    <span class="n">SHAP</span> <span class="o">=</span> <span class="s1">&#39;shap&#39;</span>
-</span><span id="ExplainerType-10"><a href="#ExplainerType-10"><span class="linenos">10</span></a>    <span class="n">ICE</span> <span class="o">=</span> <span class="s1">&#39;ice&#39;</span>
+</span><span id="ExplainerType-10"><a href="#ExplainerType-10"><span class="linenos">10</span></a>    <span class="c1"># ICE = &#39;ice&#39;</span>
 </span><span id="ExplainerType-11"><a href="#ExplainerType-11"><span class="linenos">11</span></a>    <span class="n">DICE</span> <span class="o">=</span> <span class="s1">&#39;dice&#39;</span>
 </span></pre></div>
 
@@ -214,18 +211,6 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
-                            <div id="ExplainerType.ICE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">ICE</span>        =
-<span class="default_value">&lt;<a href="#ExplainerType.ICE">ExplainerType.ICE</a>: &#39;ice&#39;&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ExplainerType.ICE"></a>
-    
-    
-
-                            </div>
                             <div id="ExplainerType.DICE" class="classattr">
                                 <div class="attr variable">
             <span class="name">DICE</span>        =
@@ -289,8 +274,8 @@ attributes -- see the documentation for details.</p>
 </span><span id="explain-40"><a href="#explain-40"><span class="linenos">40</span></a>    <span class="n">explainer</span> <span class="o">=</span> <span class="n">CONF</span><span class="p">[</span><span class="s1">&#39;explanator&#39;</span><span class="p">]</span>
 </span><span id="explain-41"><a href="#explain-41"><span class="linenos">41</span></a>    <span class="k">if</span> <span class="n">explainer</span> <span class="ow">is</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">SHAP</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
 </span><span id="explain-42"><a href="#explain-42"><span class="linenos">42</span></a>        <span class="k">return</span> <span class="n">shap_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span><span class="n">encoder</span><span class="p">,</span> <span class="n">test_df</span><span class="p">,</span> <span class="n">target_trace_id</span><span class="o">=</span><span class="n">target_trace_id</span><span class="p">)</span>
-</span><span id="explain-43"><a href="#explain-43"><span class="linenos">43</span></a>    <span class="k">elif</span> <span class="n">explainer</span> <span class="ow">is</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">ICE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-</span><span id="explain-44"><a href="#explain-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="n">ice_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">target_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span><span class="n">explanation_target</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
+</span><span id="explain-43"><a href="#explain-43"><span class="linenos">43</span></a>    <span class="c1"># elif explainer is ExplainerType.ICE.value:</span>
+</span><span id="explain-44"><a href="#explain-44"><span class="linenos">44</span></a>    <span class="c1">#     return ice_explain(CONF, predictive_model, encoder, target_df=test_df,explanation_target=column)</span>
 </span><span id="explain-45"><a href="#explain-45"><span class="linenos">45</span></a>    <span class="k">if</span> <span class="n">explainer</span> <span class="ow">is</span> <span class="n">ExplainerType</span><span class="o">.</span><span class="n">DICE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
 </span><span id="explain-46"><a href="#explain-46"><span class="linenos">46</span></a>        <span class="k">return</span> <span class="n">dice_explain</span><span class="p">(</span><span class="n">CONF</span><span class="p">,</span> <span class="n">predictive_model</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">query_instances</span><span class="o">=</span><span class="n">query_instances</span><span class="p">,</span>
 </span><span id="explain-47"><a href="#explain-47"><span class="linenos">47</span></a>                            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="n">optimization</span><span class="p">,</span>
