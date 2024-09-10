@@ -155,7 +155,7 @@ def evaluate_classifiers(candidates,actual):
     return results
 
 
-def plot_model_comparison_classification(models_data: dict):
+def plot_model_comparison(models_data: dict):
     """
     Plots a comparison of different classification models based on their performance metrics.
 
@@ -193,7 +193,7 @@ def plot_model_comparison_classification(models_data: dict):
 
     # Add labels and title
     plt.title('Model Comparison')
-    plt.xlabel('Accuracy')
+    plt.xlabel('F1-Score')
     plt.ylabel('Precision')
 
     # Add color bar
