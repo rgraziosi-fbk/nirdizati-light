@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Optional, Union
-from predictive_model.predictive_model import PredictiveModel
+from nirdizati_light.predictive_model.predictive_model import PredictiveModel
 import hyperopt
 import numpy as np
 from hyperopt import Trials, hp, fmin
