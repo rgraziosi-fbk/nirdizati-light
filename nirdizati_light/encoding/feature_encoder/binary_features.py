@@ -30,20 +30,10 @@ def binary_features(log: EventLog, prefix_length, padding, prefix_length_strateg
     return DataFrame(columns=feature_list, data=encoded_data)
 
 
-def _data_complex(trace: Trace, prefix_length: int, additional_columns: dict) -> list:
-    """Creates list in form [1, value1, value2, 2, ...]
-
-    Appends values in additional_columns
-    """
-    data = [trace.attributes.get(att, 0) for att in additional_columns['trace_attributes']]
-    return data
-
-
 def _trace_to_row(trace: Trace, prefix_length: int, columns: list, padding: bool = True, labeling_type: str = None,additional_columns: list = None) -> list:
     """Row in data frame"""
     
     trace_row = [ trace.attributes['concept:name'] ]
-    trace_row += _data_complex(trace, prefix_length, additional_columns)
 
     if len(trace) <= prefix_length - 1 and not padding:
         pass
@@ -86,9 +76,9 @@ def _compute_columns(log: EventLog, prefix_length: int, padding: bool) -> list:
 
     """
     additional_columns = _compute_additional_columns(log)
-    columns = ['trace_id']
+    columns = []
     columns += additional_columns['trace_attributes']
-    ret_val = []
+    ret_val = ['trace_id']
     ret_val += sorted(list({
        event['concept:name']
        for trace in log
@@ -97,7 +87,7 @@ def _compute_columns(log: EventLog, prefix_length: int, padding: bool) -> list:
     ret_val += ['0'] if padding else []
     ret_val += ['label']
 
-    return ret_val,additional_columns
+    return ret_val,columns
 
 
 def _compute_additional_columns(log) -> dict:
