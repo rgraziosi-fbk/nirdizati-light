@@ -1,3 +1,4 @@
+import os
 import random
 import numpy as np
 import pandas as pd
@@ -7,10 +8,10 @@ from nirdizati_light.encoding.common import get_encoded_df, EncodingType
 from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
 from nirdizati_light.encoding.time_encoding import TimeEncodingType
 from nirdizati_light.labeling.common import LabelTypes
-from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods
+from nirdizati_light.predictive_model.common import ClassificationMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel
 from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers, plot_model_comparison_classification
+from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers,plot_model_comparison
 from nirdizati_light.explanation.common import ExplainerType, explain
 
 SEED = 1234
@@ -26,13 +27,13 @@ CONF = {
     # path to output folder
     'output': 'output_data',
 
-    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
-    'prefix_length': 15,
+    'prefix_length_strategy': PrefixLengthStrategy.PERCENTAGE.value,
+    'prefix_length': 0.2,
 
     # whether to use padding or not in encoding
     'padding': True,
     # which encoding to use
-    'feature_selection': EncodingType.SIMPLE_TRACE.value,
+    'feature_selection': EncodingType.BINARY.value,
     # which attribute encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,
     # which time encoding to use
@@ -46,14 +47,14 @@ CONF = {
     # list of predictive models and their respective hyperparameter optimization space
     # if it is None, then the default hyperopt space will be used; otherwise, the provided space will be used
     'predictive_models': [
-        ClassificationMethods.RANDOM_FOREST.value,
+        #ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
-        ClassificationMethods.LSTM.value,
-         ClassificationMethods.MLP.value,
+        #ClassificationMethods.LSTM.value,
+         #ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
-        ClassificationMethods.SVM.value,
-        # ClassificationMethods.XGBOOST.value,
+        #ClassificationMethods.SVM.value,
+         ClassificationMethods.XGBOOST.value,
     ],
     
     # which metric to optimize hyperparameters for
@@ -62,7 +63,7 @@ CONF = {
     'hyperparameter_optimisation_evaluations': 3,
 
     # explainability method to use
-    'explanator': ExplainerType.DICE.value,
+    'explanator': ExplainerType.SHAP.value,
     
     'target_event': None,
     'seed': SEED,
@@ -104,16 +105,14 @@ best_model.model = best_model_model
 best_model.config = best_model_config
 print(f'Best model is {best_model.model_type}')
 
-best_model_weights = best_model.save('./models', 'best_model')
-print(f'Best model weights saved at: {best_model_weights}')
 
 print('Evaluating best model...')
 predicted, scores = best_model.predict(test=True)
 actual = test_df['label']
 
 initial_result = evaluate_classifier(actual, predicted, scores)
-results = evaluate_classifiers(predictive_models, actual)
-plot_model_comparison_classification(results)
+results = evaluate_classifiers(predictive_models,actual)
+plot_model_comparison(results)
 print(f'Evaluation: {initial_result}')
 
 print('Computing explanation...')
@@ -121,7 +120,7 @@ test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] ==
 cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
 full_df = pd.concat([train_df, val_df, test_df])
 cf_dataset.loc[len(cf_dataset)] = 0
-
+'''
 cf_result = explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         query_instances=test_df_correct.iloc[:, 1:],
         method='genetic', optimization='baseline',
@@ -129,3 +128,8 @@ cf_result = explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
         model_path='./experiments/process_models/process_models',
         random_seed=CONF['seed'], adapted=True, filtering=False)
+'''
+exp = explain(CONF, best_model, encoder=encoder, test_df=test_df, target_trace_id=test_df_correct.iloc[0,0])
+
+import shap
+shap.plots.bar(exp[0])
