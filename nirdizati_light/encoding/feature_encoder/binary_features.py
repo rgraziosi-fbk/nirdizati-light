@@ -49,7 +49,7 @@ def _trace_to_row(trace: Trace, prefix_length: int, columns: list, padding: bool
         event['concept:name']
         for event in trace[:prefix_length]]
     occurences = dict.fromkeys(data, True)
-    cleaned_comumns = columns[1:-1]
+    cleaned_columns = columns[1:-1]
     trace_row += [occurences.get(col, False) for col in cleaned_columns]
     trace_row += [ add_label_column(trace, labeling_type, prefix_length) ]
     return trace_row
