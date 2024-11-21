@@ -1,0 +1,181 @@
+{
+    "ac_index": {
+        "A_ACCEPTED": 8,
+        "A_ACTIVATED": 20,
+        "A_APPROVED": 18,
+        "A_CANCELLED": 23,
+        "A_DECLINED": 6,
+        "A_FINALIZED": 9,
+        "A_PARTLYSUBMITTED": 2,
+        "A_PREACCEPTED": 4,
+        "A_REGISTERED": 19,
+        "A_SUBMITTED": 1,
+        "End": 24,
+        "O_ACCEPTED": 17,
+        "O_CANCELLED": 22,
+        "O_CREATED": 11,
+        "O_DECLINED": 21,
+        "O_SELECTED": 10,
+        "O_SENT": 12,
+        "O_SENT_BACK": 14,
+        "Start": 0,
+        "W_Assess_application": 15,
+        "W_Assess_fraud": 3,
+        "W_Call_after_offer": 13,
+        "W_Call_missing_information": 16,
+        "W_Complete_preaccepted_appl": 5,
+        "W_Fix_incomplete_submission": 7
+    },
+    "dense_act": "linear",
+    "generated_at": "11/05/2023 20:29:56",
+    "inter_mean_states": {
+        "tasks": {
+            "A_ACCEPTED": 0.03965069624734482,
+            "A_ACTIVATED": 0.03219258909605853,
+            "A_APPROVED": 0.03257021477460467,
+            "A_CANCELLED": 0.011470379985839036,
+            "A_DECLINED": 0.05145149870191173,
+            "A_FINALIZED": 0.0819919754543309,
+            "A_PARTLYSUBMITTED": 0.09077177248052867,
+            "A_PREACCEPTED": 0.07949020533396271,
+            "A_REGISTERED": 0.03139013452914798,
+            "A_SUBMITTED": 0.12612697663441114,
+            "End": 0.0,
+            "O_ACCEPTED": 0.030068444654236488,
+            "O_CANCELLED": 0.0015105027141845645,
+            "O_CREATED": 0.06311069152702384,
+            "O_DECLINED": 0.009346235544016993,
+            "O_SELECTED": 0.0564550389426481,
+            "O_SENT": 0.1315553457635119,
+            "O_SENT_BACK": 0.018078829360396505,
+            "Start": 0.0,
+            "W_Assess_application": 0.04800566438517819,
+            "W_Assess_fraud": 0.04446542364880812,
+            "W_Call_after_offer": 0.08624026433797498,
+            "W_Call_missing_information": 0.07679962237432146,
+            "W_Complete_preaccepted_appl": 0.18300684446542365,
+            "W_Fix_incomplete_submission": 0.018078829360396505
+        },
+        "wip": 53.660325702147745
+    },
+    "l_size": 100,
+    "log_size": 636,
+    "loss": 0.06319096591323614,
+    "lstm_act": "selu",
+    "n_size": 15,
+    "optim": "Nadam",
+    "roles": {
+        "Role 1": [
+            "E",
+            "D"
+        ],
+        "Role 2": [
+            "A"
+        ],
+        "Role 3": [
+            "C"
+        ]
+    },
+    "roles_table": [
+        {
+            "role": "Role 3",
+            "task": "O_CANCELLED"
+        },
+        {
+            "role": "Role 3",
+            "task": "O_DECLINED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_CANCELLED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_ACTIVATED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_APPROVED"
+        },
+        {
+            "role": "Role 3",
+            "task": "O_ACCEPTED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_REGISTERED"
+        },
+        {
+            "role": "Role 3",
+            "task": "O_SENT_BACK"
+        },
+        {
+            "role": "Role 2",
+            "task": "W_Fix_incomplete_submission"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_DECLINED"
+        },
+        {
+            "role": "Role 2",
+            "task": "W_Assess_application"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_FINALIZED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_ACCEPTED"
+        },
+        {
+            "role": "Role 2",
+            "task": "W_Assess_fraud"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_PREACCEPTED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_SUBMITTED"
+        },
+        {
+            "role": "Role 1",
+            "task": "A_PARTLYSUBMITTED"
+        },
+        {
+            "role": "Role 3",
+            "task": "O_CREATED"
+        },
+        {
+            "role": "Role 3",
+            "task": "O_SELECTED"
+        },
+        {
+            "role": "Role 3",
+            "task": "O_SENT"
+        },
+        {
+            "role": "Role 2",
+            "task": "W_Call_missing_information"
+        },
+        {
+            "role": "Role 2",
+            "task": "W_Call_after_offer"
+        },
+        {
+            "role": "Role 2",
+            "task": "W_Complete_preaccepted_appl"
+        }
+    ],
+    "usr_index": {
+        "A": 3,
+        "C": 4,
+        "D": 1,
+        "E": 2,
+        "End": 5,
+        "Start": 0
+    }
+}
