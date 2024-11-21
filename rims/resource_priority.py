@@ -15,7 +15,8 @@ class ResourcePriority(object):
         self.name = name
         self.capacity = capacity
         self.calendar = calendar
-        self.resource_simpy = simpy.PriorityResource(env, capacity=1)
+        #self.resource_simpy = simpy.PriorityResource(env, capacity=1)
+        self.resource_simpy = simpy.Resource(env, capacity=1)
         self.start = start
         self.queue = []
 

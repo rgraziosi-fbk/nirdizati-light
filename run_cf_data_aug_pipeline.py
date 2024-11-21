@@ -102,13 +102,13 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('prefix')
             cols.append('lifecycle:transition')
 
-        df_cf,x_eval = explain(CONF, best_model, encoder=encoder,
+        df_cf, x_eval = explain(CONF, best_model, encoder=encoder,
                         query_instances=train_df_correct,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
                         heuristic='heuristic_2', support=support,
                         timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
                         model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces,
-                        minority_class=minority_class,cfs_to_gen=10#how many cfs to generate at one time
+                        minority_class=minority_class,cfs_to_gen=1#how many cfs to generate at one time
                         )
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
@@ -121,7 +121,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         ### simulation part
         if CONF['simulation']:
             run_simulation(train_df, df_cf, dataset_name)
-            path_simulated_cfs = dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
+            path_simulated_cfs = 'datasets/' + dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
             for i in range(len(simulated_log)):
@@ -176,7 +176,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30, 35, 40, 45 ,50 ]
         elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 35, 40]
-        elif 'Production' in dataset_name:
+        elif 'Productions' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'bpic2012_2' in dataset_name:
             #prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
@@ -184,11 +184,13 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         elif 'BPI_Challenge_2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
         elif 'PurchasingExample' in dataset_name:
-            prefix_lengths = [1,2,3,4,5,6,7,8,9]
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10]
+        elif 'Productions' in dataset_name:
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
         elif 'SynLoan' in dataset_name:
-            prefix_lengths = [1, 2, 3, 4]
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
         elif 'ConsultaDataMining201618' in dataset_name:
-            prefix_lengths = [5]
+            prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif "cvs_pharmacy" in dataset_name:
             prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -265,7 +267,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
                 results_df = results_df._append(pd.Series(data_row, index=columns), ignore_index = True)
 
             # Define the file path
-            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_no_waiting_time_sim' + '.csv'
+            #file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_no_waiting_time_sim' + '.csv'
+            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '.csv'
 
             # Write the DataFrame to a CSV file in append mode
             results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -284,15 +287,17 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        #'SynLoan': [5],
-        'ConsultaDataMining201618': [5]
+        #'SynLoan': [20],
+        #'ConsultaDataMining201618': [9]
+        #'Productions': [20]
+        'PurchasingExample': [10]
         #"cvs_pharmacy": [8]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.3]:
+            for augmentation_factor in [0.05, 0.1, 0.15]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'ConsultaDataMining201618_label.xes'),
+                    'data': os.path.join('datasets/' + dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,

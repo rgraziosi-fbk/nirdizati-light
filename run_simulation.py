@@ -169,7 +169,7 @@ def read_contrafactual(contrafactual, attrib_event, attrib_trace):
 
 def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key):
     simulation_process = SimulationProcess(env=env, params=params)
-    path_result = os.getcwd() + '/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
+    path_result = os.getcwd() + '/datasets/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
     f = open(path_result, 'w')
     writer = csv.writer(f)
     writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] +
@@ -189,7 +189,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
 
 
 def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
-    path_model = os.getcwd() + '/' + NAME_EXPERIMENT + '/' + NAME_EXPERIMENT
+    path_model = os.getcwd() + '/datasets/' + NAME_EXPERIMENT + '/' + NAME_EXPERIMENT
     if exists(path_model + '_diapr_meta.json'):
         FEATURE_ROLE = 'all_role'
     elif exists(path_model + '_dispr_meta.json'):

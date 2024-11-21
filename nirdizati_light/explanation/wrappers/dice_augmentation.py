@@ -141,6 +141,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         x_eval['heuristic'] = heuristic
         x_eval['optimization']  = optimization
 
+        result_dataframe = None #### add this line
         if cf_list.size > 4:
             if method == 'random':
                 cf_list = cf_list[:, :-1]
@@ -185,12 +186,15 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                 df_cf = df_cf.replace('\[', '',regex=True)
                 df_cf = df_cf.replace(']', '', regex=True)
             df_cf = df_cf.drop(columns=['prefix'])
+
+        result_dataframe = pd.DataFrame(data=x_eval_list)
+        result_dataframe = result_dataframe[columns]
        # df_cf['desired_cfs'] = desired_cfs_all
        # if case_ids:
        #     df_cf['case_id'] = case_ids[i]
        # else:
             #df_cf['Case ID'] = x.iloc[0] * len(cf_list_all)
-    return df_cf,result_dataframe
+    return df_cf, result_dataframe
 
 def dice_model(predictive_model):
     if predictive_model.model_type is ClassificationMethods.RANDOM_FOREST.value:

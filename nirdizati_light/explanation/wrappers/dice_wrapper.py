@@ -5,7 +5,7 @@ import dice_ml
 import numpy as np
 import pandas as pd
 import pm4py
-from scipy.spatial.distance import _validate_vector
+#from scipy.spatial.distance import _validate_vector
 from scipy.spatial.distance import cdist, pdist
 from scipy.stats import median_abs_deviation
 from pm4py import convert_to_event_log

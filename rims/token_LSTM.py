@@ -195,7 +195,8 @@ class Token(object):
                 else:
                     attrib.append(event[-3][a])  # event attributes
             time_previous_event = self.start_time + timedelta(seconds=env.now)
-            request_resource = resource.request_CF() if self.contrafactual else resource.request_original()
+            #request_resource = resource.request_CF() if self.contrafactual else resource.request_original()
+            request_resource = resource.request()
             yield request_resource
             #### start:timestamp
             buffer.append(str(self.start_time + timedelta(seconds=env.now))[:19])
