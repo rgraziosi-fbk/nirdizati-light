@@ -7,7 +7,7 @@ from pm4py.objects.log.obj import EventLog
 
 from nirdizati_light.encoding.constants import PrefixLengthStrategy, TaskGenerationType
 from nirdizati_light.encoding.data_encoder import Encoder
-from nirdizati_light.encoding.feature_encoder.complex_features import complex_features
+from nirdizati_light.encoding.feature_encoder.complex_features import complex_features, decode_complex_features
 from nirdizati_light.encoding.feature_encoder.frequency_features import frequency_features
 from nirdizati_light.encoding.feature_encoder.loreley_complex_features import loreley_complex_features
 from nirdizati_light.encoding.feature_encoder.loreley_features import loreley_features
@@ -40,14 +40,19 @@ class EncodingTypeAttribute(Enum):
     ONEHOT = 'onehot'
 
 ENCODE_LOG = {
-    EncodingType.SIMPLE.value : simple_features,
-    EncodingType.FREQUENCY.value : frequency_features,
-    EncodingType.COMPLEX.value : complex_features,
+    EncodingType.SIMPLE.value: simple_features,
+    EncodingType.FREQUENCY.value: frequency_features,
+    EncodingType.COMPLEX.value: complex_features,
     EncodingType.LORELEY.value: loreley_features,
     EncodingType.LORELEY_COMPLEX.value: loreley_complex_features,
     EncodingType.SIMPLE_TRACE.value: simple_trace_features,
     EncodingType.BINARY.value: binary_features,
 
+}
+
+
+DECODE_LOG = {
+    EncodingType.COMPLEX.value: decode_complex_features,
 }
 
 def get_encoded_df(
@@ -118,3 +123,22 @@ def get_encoded_df(
     encoder.encode(df=df)
 
     return encoder, df
+
+def decode_df(df: DataFrame, encoder: Encoder, log: EventLog, feature_encoding_type: EncodingType = EncodingType.COMPLEX.value,) -> EventLog:
+    """
+    Decode a DataFrame into a event log using specified encoder.
+
+    The method returns an EventLog.
+
+    Args:
+        df (DataFrame): The encoded DataFrame to decode.
+        encoder (Encoder): The encoder to be used.
+
+    Returns:
+        The decoded EventLog
+    """
+
+    # logger.debug(f'???')
+    encoder.decode(df=df)
+    new_log = DECODE_LOG[feature_encoding_type](log, df, truncate=False)
+    return new_log

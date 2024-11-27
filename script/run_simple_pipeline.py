@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import pandas as pd
+import os
 
 from nirdizati_light.log.common import get_log, split_train_val_test
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
@@ -20,7 +21,7 @@ np.random.seed(SEED)
 
 CONF = {
     # path to log
-    'data': 'BPIC11_f1.csv',
+    'data': os.path.join('input_data', 'data_augmentation_smotenc', 'xes', 'SynLoan_full.xes'),
     # train-validation-test set split percentages
     'train_val_test_split': [0.7, 0.1, 0.2],
 
@@ -28,16 +29,16 @@ CONF = {
     'output': 'output_data',
 
     'prefix_length_strategy': PrefixLengthStrategy.PERCENTAGE.value,
-    'prefix_length': 0.2,
+    'prefix_length': 1,
 
     # whether to use padding or not in encoding
     'padding': True,
     # which encoding to use
-    'feature_selection': EncodingType.BINARY.value,
+    'feature_selection': EncodingType.COMPLEX.value,
     # which attribute encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,
     # which time encoding to use
-    'time_encoding': TimeEncodingType.DATE_AND_DURATION.value,
+    'time_encoding': TimeEncodingType.NONE.value,
 
     # the label to be predicted (e.g. outcome, next activity)
     'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,
@@ -47,14 +48,14 @@ CONF = {
     # list of predictive models and their respective hyperparameter optimization space
     # if it is None, then the default hyperopt space will be used; otherwise, the provided space will be used
     'predictive_models': [
-        #ClassificationMethods.RANDOM_FOREST.value,
+        ClassificationMethods.RANDOM_FOREST.value,
         #ClassificationMethods.KNN.value,
         #ClassificationMethods.LSTM.value,
          #ClassificationMethods.MLP.value,
         # ClassificationMethods.PERCEPTRON.value,
         # ClassificationMethods.SGDCLASSIFIER.value,
         #ClassificationMethods.SVM.value,
-         ClassificationMethods.XGBOOST.value,
+         # ClassificationMethods.XGBOOST.value,
     ],
     
     # which metric to optimize hyperparameters for
