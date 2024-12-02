@@ -35,7 +35,6 @@ To install nirdizati-light, follow these steps:
 
 ## Examples
 
-An example log can be found at [this link](
 ### Simple pipeline
 
 The [run_simple_pipeline.py](https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_simple_pipeline.py) script defines a list of models to train and evaluate. Hyperparameter optimization is performed using default hyperopt spaces. It is the easiest example to get started with nirdizati-light.
