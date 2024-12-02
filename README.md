@@ -20,13 +20,22 @@ Documentation for nirdizati-light can be found at [this link](https://rgraziosi-
 
 A Colab notebook with an example pipeline can be found at [this link](https://colab.research.google.com/drive/1_4b7PaNcp9YGhIVxa-TPIqI4qn6-AAAT?usp=sharing).
 
+An example of an event log that can be used can be found at [this link](https://drive.google.com/file/d/1qcx8F7nFo20kENuvBKWfQLidgi54adlv/view?usp=drive_link)
 ## Installation
+A virtual environment manager (e.g., virtualenv, conda, condaforge) is recommended to install nirdizati-light within its own environemnt.
+For more information see [anaconda](https://www.anaconda.com/download/).
 
-1. Clone the nirdizati-light repository
-2. In your project, run `pip install -e <path-to-nirdizati-light-folder>`
+To install nirdizati-light, follow these steps:
+1. Install Anaconda or environment manager of your choice.
+2. Initialize using `conda init`
+3. Clone the nirdizati-light repository
+4. Create a virtual environment and activate it using `conda create -n <env-name> python=3.9` and `conda activate <env-name>`
+5. In your project, run `pip install -e <path-to-nirdizati-light-folder>`.
+6. Make sure Jupyter Notebook is installed using `pip install notebook`.
 
 ## Examples
 
+An example log can be found at [this link](
 ### Simple pipeline
 
 The [run_simple_pipeline.py](https://github.com/rgraziosi-fbk/nirdizati-light/blob/main/run_simple_pipeline.py) script defines a list of models to train and evaluate. Hyperparameter optimization is performed using default hyperopt spaces. It is the easiest example to get started with nirdizati-light.
