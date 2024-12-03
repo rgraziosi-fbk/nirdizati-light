@@ -33,6 +33,8 @@ To install nirdizati-light, follow these steps:
 5. In your project, run `pip install -e <path-to-nirdizati-light-folder>`.
 6. Make sure Jupyter Notebook is installed using `pip install notebook`.
 
+
+# FOR THE TUTORIAL: IF UNABLE TO INSTALL NIRDIZATI-LIGHT, PLEASE USE THE FOLLOWING GOOGLE COLAB NOTEBOOK:[link](https://colab.research.google.com/drive/1wEEXl6sWMuYdRwOK7npHEtfqf6Qas1rF?usp=sharing)
 ## Examples
 
 ### Simple pipeline
