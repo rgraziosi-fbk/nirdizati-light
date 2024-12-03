@@ -12,7 +12,7 @@ from nirdizati_light.labeling.common import LabelTypes
 from nirdizati_light.predictive_model.common import ClassificationMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel
 from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
-from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers, plot_model_comparison_classification
+from nirdizati_light.evaluation.common import evaluate_classifier,evaluate_classifiers, plot_model_comparison
 from nirdizati_light.explanation.common import ExplainerType, explain
 
 SEED = 1234
