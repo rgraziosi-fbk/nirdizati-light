@@ -22,6 +22,7 @@ def shap_explain(CONF, predictive_model, encoder,full_test_df, target_trace_id=N
         #shap.plots.waterfall(exp, show=False)
     else:
         exp = explainer(drop_columns(full_test_df))
+        full_test_df_shap = full_test_df.copy()
         encoder.decode(full_test_df_shap)
         if prefix_columns:
             full_test_df_shap[prefix_columns] = full_test_df_shap[prefix_columns].astype('category')
