@@ -13,12 +13,12 @@ def shap_explain(CONF, predictive_model, encoder,full_test_df, target_trace_id=N
         prefix_columns = [col for col in full_test_df.columns if 'prefix' in col]
     if target_trace_id is not None:
         full_test_df[full_test_df['trace_id'] == target_trace_id]
-        full_test_df_shap = full_test_df.copy()
-        exp = explainer(drop_columns(full_test_df))
-        encoder.decode(full_test_df_shap)
+        full_test_df_shap_single = full_test_df.copy()
+        exp = explainer(drop_columns(full_test_df_shap_single))
+        encoder.decode(full_test_df_shap_single)
         if prefix_columns:
-            full_test_df_shap[prefix_columns] = full_test_df_shap[prefix_columns].astype('category')
-        exp.data = drop_columns(full_test_df_shap)
+            full_test_df_shap_single[prefix_columns] = full_test_df_shap_single[prefix_columns].astype('category')
+        exp.data = drop_columns(full_test_df_shap_single)
         #shap.plots.waterfall(exp, show=False)
     else:
         exp = explainer(drop_columns(full_test_df))
