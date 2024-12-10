@@ -819,7 +819,7 @@ def perform_model_analysis(model_path, dataset, CONF, encoder, full_df, support,
     return conformant_traces,number_of_constraints, conformant_traces_ratio
 
 
-columns = ['dataset','heuristic', 'model', 'method', 'optimization','prefix_length','idx', 'desired_nr_of_cfs','generated_cfs', 'time_train','time_test',
+columns = ['dataset','heuristic', 'model', 'method', 'optimization','prefix_length', 'desired_nr_of_cfs','generated_cfs', 'time_train','time_test',
            'runtime','distance_l2', 'distance_mad', 'distance_j', 'distance_h','distance_l1j', 'distance_l2j', 'distance_mh',
            'distance_l2_min', 'distance_mad_min', 'distance_j_min', 'distance_h_min','distance_l1j_min', 'distance_l2j_min',
            'distance_mh_min', 'distance_l2_max', 'distance_mad_max', 'distance_j_max', 'distance_h_max',
