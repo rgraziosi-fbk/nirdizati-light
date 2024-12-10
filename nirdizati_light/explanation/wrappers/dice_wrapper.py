@@ -23,7 +23,7 @@ single_prefix = ['loreley','loreley_complex']
 
 
 def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
-                 timestamp_col_name,model_path,random_seed=None,adapted=None,filtering=None
+                 timestamp_col_name,model_path, target_trace_id,random_seed=None,adapted=None,filtering=None
                  ):
     features_names = df.columns.values[:-1]
     feature_selection = CONF['feature_selection']
@@ -44,7 +44,7 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
     else:
         ratio_cont = len(continuous_features)/len(categorical_features)
     time_start = datetime.now()
-    query_instances_for_cf = query_instances.iloc[:2,:-1]
+    query_instances_for_cf = query_instances.iloc[:,1:-1]
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method)
@@ -90,129 +90,126 @@ def dice_explain(CONF, predictive_model, encoder, df, query_instances, method, o
         path_results = '../experiments/cf_results_supp_%s/%s_%s/' % (support,method,'baseline_new')
         path_cf = '../experiments/cf_results_supp_%s/%s_%s/' % (support,method,'baseline_new')
 
-    for test_id,i in enumerate(index_test_instances):
-        print(datetime.now(), dataset, black_box, test_id, len(index_test_instances),
-              '%.2f' % (test_id+1 / len(index_test_instances)))
-        cf_list_all = list()
-        x_eval_list = list()
-        desired_cfs_all = list()
-        x = query_instances_for_cf.iloc[[i]]
-        
-        for k in [5]:
-            time_start_i = datetime.now()
-            if method == 'genetic_conformance':
-                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                           verbose=False,
-                                                                           posthoc_sparsity_algorithm='linear',
-                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                           model_path=model_path,random_seed=random_seed,adapted=adapted)
+    print(datetime.now(), dataset, black_box, len(index_test_instances))
+    cf_list_all = list()
+    x_eval_list = list()
+    desired_cfs_all = list()
+    x = query_instances[query_instances['trace_id'] == target_trace_id][cols]
+    for k in [5]:
+        time_start_i = datetime.now()
+        if method == 'genetic_conformance':
+            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                       verbose=False,
+                                                                       posthoc_sparsity_algorithm='linear',
+                                                                       total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                       model_path=model_path,random_seed=random_seed,adapted=adapted)
+        elif method == 'multi_objective_genetic':
+            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                       verbose=False,
+                                                                       posthoc_sparsity_algorithm='linear',
+                                                                       total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                       model_path=model_path,random_seed=random_seed,adapted=adapted)
+        else:
+            dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
+                                                                       verbose=False,
+                                                                       posthoc_sparsity_algorithm='linear',
+                                                                       total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                       )
+        # function to decode cf from train_df and show it decoded before adding to list
+        generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
+        cf_list = np.array(generated_cfs).astype('float64')
+        y_pred = predictive_model.model.predict(x.values.reshape(1, -1))[0]
+        time_test = (datetime.now() - time_start_i).total_seconds()
+        x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
+                              nr_of_cfs=k,y_pred=y_pred,predictive_model=predictive_model,
+                              query_instances=query_instances,continuous_features=continuous_features,
+                              categorical_features=categorical_features,ratio_cont=ratio_cont
+                              )
+
+        x_eval['dataset'] = dataset
+        #x_eval['idx'] = test_id+1
+        x_eval['model'] = predictive_model.model_type
+        x_eval['desired_nr_of_cfs'] = k
+        x_eval['time_train'] = time_train
+        x_eval['time_test'] = time_test
+        x_eval['runtime'] = time_train + time_test
+      #  x_eval['generated_cfs'] = x_eval['nbr_cf']
+        x_eval['method'] = method
+        x_eval['explainer'] = CONF['explanator']
+        x_eval['prefix_length'] = CONF['prefix_length']
+        x_eval['heuristic'] = heuristic
+        x_eval['optimization']  = optimization
+        x_eval_list.append(x_eval)
+        if cf_list.size > 4:
+            if method == 'random':
+                cf_list = cf_list[:, :-1]
+            elif method == 'genetic':
+                cf_list = cf_list[:, :-1]
+            elif method == 'genetic_conformance':
+                cf_list = cf_list[:, :-1]
             elif method == 'multi_objective_genetic':
-                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                           verbose=False,
-                                                                           posthoc_sparsity_algorithm='linear',
-                                                                           total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                           model_path=model_path,random_seed=random_seed,adapted=adapted)
+                cf_list = cf_list[:, :-1]
+            df_conf = pd.DataFrame(data=cf_list, columns=features_names)
+
+            sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
+                                      d4py=d4py, query_instance=x, model_path=model_path,
+                                      timestamp_col_name=timestamp_col_name)
+            x_eval['sat_score'] = sat_score
+            cf_list_all.extend(cf_list[:5])
+            desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
+
+            desired_cfs_all.extend(*desired_cfs)
+    try:
+        if not os.path.exists(path_results+'_'+str(support)+'/'):
+            os.makedirs(path_results+'_'+str(support)+'/')
+            print("Directory '%s' created successfully" % path_results+'_'+str(support)+'/')
+    except OSError as error:
+        print("Directory '%s' can not be created" % path_results)
+    filename_results = path_results + 'cfeval_%s_%s_dice_%s.csv' % (dataset, black_box,feature_selection)
+    if len(cf_list_all) > 0:
+        df_cf = pd.DataFrame(data=cf_list_all, columns=features_names)
+        encoder.decode(df_cf)
+        if CONF['feature_selection'] in single_prefix:
+            if all(df_cf['prefix'] == '0'):
+                cols = ['prefix_' + str(i+1) for i in range(CONF['prefix_length'])]
+                df_cf[cols] = 0
             else:
-                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                           verbose=False,
-                                                                           posthoc_sparsity_algorithm='linear',
-                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                           )
-            # function to decode cf from train_df and show it decoded before adding to list
-            generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
-            cf_list = np.array(generated_cfs).astype('float64')
-            y_pred = predictive_model.model.predict(x.values.reshape(1, -1))[0]
-            time_test = (datetime.now() - time_start_i).total_seconds()
-            x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
-                                  nr_of_cfs=k,y_pred=y_pred,predictive_model=predictive_model,
-                                  query_instances=query_instances,continuous_features=continuous_features,
-                                  categorical_features=categorical_features,ratio_cont=ratio_cont
-                                  )
-
-            x_eval['dataset'] = dataset
-            x_eval['idx'] = test_id+1
-            x_eval['model'] = predictive_model.model_type
-            x_eval['desired_nr_of_cfs'] = k
-            x_eval['time_train'] = time_train
-            x_eval['time_test'] = time_test
-            x_eval['runtime'] = time_train + time_test
-          #  x_eval['generated_cfs'] = x_eval['nbr_cf']
-            x_eval['method'] = method
-            x_eval['explainer'] = CONF['explanator']
-            x_eval['prefix_length'] = CONF['prefix_length']
-            x_eval['heuristic'] = heuristic
-            x_eval['optimization']  = optimization
-            x_eval_list.append(x_eval)
-            if cf_list.size > 4:
-                if method == 'random':
-                    cf_list = cf_list[:, :-1]
-                elif method == 'genetic':
-                    cf_list = cf_list[:, :-1]
-                elif method == 'genetic_conformance':
-                    cf_list = cf_list[:, :-1]
-                elif method == 'multi_objective_genetic':
-                    cf_list = cf_list[:, :-1]
-                df_conf = pd.DataFrame(data=cf_list, columns=features_names)
-
-                sat_score = conformance_score(CONF, encoder, df=df_conf, dataset=dataset, features_names=features_names,
-                                          d4py=d4py, query_instance=x, model_path=model_path,
-                                          timestamp_col_name=timestamp_col_name)
-                x_eval['sat_score'] = sat_score
-                cf_list_all.extend(cf_list[:5])
-                desired_cfs = [float(k) * np.ones_like(cf_list[:5, 0])]
-
-                desired_cfs_all.extend(*desired_cfs)
+                df_cf = pd.concat([df_cf, pd.DataFrame(
+                    df_cf['prefix'].str.split(",", expand=True).fillna(value='0')).rename(
+                    columns=lambda x: f"prefix_{int(x) + 1}")], axis=1)
+                df_cf = df_cf.replace('\[', '',regex=True)
+                df_cf = df_cf.replace(']', '', regex=True)
+            df_cf = df_cf.drop(columns=['prefix'])
+        df_cf['desired_cfs'] = desired_cfs_all
+#        df_cf['idx'] = test_id+1 * len(cf_list_all)
+        df_cf['method']= method
+        df_cf['test_id'] = np.arange(0, len(cf_list_all))
+        df_cf['dataset'] = [dataset] * len(cf_list_all)
+        df_cf['black_box'] = [black_box] * len(cf_list_all)
         try:
-            if not os.path.exists(path_results+'_'+str(support)+'/'):
-                os.makedirs(path_results+'_'+str(support)+'/')
-                print("Directory '%s' created successfully" % path_results+'_'+str(support)+'/')
+            if not os.path.exists(path_cf):
+                os.makedirs(path_cf)
+                print("Directory '%s' created successfully" % path_cf)
         except OSError as error:
-            print("Directory '%s' can not be created" % path_results)
-        filename_results = path_results + 'cfeval_%s_%s_dice_%s.csv' % (dataset, black_box,feature_selection)
-        if len(cf_list_all) > 0:
-            df_cf = pd.DataFrame(data=cf_list_all, columns=features_names)
-            encoder.decode(df_cf)
-            if CONF['feature_selection'] in single_prefix:
-                if all(df_cf['prefix'] == '0'):
-                    cols = ['prefix_' + str(i+1) for i in range(CONF['prefix_length'])]
-                    df_cf[cols] = 0
-                else:
-                    df_cf = pd.concat([df_cf, pd.DataFrame(
-                        df_cf['prefix'].str.split(",", expand=True).fillna(value='0')).rename(
-                        columns=lambda x: f"prefix_{int(x) + 1}")], axis=1)
-                    df_cf = df_cf.replace('\[', '',regex=True)
-                    df_cf = df_cf.replace(']', '', regex=True)
-                df_cf = df_cf.drop(columns=['prefix'])
-            df_cf['desired_cfs'] = desired_cfs_all
-            df_cf['idx'] = test_id+1 * len(cf_list_all)
-            df_cf['method']= method
-            df_cf['test_id'] = np.arange(0, len(cf_list_all))
-            df_cf['dataset'] = [dataset] * len(cf_list_all)
-            df_cf['black_box'] = [black_box] * len(cf_list_all)
-            try:
-                if not os.path.exists(path_cf):
-                    os.makedirs(path_cf)
-                    print("Directory '%s' created successfully" % path_cf)
-            except OSError as error:
-                print("Directory '%s' can not be created" % path_cf)
-            if optimization != 'baseline':
-                filename_cf = path_cf + 'cf_%s_%s_dice_%s_%s_%s_%s.csv' % (dataset, black_box, feature_selection, method, optimization,
-                                                                        CONF['prefix_length'])
-            else:
-                filename_cf = path_cf + 'cf_%s_%s_dice_%s_%s_%s.csv' % (dataset, black_box,feature_selection,method,
-                                                                   CONF['prefix_length'])
-            if not os.path.isfile(filename_cf):
-                df_cf.to_csv(filename_cf, index=False)
-            else:
-                df_cf.to_csv(filename_cf, mode='a', index=False, header=False)
+            print("Directory '%s' can not be created" % path_cf)
+        if optimization != 'baseline':
+            filename_cf = path_cf + 'cf_%s_%s_dice_%s_%s_%s_%s.csv' % (dataset, black_box, feature_selection, method, optimization,
+                                                                    CONF['prefix_length'])
         else:
-            x_eval['sat_score'] = 0
-        result_dataframe = pd.DataFrame(data=x_eval_list)
-        result_dataframe = result_dataframe[columns]
-        if not os.path.isfile(filename_results):
-            result_dataframe.to_csv(filename_results, index=False)
+            filename_cf = path_cf + 'cf_%s_%s_dice_%s_%s_%s.csv' % (dataset, black_box,feature_selection,method,
+                                                               CONF['prefix_length'])
+        if not os.path.isfile(filename_cf):
+            df_cf.to_csv(filename_cf, index=False)
         else:
-            result_dataframe.to_csv(filename_results, mode='a', index=False, header=False)
+            df_cf.to_csv(filename_cf, mode='a', index=False, header=False)
+    else:
+        x_eval['sat_score'] = 0
+    result_dataframe = pd.DataFrame(data=x_eval_list)
+    result_dataframe = result_dataframe[columns]
+    if not os.path.isfile(filename_results):
+        result_dataframe.to_csv(filename_results, index=False)
+    else:
+        result_dataframe.to_csv(filename_results, mode='a', index=False, header=False)
     return dice_result
 def dice_model(predictive_model):
     if predictive_model.model_type is ClassificationMethods.RANDOM_FOREST.value:
@@ -527,7 +524,7 @@ def mad_cityblock(u, v, mad):
 
 def categorical_distance(query_instance, cf_list, cat_feature_index, metric='jaccard', agg=None):
     try:
-        dist = cdist(query_instance.reshape(1, -1)[:, cat_feature_index], cf_list[:, cat_feature_index], metric=metric)
+        dist = cdist(query_instance.reshape(1, -1)[:, cat_feature_index].astype('float64'), cf_list[:, cat_feature_index].astype('float64'), metric=metric)
     except:
         print('Problem with categorical distance')
     if agg is None or agg == 'mean':
@@ -747,7 +744,7 @@ def conformance_score(CONF, encoder, df, dataset, features_names, d4py, query_in
         for k, v in model_check_res.items()
     }
 
-    conformance_score = [len(v) / len(query_patterns) for v in model_check_res.values() ]
+    conformance_score = [len(v) / len(query_patterns) if len(query_patterns) > 0 else 0.0 for v in model_check_res.values() ]
     avg_conformance = np.mean(conformance_score)
     print('Average conformance score', np.mean(conformance_score))
     return avg_conformance

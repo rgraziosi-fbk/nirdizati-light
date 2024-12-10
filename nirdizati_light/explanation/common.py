@@ -3,7 +3,6 @@ from enum import Enum
 from nirdizati_light.explanation.wrappers.dice_wrapper import dice_explain
 from nirdizati_light.explanation.wrappers.ice_wrapper import ice_explain
 from nirdizati_light.explanation.wrappers.shap_wrapper import shap_explain
-
 class ExplainerType(Enum):
     SHAP = 'shap'
     # ICE = 'ice'
@@ -18,7 +17,7 @@ def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instan
         :param dict CONF: dictionary for configuring the encoding
         :param nirdizati_light.predictive_model.PredictiveModel predictive_model: predictive model to explain
         :param nirdizati_light.encoding.data_encoder.Encoder encoder: encoder to use for encoding the log
-        :param pandas.DataFrame test_df: test data couto evaluate model
+        :param pandas.DataFrame test_df: test data to evaluate model
         :param pandas.DataFrame df: full dataset
         :param pandas.DataFrame query_instances: instances to explain
         :param str target_trace_id: trace id to explain
@@ -41,8 +40,10 @@ def explain(CONF, predictive_model, encoder, test_df=None, df=None, query_instan
         return shap_explain(CONF, predictive_model,encoder, test_df, target_trace_id=target_trace_id)
     # elif explainer is ExplainerType.ICE.value:
     #     return ice_explain(CONF, predictive_model, encoder, target_df=test_df,explanation_target=column)
-    if explainer is ExplainerType.DICE.value:
+    elif explainer is ExplainerType.DICE.value:
         return dice_explain(CONF, predictive_model, encoder=encoder, df=df, query_instances=query_instances,
                             method=method, optimization=optimization,
                             heuristic=heuristic, support=support, timestamp_col_name=timestamp_col_name,model_path=model_path,
-                            random_seed=random_seed,adapted=adapted,filtering=filtering)
+                            random_seed=random_seed,adapted=adapted,filtering=filtering,target_trace_id=target_trace_id)
+    #elif explainer is ExplainerType.LIME.value:
+    #    return lime_explain(CONF, predictive_model, encoder, train_df=df, test_df=test_df, target_trace_id=target_trace_id,seed=random_seed)

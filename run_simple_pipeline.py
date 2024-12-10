@@ -27,13 +27,13 @@ CONF = {
     # path to output folder
     'output': 'output_data',
 
-    'prefix_length_strategy': PrefixLengthStrategy.PERCENTAGE.value,
-    'prefix_length': 0.2,
+    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
+    'prefix_length': 30,
 
     # whether to use padding or not in encoding
     'padding': True,
     # which encoding to use
-    'feature_selection': EncodingType.BINARY.value,
+    'feature_selection': EncodingType.SIMPLE.value,
     # which attribute encoding to use
     'attribute_encoding': EncodingTypeAttribute.LABEL.value,
     # which time encoding to use
@@ -63,7 +63,7 @@ CONF = {
     'hyperparameter_optimisation_evaluations': 3,
 
     # explainability method to use
-    'explanator': ExplainerType.SHAP.value,
+    'explanator': ExplainerType.DICE.value,
     
     'target_event': None,
     'seed': SEED,
@@ -114,22 +114,50 @@ initial_result = evaluate_classifier(actual, predicted, scores)
 results = evaluate_classifiers(predictive_models,actual)
 plot_model_comparison(results)
 print(f'Evaluation: {initial_result}')
-
+'''
 print('Computing explanation...')
 test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] == 0)]
 cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
 full_df = pd.concat([train_df, val_df, test_df])
 cf_dataset.loc[len(cf_dataset)] = 0
-'''
+
+
 cf_result = explain(CONF, best_model, encoder=encoder, df=full_df.iloc[:, 1:],
         query_instances=test_df_correct.iloc[:, 1:],
-        method='genetic', optimization='baseline',
+        method='genetic_conformance', optimization='baseline',
         heuristic='heuristic_2', support=0.95,
         timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
         model_path='./experiments/process_models/process_models',
-        random_seed=CONF['seed'], adapted=True, filtering=False)
+        random_seed=CONF['seed'], adapted=False, filtering=False)
 '''
-exp = explain(CONF, best_model, encoder=encoder, test_df=test_df, target_trace_id=test_df_correct.iloc[0,0])
+test_df_correct = test_df[(test_df['label'] == predicted) & (test_df['label'] == 0)]
+cf_dataset = pd.concat([train_df, val_df], ignore_index=True)
+full_df = pd.concat([train_df, val_df, test_df])
 
+
+cf_result = explain(CONF, best_model, encoder=encoder, df=train_df.iloc[:, 1:],
+        query_instances=test_df_correct,target_trace_id=test_df_correct.iloc[0,0],
+        method='genetic_conformance', optimization='baseline',
+        heuristic='heuristic_2', support=0.95,
+        timestamp_col_name='Complete Timestamp', # name of the timestamp column in the log
+        model_path='./experiments/process_models/process_models',
+        random_seed=CONF['seed'], adapted=False, filtering=False)
+counterfactuals = cf_results.cf_examples_list[0].final_cfs_df.copy()
+
+encoder.decode(counterfactuals)
+
+encoder.decode(test_df_correct)
+
+cf_results.cf_examples_list[0].final_cfs_df = counterfactuals
+cf_results.cf_examples_list[0].final_cfs_df_sparse = counterfactuals
+cf_results.cf_examples_list[0].test_instance_df = test_df_correct.iloc[:1,1:].copy()
+print(cf_results.visualize_as_dataframe())
+print(cf_results.visualize_as_dataframe(show_only_changes=True))
+exp = explain(CONF, best_model, encoder=encoder,df=train_df, test_df=test_df, target_trace_id=test_df_correct.iloc[0,0])
 import shap
 shap.plots.bar(exp[0])
+
+
+
+exp = explain(CONF, best_model, encoder=encoder,df=train_df, test_df=test_df)
+shap.plots.bar(exp)
