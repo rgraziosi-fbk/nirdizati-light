@@ -51,3 +51,6 @@ dist/
 /traffic_fines_1/
 /experiments
 /experiments
+datasets/PurchasingExample/results/simulated_log_PurchasingExample_.csv
+exported.xes
+gaussian_mixture.py

@@ -18,15 +18,15 @@ SEED = 1234
 random.seed(SEED)
 np.random.seed(SEED)
 
-LOG_NAME = 'synthetic_data'
+LOG_NAME = 'output_FEB'
 
 CONF = {
-    'data': os.path.join('..','datasets', LOG_NAME, 'full.xes'),         # path to log
+    'data': os.path.join('..','datasets', LOG_NAME, 'output_FEB.xes'),         # path to log
     'train_val_test_split': [0.7, 0.15, 0.15],                      # train-validation-test set split percentages
 
     'output': 'output_data',                                        # path to output folder
 
-    'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,     #
+    'prefix_length_strategy': PrefixLengthStrategy.FIXED,     #
     'prefix_length': 6,                                            #
 
     'padding': True,                                                # whether to use padding or not in encoding
@@ -35,7 +35,7 @@ CONF = {
     'time_encoding': TimeEncodingType.NONE.value,                   # which time encoding to use
 
     'task_generation_type': TaskGenerationType.ONLY_THIS.value,     #
-    'labeling_type': LabelTypes.ATTRIBUTE_STRING.value,             # 
+    'labeling_type': LabelTypes.REMAINING_TIME.value,             #
     
     'predictive_models': [                                          # list of predictive models to train
          ClassificationMethods.RANDOM_FOREST.value,
@@ -66,6 +66,8 @@ encoder, full_df = get_encoded_df(log=log, CONF=CONF)
 print('Splitting in train, validation and test...')
 train_size, val_size, test_size = CONF['train_val_test_split']
 train_df, val_df, test_df = np.split(full_df,[int(train_size*len(full_df)), int((train_size+val_size)*len(full_df))])
+
+train_df.to_csv('/Users/francescameneghello/Documents/GitHub/nirdizati-light/datasets/output_FEB/train.csv')
 
 print('Instantiating predictive models...')
 predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df,test_df) for predictive_model in CONF['predictive_models']]

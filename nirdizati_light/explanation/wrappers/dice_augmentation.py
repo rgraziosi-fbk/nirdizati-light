@@ -45,6 +45,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         print("Directory '%s' can not be created" % model_path)
     time_start = datetime.now()
     query_instances_for_cf = query_instances.iloc[:,:-1]
+    query_instances_for_cf = query_instances_for_cf.sample(n=int(total_traces), replace=False)
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method, encoder)
@@ -58,7 +59,9 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
     for test_id, i in enumerate(index_test_instances):
         print(datetime.now(), dataset, black_box, test_id, len(index_test_instances),
               '%.2f' % (test_id+1 / len(index_test_instances)))
-        x = query_instances_for_cf.sample(n=1,replace=False)
+        #x = query_instances_for_cf.sample(n=1,replace=False)
+        #x = query_instances_for_cf.sample(n=int(total_traces), replace=False)
+        x = query_instances_for_cf.iloc[[i], :]
         case_id = x.iloc[0, 0]
         k = cfs_to_gen
         x = x.iloc[:, 1:]

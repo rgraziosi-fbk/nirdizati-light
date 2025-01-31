@@ -295,9 +295,9 @@ if __name__ == '__main__':
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.05, 0.1, 0.15]:
+            for augmentation_factor in [0.15]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('datasets/' + dataset, 'full.xes'),
+                    'data': os.path.join('datasets/' + dataset, 'full_eventually_new_dispute.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
