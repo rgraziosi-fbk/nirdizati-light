@@ -60,3 +60,7 @@ class Parameters(object):
                 for idx, key in enumerate(roles):
                     for resource in roles[key]:
                         self.RESOURCE_TO_ROLE_LSTM[resource] = key
+
+                self.INTER_TRIGGER = data["interTriggerTimer"]
+                self.MODEL_PROPHET = os.getcwd() + '/datasets/' + self.NAME_EXP + '/' + self.NAME_EXP + '_prf.json'
+                self.METADATA_PROPHET = os.getcwd() + '/datasets/' + self.NAME_EXP + '/' + self.NAME_EXP + '_prf_meta.json'

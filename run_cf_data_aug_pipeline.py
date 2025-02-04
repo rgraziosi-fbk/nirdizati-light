@@ -184,7 +184,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         elif 'BPI_Challenge_2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
         elif 'PurchasingExample' in dataset_name:
-            prefix_lengths = [1,2,3,4,5,6,7,8,9,10]
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
         elif 'Productions' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
         elif 'SynLoan' in dataset_name:
@@ -288,16 +288,16 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
         #'SynLoan': [20],
-        #'ConsultaDataMining201618': [9]
+        'ConsultaDataMining201618': [9]
         #'Productions': [20]
-        'PurchasingExample': [10]
+        #'PurchasingExample': [20]
         #"cvs_pharmacy": [8]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.15]:
+            for augmentation_factor in [0.10]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('datasets/' + dataset, 'full_eventually_new_dispute.xes'),
+                    'data': os.path.join('datasets/' + dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,

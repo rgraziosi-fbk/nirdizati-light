@@ -176,10 +176,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
         elif 'Productions' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9]
+        elif 'SynLoan' in dataset_name:
+            prefix_lengths = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
 
         for prefix in prefix_lengths:
             REGRESSION_CONF = {  # This contains the configuration for the run
-                'data': os.path.join(dataset, 'full.xes'),
+                'data': os.path.join(dataset, 'SynLoan_original.xes'),
                 'train_val_test_split': [0.7, 0.15, 0.15],
                 'output': os.path.join('..', 'output_data'),
                 'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -318,13 +320,14 @@ if __name__ == '__main__':
          #'sepsis_cases_1_start': [16],
          #'sepsis_cases_2_start': [16],
          #'sepsis_cases_3_start': [16],
-        'Productions': [10],
+        #'Productions': [10],
+        'SynLoan': [20]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.5]:
+            for augmentation_factor in [0.15]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join(dataset, 'Productions_new_label.xes'),
+                    'data': os.path.join(dataset, 'SynLoan_original.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,

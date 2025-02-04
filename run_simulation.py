@@ -11,6 +11,8 @@ import os
 import pandas as pd
 import pm4py
 from pm4py.objects.log.util import sorting
+from rims.inter_trigger_timer import InterTriggerTimer
+from datetime import timedelta
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from operator import itemgetter
 # Check if eager execution is enabled
@@ -91,6 +93,7 @@ ATTRIBUTES = {
                                                  "timesincelastevent",
                                                  "timesincemidnight", "weekday", "queue"]}
 }
+
 
 def read_log_csv(self, path):
     dataframe = pd.read_csv(path, sep=',')
@@ -175,12 +178,16 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrival
     writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] +
                     ATTRIBUTES[NAME_EXPERIMENT]['EVENT'] + ['attrib_trace', 'label'])
     params.START_SIMULATION = arrivals[0][1]
-    prev = arrivals[0][1]
+    interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION, len(arrivals))
+    #prev = arrivals[0][1]
+    prev = params.START_SIMULATION
     for i in range(0, len(arrivals)):
-        next = arrivals[i][1]
-        interval = (next - prev).total_seconds()
-        prev = next
-        yield env.timeout(interval)
+        #next = arrivals[i][1]
+        #interval = (next - prev).total_seconds()
+        itime = interval.get_next_arrival(env, i, prev)
+        prev = prev + timedelta(seconds=itime)
+        #yield env.timeout(interval)
+        yield env.timeout(itime)
         if str(arrivals[i][0]) in key:
             id_arrival = str(arrivals[i][0])
             env.process(Token(id_arrival, params, simulation_process, [], contrafactual[arrivals[i][0]].copy(), NAME_EXPERIMENT).simulation(env, writer, type))

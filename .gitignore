@@ -54,3 +54,13 @@ dist/
 datasets/PurchasingExample/results/simulated_log_PurchasingExample_.csv
 exported.xes
 gaussian_mixture.py
+exported.xes
+experiments/SynLoan_train_df.csv
+experiments/SynLoan_cf.csv
+datasets/SynLoan/SynLoan_prf_meta.json
+experiments/SynLoan_cf.csv
+experiments/SynLoan_train_df.csv
+experiments/SynLoan_train_df.csv
+datasets/PurchasingExample/results/simulated_log_PurchasingExample_.csv
+datasets/Productions/results/simulated_log_Productions_.csv
+datasets/ConsultaDataMining201618/results/simulated_log_ConsultaDataMining201618_.csv

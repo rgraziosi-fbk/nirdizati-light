@@ -215,5 +215,6 @@
             "Magdalena Predutta",
             "Karalda Nimwada",
             "Pedro Alvares"
-    ]
+    ],
+    "interTriggerTimer": {"type": "time_series"}
 }

@@ -171,5 +171,6 @@
             "ID4820",
             "ID4491",
             "ID4493"
-        ]
+        ],
+    "interTriggerTimer": {"type": "time_series"}
 }

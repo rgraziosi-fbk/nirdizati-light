@@ -789,5 +789,6 @@
             "3003",
             "22491",
             "1"
-        ]
+        ],
+    "interTriggerTimer": {"type": "time_series"}
 }

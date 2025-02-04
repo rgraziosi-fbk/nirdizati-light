@@ -184,5 +184,6 @@
             "D",
             "A",
             "C"
-    ]
+    ],
+    "interTriggerTimer": {"type": "time_series"}
 }
