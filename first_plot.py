@@ -6,87 +6,68 @@ import seaborn as sns
 
 # Set the desired color palette
 sns.set_palette("tab10")
-datasets = ['sepsis_cases_1_start','sepsis_cases_2_start','sepsis_cases_3_start','bpic2012_2_start_old','bpic2012_2_start','bpic2015_2_start']
+
+datasets = ['ConsultaDataMining201618','SynLoan','PurchasingExample','Productions']
+results_combined = pd.DataFrame()  # To store data from all datasets
+path = 'results_new'
+# Load and concatenate results for all datasets
 for dataset in datasets:
-    for file in os.listdir('experiments/new_results/'):
-        if dataset in file and 'mcc' in file and file.endswith('no_waiting_time_sim.csv'):
-            results = pd.read_csv('experiments/new_results/' + file, sep=',')
+    for file in os.listdir(path):
+        if dataset in file and 'mcc' in file:
+            temp_results = pd.read_csv(os.path.join(path , file), sep=',')
+            temp_results['Dataset'] = dataset  # Add a column to identify the dataset
+            results_combined = pd.concat([results_combined, temp_results], ignore_index=True)
 
-    prefix = list(results['Prefix Length'].unique())
-    model = list(results['Model'].unique())
-    augs = list(results['Augmentation Factor'].unique())
-    '''
-    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(45, 35))
-    #####initial and sim
-    for m in model:
-        results_aug = results[results['Augmentation Factor'] == aug]
-        results_method = results_aug[results_aug['Simulation'] == True]
-        results_model = results_method[results_method['Model'] == m]
-        initial = []
-        for p in prefix:
-            initial.append(float(results_model[results_model['Prefix Length'] == p]['Initial Mcc']))
-        print('INITIAL', initial)
-        sim = []
-        for p in prefix:
-            sim.append(float(results_model[results_model['Prefix Length'] == p]['Augmented Mcc']))
-        print('SIM+CF', sim)
-        ### baseline
-        results_method = results_aug[results_aug['Simulation'] == False]
-        results_model = results_method[results_method['Model'] == 'xgboost']
-        baseline = []
-        for p in prefix:
-            baseline.append(float(results_model[results_model['Prefix Length'] == p]['Augmented Mcc']))
-        print('BASELINE', baseline)
-        plt.title(m, fontsize=20)
-        plt.plot(initial, color='green')
-        plt.plot(baseline, color='blue')
-        plt.plot(sim, color='red')
-        plt.legend(['Initial', 'Baseline', 'Sim+CF'])
-        plt.show()
-    '''
-    #augmentation_factors = [0.3, 0.5, 0.7]
-    fig, axes = plt.subplots(nrows=3, ncols=len(model), figsize=(10, 10))
+prefix = sorted(results_combined['Prefix Length'].unique())
+model = sorted(results_combined['Model'].unique())
+augs = sorted(results_combined['Augmentation Factor'].unique())
+augs = [0.05,0.1,0.15]
 
-    # Iterate over augmentation factors
-    for idx_aug,aug in enumerate(augs):
-        # Create subplots for each model
-        #axes = axes.flatten()
+# Set up subplots: one row for each augmentation factor, one column for each dataset
+fig, axes = plt.subplots(nrows=len(augs), ncols=len(datasets), figsize=(15, 3 * len(augs)), sharey=True)
 
-        for idx_m, m in enumerate(model):
-            results_aug = results[results['Augmentation Factor'] == aug]
-            results_method = results_aug[results_aug['Simulation'] == True]
-            results_model = results_method[results_method['Model'] == m]
+# Iterate over each augmentation factor and dataset combination
+for row_idx, aug in enumerate(augs):
+    for col_idx, dataset in enumerate(datasets):
+        ax = axes[row_idx, col_idx]
 
-            initial = []
-            for p in prefix:
-                print(results_model[results_model['Prefix Length'] == p]['Initial Mcc'])
-                initial.append(results_model[results_model['Prefix Length'] == p]['Initial Mcc'].mean())
+        for m in model:
+            # Filter data for the current augmentation factor, dataset, and model
+            dataset_results = results_combined[
+                (results_combined['Dataset'] == dataset) &
+                (results_combined['Augmentation Factor'] == aug) &
+                (results_combined['Model'] == m)
+            ]
 
-            sim = []
-            for p in prefix:
-                print(results_model[results_model['Prefix Length'] == p]['Augmented Mcc'])
-                sim.append(results_model[results_model['Prefix Length'] == p]['Augmented Mcc'].mean())
+            # Filter for simulation data
+            results_sim = dataset_results[dataset_results['Simulation'] == True]
+            sim = [results_sim[results_sim['Prefix Length'] == p]['Augmented Mcc'].mean() for p in prefix]
 
-            results_method = results_aug[results_aug['Simulation'] == False]
-            results_model = results_method[results_method['Model'] == 'xgboost']
+            # Filter for baseline data (Simulation == False)
+            results_baseline = dataset_results[dataset_results['Simulation'] == False]
+            initial = [results_baseline[results_baseline['Prefix Length'] == p]['Initial Mcc'].mean() for p in prefix]
+            baseline = [results_baseline[results_baseline['Prefix Length'] == p]['Augmented Mcc'].mean() for p in prefix]
 
-            baseline = []
-            for p in prefix:
-                print(results_model[results_model['Prefix Length'] == p]['Augmented Mcc'])
-                baseline.append(results_model[results_model['Prefix Length'] == p]['Augmented Mcc'].mean())
-            print(idx_aug, idx_m)
-            axes[idx_aug+idx_m].plot(initial, color='green',linewidth=3)
-            axes[idx_aug+idx_m].plot(baseline, color='blue',linewidth=3)
-            axes[idx_aug+idx_m].plot(sim, color='red', linewidth=3)
-            axes[idx_aug+idx_m].set_xticks(range(len(prefix)))  # Set xticks based on prefix length
-            axes[idx_aug+idx_m].set_xticklabels(prefix)
-            axes[idx_m].set_title(model[idx_m], fontsize=20)
-            axes[idx_m].set_title(model[idx_m], fontsize=20)
-            if dataset == 'sepsis_cases_1_start':
-                axes[idx_aug+idx_m].set_ylim(-0.2, 0.4)
-        axes[idx_aug].set_ylabel(f"Augmentation Factor: {aug}", fontsize=12)
-    fig.legend(['Initial', 'Baseline', 'Sim+CF'],ncols=3, loc='upper center', fontsize=20,bbox_to_anchor=(0.5, 0.97))
-    fig.suptitle(dataset+'_updated',fontsize=30,y=0.995)
-    #plt.tight_layout()
-    plt.savefig(
-        'experiments/full_plots/' + dataset + '_Mcc.png')
+            # Plot Initial, Baseline, and Sim+CF lines for each model
+            ax.plot(prefix, initial, linestyle='-', linewidth=5, label=f'Initial', alpha=0.7)
+            ax.plot(prefix, baseline, linestyle='--', linewidth=5, label=f'Baseline', alpha=0.7)
+            ax.plot(prefix, sim, linestyle=':', linewidth=5, label=f'Sim+CF', alpha=0.7)
+
+        # Set titles, labels, and legends for each subplot
+        if dataset == 'ConsultaDataMining201618':
+            dataset = 'ConsultaDataMining'
+        ax.set_title(f"{dataset} - Aug Factor {aug}", fontsize=15)
+        if row_idx == len(augs) - 1:  # Only set x-axis label on the bottom row
+            ax.set_xlabel("Prefix Length", fontsize=12)
+        if col_idx == 0:  # Only set y-axis label on the first column
+            ax.set_ylabel("MCC", fontsize=12)
+        ax.legend(loc='upper left', fontsize=10)
+
+# Main title for the entire figure and adjust layout
+fig.suptitle("MCC Comparison Across Datasets and Augmentation Factors with PRIORITY given to CFS", fontsize=18, y=0.98)
+plt.tight_layout()
+plt.subplots_adjust(top=0.93)  # Adjust top to fit the main title
+
+# Save and show the plot
+plt.savefig('experiments/new_plots_no_priority/all_datasets_Mcc_by_aug_with_priority.png')
+plt.show()

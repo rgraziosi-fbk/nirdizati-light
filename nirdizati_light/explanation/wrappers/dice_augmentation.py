@@ -23,10 +23,10 @@ single_prefix = ['loreley','loreley_complex']
 
 def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, method, optimization, heuristic, support,
                  timestamp_col_name,model_path,total_traces=None,minority_class=None,case_ids=None,random_seed=None,
-                      desired_range=None,cfs_to_gen=None):
+                      desired_range=None,cfs_to_gen=None, features_to_vary=None):
     features_names = df.columns.values[:-1]
     feature_selection = CONF['feature_selection']
-    dataset = CONF['data'].rpartition('/')[0].replace('../datasets/','')
+    dataset = CONF['data'].rpartition('/')[0].replace('datasets/','')
     black_box = predictive_model.model_type
     categorical_features,continuous_features,cat_feature_index,cont_feature_index = split_features(df.iloc[:,:-1], encoder)
     if CONF['feature_selection'] == 'loreley':
@@ -45,7 +45,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         print("Directory '%s' can not be created" % model_path)
     time_start = datetime.now()
     query_instances_for_cf = query_instances.iloc[:,:-1]
-    query_instances_for_cf = query_instances_for_cf.sample(n=int(total_traces), replace=False)
+    query_instances_for_cf = query_instances_for_cf.sample(n=int(total_traces), replace=True)
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
     dice_query_instance = dice_ml.Dice(d, m, method, encoder)
@@ -56,6 +56,8 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
     cf_list_all = list()
     x_eval_list = list()
     desired_cfs_all = list()
+    if features_to_vary is None:
+        features_to_vary = 'all'
     for test_id, i in enumerate(index_test_instances):
         print(datetime.now(), dataset, black_box, test_id, len(index_test_instances),
               '%.2f' % (test_id+1 / len(index_test_instances)))
@@ -74,7 +76,8 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
-                                                                           heuristic=heuristic,random_seed=random_seed,adapted=True
+                                                                           heuristic=heuristic,random_seed=random_seed,adapted=True,
+                                                                           features_to_vary=features_to_vary
                                                                            )
             elif method == 'multi_objective_genetic':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
@@ -82,14 +85,16 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
-                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           heuristic=heuristic,random_seed=random_seed,
+                                                                           features_to_vary=features_to_vary
                                                                            )
             else:
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                                                                random_seed=CONF['seed']
+                                                                                                                random_seed=CONF['seed'],
+                                                                           features_to_vary=features_to_vary
                                                                                                                )#stopping_threshold=0.7
 
         else:
@@ -99,7 +104,8 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
-                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           heuristic=heuristic,random_seed=random_seed,
+                                                                           features_to_vary=features_to_vary
                                                                            )
             elif method == 'multi_objective_genetic':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_range=desired_range,
@@ -107,14 +113,16 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
-                                                                           heuristic=heuristic,random_seed=random_seed
+                                                                           heuristic=heuristic,random_seed=random_seed,
+                                                                           features_to_vary=features_to_vary
                                                                            )
             else:
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_range=desired_range,
                                                                            verbose=False,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length'],
-                                                                                                               random_seed=random_seed
+                                                                                                               random_seed=random_seed,
+                                                                                                               features_to_vary=features_to_vary
 )
                  )
 

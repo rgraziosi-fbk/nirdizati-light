@@ -77,7 +77,7 @@ ATTRIBUTES = {
                                 'EVENT': ["event_nr",
                                 "hour", "month", "timesincecasestart", "timesincelastevent",
                                           "timesincemidnight", "weekday"]},
-        'ConsultaDataMining201618': {'TRACE': ['lifecycle:transition'],
+        'ConsultaDataMining201618': {'TRACE': [],
                                           'EVENT': ["event_nr",
                                                     "hour", "month", "timesincecasestart",
                                                     "timesincelastevent",

@@ -77,6 +77,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     best_model = predictive_models[best_model_idx]
     best_model.model = best_model_model
     best_model.config = best_model_config
+
+    initial_feat_importance = np.argsort(best_model.model.feature_importances_)[::-1]
+    initial_feat_importance = initial_feat_importance.astype('str')
+
+    for index in range(len(initial_feat_importance)):
+        initial_feat_importance[index] = train_df.columns[int(initial_feat_importance[index])]
     logger.debug('COMPUTE EXPLANATION')
     if CONF['explanator'] is ExplainerType.DICE_AUGMENTATION.value:
         # set test df just with correctly predicted labels and make sure it's minority class
@@ -102,17 +108,28 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('prefix')
             cols.append('lifecycle:transition')
 
+        features_to_vary = None
+        #features_to_vary = list(itertools.chain.from_iterable(
+        #    [*dataset_confs.static_num_cols.values(), *dataset_confs.static_cat_cols.values()]
+        #    ))
+        #resource_cols = [col for col in full_df.columns if dataset_confs.resource_col[dataset] in col]
+        #prefix_cols = [col for col in full_df.columns if 'prefix' in col]
+        #features_to_vary = list(features_to_vary + resource_cols + prefix_cols)
         df_cf, x_eval = explain(CONF, best_model, encoder=encoder,
                         query_instances=train_df_correct,
                         method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
                         heuristic='heuristic_2', support=support,
                         timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
                         model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces,
-                        minority_class=minority_class,cfs_to_gen=1#how many cfs to generate at one time
+                        minority_class=minority_class, cfs_to_gen=1 #how many cfs to generate at one time
+                                , features_to_vary=features_to_vary
                         )
+        if CONF['drop_factuals']:
+            train_df = train_df[~train_df.trace_id.isin(df_cf['Case ID'])]
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
-
+        if CONF['drop_factuals']:
+            train_df
         train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
         df_cf['trace_id'] = df_cf.index
         df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
@@ -227,7 +244,11 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             best_model_new = predictive_models_new[best_model_idx_new]
             best_model.model = best_model_model_new
             best_model.config = best_model_config_new
+            post_feat_importance = np.argsort(best_model.model.feature_importances_)[::-1]
+            post_feat_importance = post_feat_importance.astype('str')
 
+            for index in range(len(post_feat_importance)):
+                post_feat_importance[index] = train_df.columns[int(post_feat_importance[index])]
             data_list = []
 
             # Iterate over the best candidates
@@ -287,17 +308,17 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        #'SynLoan': [20],
+       # 'SynLoan': [20],
         'ConsultaDataMining201618': [9]
-        #'Productions': [20]
-        #'PurchasingExample': [20]
+        #'Productions': [40]
+        #'PurchasingExample': [40]
         #"cvs_pharmacy": [8]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.10]:
+            for augmentation_factor in [0.05,0.10,0.15,0.20]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('datasets/' + dataset, 'full.xes'),
+                    'data': os.path.join('datasets',dataset, 'full.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -318,6 +339,7 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,
-                    'simulation': True  ## if True the simulation of TRAIN + CF is run
+                    'simulation': True,  ## if True the simulation of TRAIN + CF is run,
+                    'drop_factuals':True
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
