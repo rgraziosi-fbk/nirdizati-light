@@ -5,6 +5,7 @@ import simpy
 from rims.resource_priority import ResourcePriority
 import math
 from rims.call_LSTM import Predictor
+import random
 
 
 class SimulationProcess(object):
@@ -48,7 +49,11 @@ class SimulationProcess(object):
         return dict_res
 
     def get_single_resource(self, resource_label):
-        return self.single_resources[resource_label]
+        if resource_label in self.single_resources:
+            return self.single_resources[resource_label]
+        else:
+            key = random.choice(list(self.single_resources.items()))
+            return self.single_resources[key[0]]
 
     def get_occupations_all_role(self, role):
         """

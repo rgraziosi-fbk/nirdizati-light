@@ -235,5 +235,6 @@
         "11121.0",
         "11269.0",
         "10125.0"
-    ]
+    ],
+    "interTriggerTimer": {"type": "time_series"}
 }
