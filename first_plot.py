@@ -7,9 +7,9 @@ import seaborn as sns
 # Set the desired color palette
 sns.set_palette("tab10")
 
-datasets = ['ConsultaDataMining201618','SynLoan','PurchasingExample','Productions']
+datasets = ['PurchasingExample', 'PurchasingExample_replace']
 results_combined = pd.DataFrame()  # To store data from all datasets
-path = 'results_new'
+path = 'experiments/new_results'
 # Load and concatenate results for all datasets
 for dataset in datasets:
     for file in os.listdir(path):
@@ -21,7 +21,7 @@ for dataset in datasets:
 prefix = sorted(results_combined['Prefix Length'].unique())
 model = sorted(results_combined['Model'].unique())
 augs = sorted(results_combined['Augmentation Factor'].unique())
-augs = [0.05,0.1,0.15]
+augs = [0.1,0.15,0.20]
 
 # Set up subplots: one row for each augmentation factor, one column for each dataset
 fig, axes = plt.subplots(nrows=len(augs), ncols=len(datasets), figsize=(15, 3 * len(augs)), sharey=True)
@@ -49,9 +49,9 @@ for row_idx, aug in enumerate(augs):
             baseline = [results_baseline[results_baseline['Prefix Length'] == p]['Augmented Mcc'].mean() for p in prefix]
 
             # Plot Initial, Baseline, and Sim+CF lines for each model
-            ax.plot(prefix, initial, linestyle='-', linewidth=5, label=f'Initial', alpha=0.7)
-            ax.plot(prefix, baseline, linestyle='--', linewidth=5, label=f'Baseline', alpha=0.7)
-            ax.plot(prefix, sim, linestyle=':', linewidth=5, label=f'Sim+CF', alpha=0.7)
+            ax.plot(prefix, initial, linestyle='-', linewidth=3, label=f'Initial', alpha=0.7)
+            ax.plot(prefix, baseline, linestyle='--', linewidth=3, label=f'Baseline', alpha=0.7)
+            ax.plot(prefix, sim, linestyle=':', linewidth=3, label=f'Sim+CF', alpha=0.7)
 
         # Set titles, labels, and legends for each subplot
         if dataset == 'ConsultaDataMining201618':
@@ -64,10 +64,10 @@ for row_idx, aug in enumerate(augs):
         ax.legend(loc='upper left', fontsize=10)
 
 # Main title for the entire figure and adjust layout
-fig.suptitle("MCC Comparison Across Datasets and Augmentation Factors with PRIORITY given to CFS", fontsize=18, y=0.98)
+fig.suptitle("MCC Comparison Across Datasets and Augmentation Factors with NO PRIORITY given to CFS", fontsize=18, y=0.98)
 plt.tight_layout()
 plt.subplots_adjust(top=0.93)  # Adjust top to fit the main title
 
 # Save and show the plot
-plt.savefig('experiments/new_plots_no_priority/all_datasets_Mcc_by_aug_with_priority.png')
+plt.savefig('experiments/plots/Mcc_no_priority.png')
 plt.show()

@@ -64,3 +64,10 @@ experiments/SynLoan_train_df.csv
 datasets/PurchasingExample/results/simulated_log_PurchasingExample_.csv
 datasets/Productions/results/simulated_log_Productions_.csv
 datasets/ConsultaDataMining201618/results/simulated_log_ConsultaDataMining201618_.csv
+datasets/Productions/results/simulated_log_Productions_.csv
+datasets/SynLoan/results/simulated_log_SynLoan_.csv
+datasets/SynLoan/results/simulated_log_SynLoan_0.1.csv
+experiments/SynLoan_cf.csv
+experiments/SynLoan_train_df.csv
+exported.xes
+requirements.txt

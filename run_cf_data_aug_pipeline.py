@@ -128,8 +128,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             train_df = train_df[~train_df.trace_id.isin(df_cf['Case ID'])]
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
-        if CONF['drop_factuals']:
-            train_df
         train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
         df_cf['trace_id'] = df_cf.index
         df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
@@ -193,8 +191,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30, 35, 40, 45 ,50 ]
         elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 35, 40]
-        elif 'Productions' in dataset_name:
-            prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'bpic2012_2' in dataset_name:
             #prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
             prefix_lengths = [1, 2, 3, 4]
@@ -308,17 +304,18 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-       # 'SynLoan': [20],
-        'ConsultaDataMining201618': [9]
-        #'Productions': [40]
-        #'PurchasingExample': [40]
+        'SynLoan': [20],
+        #'ConsultaDataMining201618': [9]
+        #"BPI_Challenge_2012_W_Two_TS": [20]
+        #'Productions': [20]
+        #'PurchasingExample': [20]
         #"cvs_pharmacy": [8]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.05,0.10,0.15,0.20]:
+            for augmentation_factor in [0.1]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('datasets',dataset, 'full.xes'),
+                    'data': os.path.join('datasets/' + dataset, 'labelling_generate.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -334,12 +331,12 @@ if __name__ == '__main__':
                     'threshold': 13,
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
-                    'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
+                    'hyperparameter_optimisation_target': HyperoptTarget.AUC.value,
                     'hyperparameter_optimisation_evaluations': 20,
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,
                     'simulation': True,  ## if True the simulation of TRAIN + CF is run,
-                    'drop_factuals':True
+                    'drop_factuals': False
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
