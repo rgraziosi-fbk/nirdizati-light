@@ -7,13 +7,14 @@ import seaborn as sns
 # Set the desired color palette
 sns.set_palette("tab10")
 
-datasets = ['PurchasingExample', 'PurchasingExample_replace']
+datasets = ['PurchasingExample']
 results_combined = pd.DataFrame()  # To store data from all datasets
 path = 'experiments/new_results'
 # Load and concatenate results for all datasets
 for dataset in datasets:
     for file in os.listdir(path):
-        if dataset in file and 'mcc' in file:
+        #if dataset in file and 'mcc' in file:
+        if dataset in file and 'auc' in file:
             temp_results = pd.read_csv(os.path.join(path , file), sep=',')
             temp_results['Dataset'] = dataset  # Add a column to identify the dataset
             results_combined = pd.concat([results_combined, temp_results], ignore_index=True)
@@ -21,7 +22,7 @@ for dataset in datasets:
 prefix = sorted(results_combined['Prefix Length'].unique())
 model = sorted(results_combined['Model'].unique())
 augs = sorted(results_combined['Augmentation Factor'].unique())
-augs = [0.1,0.15,0.20]
+augs = [0.15, 0.10]
 
 # Set up subplots: one row for each augmentation factor, one column for each dataset
 fig, axes = plt.subplots(nrows=len(augs), ncols=len(datasets), figsize=(15, 3 * len(augs)), sharey=True)

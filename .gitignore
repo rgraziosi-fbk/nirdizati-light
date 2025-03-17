@@ -71,3 +71,6 @@ experiments/SynLoan_cf.csv
 experiments/SynLoan_train_df.csv
 exported.xes
 requirements.txt
+experiments/SynLoan_cf.csv
+datasets/SynLoan/results/simulated_log_SynLoan_.csv
+datasets/Productions/results/simulated_log_Productions_.csv

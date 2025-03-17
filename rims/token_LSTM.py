@@ -148,6 +148,9 @@ class Token(object):
                 elif self.NAME_EXPERIMENT == 'cvs_pharmacy':
                     role = self.params.RESOURCE_ROLE["Pharmacy System-000001"]
                     resource = self.process.get_single_resource("Pharmacy System-000001")
+                elif self.NAME_EXPERIMENT == 'BPI_Challenge_2017_W_Two_TS':
+                    role = self.params.RESOURCE_ROLE["User_3"]
+                    resource = self.process.get_single_resource("User_3")
 
             if event[0] not in self.params.INDEX_AC:
                 if self.NAME_EXPERIMENT == 'bpic2015_2_start' or self.NAME_EXPERIMENT == 'bpic2015_4_start':
