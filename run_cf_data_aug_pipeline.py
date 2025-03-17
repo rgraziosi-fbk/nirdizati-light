@@ -385,7 +385,7 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        'SynLoan': [40],
+        'SynLoan': [20],
         #'ConsultaDataMining201618': [9]
         #'Productions': [40]
         #'PurchasingExample': [40]

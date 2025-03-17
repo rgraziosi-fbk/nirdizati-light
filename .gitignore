@@ -74,3 +74,4 @@ requirements.txt
 experiments/SynLoan_cf.csv
 datasets/SynLoan/results/simulated_log_SynLoan_.csv
 datasets/Productions/results/simulated_log_Productions_.csv
+/datasets/BPI_Challenge_2017_W_Two_TS

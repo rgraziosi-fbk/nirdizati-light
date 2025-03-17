@@ -88,10 +88,12 @@ ATTRIBUTES = {
                                                     "timesincelastevent",
                                                     "timesincemidnight", "weekday"]},
         'SynLoan': {'TRACE': ['amount'],
-                                       'EVENT': ["event_nr", "lifecycle:transition",
-                                                 "hour", "month", "timesincecasestart",
-                                                 "timesincelastevent",
-                                                 "timesincemidnight", "weekday", "queue"]}
+                                       'EVENT': [#"event_nr",
+                                                 #"lifecycle:transition",
+                                                 #"hour", "month", "timesincecasestart",
+                                                 #"timesincelastevent",
+                                                 #"timesincemidnight", "weekday", "queue"
+                    ]}
 }
 
 
@@ -122,13 +124,13 @@ def read_training(train, attrib_event, attrib_trace):
         while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
             start = row['start:timestamp_'+str(count_prefix)]
             end = row['time:timestamp_'+str(count_prefix)]
-            processing = end - start
+            processing = (end - start).total_seconds()
             if count_prefix <= 1:
                 wait = 0
             else:
                 start = row['start:timestamp_' + str(count_prefix)]
                 end = row['time:timestamp_'+str(count_prefix-1)]
-                wait = start - end
+                wait = (end - start).total_seconds()
             for k in attrib_event:
                 attributes_event[k] = row[k + '_' + str(count_prefix)]
             for k in attrib_trace:
