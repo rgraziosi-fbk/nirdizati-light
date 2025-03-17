@@ -111,7 +111,6 @@ def is_date(column: list) -> bool:
             pass
         else:
             return False
-
     return True
 
 

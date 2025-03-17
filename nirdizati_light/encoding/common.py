@@ -1,9 +1,9 @@
 import logging
 from enum import Enum
 
-from pandas import DataFrame
+from pandas import DataFrame,Series,to_datetime,Timestamp
 from pm4py.objects.log.obj import EventLog
-
+from datetime import datetime
 from nirdizati_light.encoding.data_encoder import Encoder
 from nirdizati_light.encoding.feature_encoder.complex_features import complex_features
 from nirdizati_light.encoding.feature_encoder.frequency_features import frequency_features
@@ -70,9 +70,65 @@ def get_encoded_df(
         feature_list=train_cols,
         target_event=CONF['target_event'],
     )
-
     logger.debug('EXPLODE DATES')
+
+    def compute_durations(df):
+        for prefix in range(CONF['prefix_length']):
+            prefix += 1  # Start at 1
+
+            duration_col = f'duration_{prefix}'
+            waiting_col = f'waiting_{prefix}'
+            arrival_col = f'arrival_{prefix}'
+            timestamp_col = f'time:timestamp_{prefix}'
+            start_timestamp_col = f'start:timestamp_{prefix}'
+            previous_timestamp_col = f'time:timestamp_{prefix - 1}' if prefix - 1 > 0 else None
+            next_start_timestamp_col = f'start:timestamp_{prefix + 1}' if prefix + 1 <= CONF['prefix_length'] else None
+
+            # Convert timestamps to datetime, handling errors safely
+            df[timestamp_col] = to_datetime(df[timestamp_col], errors='coerce')
+            df[start_timestamp_col] = to_datetime(df[start_timestamp_col], errors='coerce').fillna(
+                "1970-01-01 00:00+00")
+            df[timestamp_col] = to_datetime(df[timestamp_col], errors='coerce').fillna(
+                "1970-01-01 00:00+00")
+
+
+            # Compute duration (convert timedelta to seconds)
+            df[duration_col] = (df[timestamp_col] - df[start_timestamp_col]).dt.total_seconds()
+            df[duration_col] = df[duration_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
+
+            if prefix > 1 and previous_timestamp_col in df.columns:
+                df[previous_timestamp_col] = to_datetime(df[previous_timestamp_col], errors='coerce')
+                df[waiting_col] = (df[timestamp_col] - df[previous_timestamp_col]).dt.total_seconds()
+                df[waiting_col] = df[waiting_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
+            else:
+                df[waiting_col] = 0
+
+            if next_start_timestamp_col and next_start_timestamp_col in df.columns:
+                df[next_start_timestamp_col] = to_datetime(df[next_start_timestamp_col], errors='coerce').fillna(
+                    "1970-01-01 00:00+00")
+                df[arrival_col] = (df[next_start_timestamp_col] - df[timestamp_col]).dt.total_seconds()
+                df[arrival_col] = df[arrival_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
+            else:
+                df[arrival_col] = 0  # If there's no next start timestamp
+            # Insert columns at the correct positions
+            df.insert(df.columns.get_loc(timestamp_col) + 1, waiting_col, df.pop(waiting_col))
+            idx = df.columns.get_loc(timestamp_col) + 1  # Insert after timestamp column
+            df.insert(idx, duration_col, df.pop(duration_col))
+            df.insert(idx + 1, arrival_col, df.pop(arrival_col))
+            if 'start:timestamp_1' in df.columns:
+                df.insert(df.columns.get_loc('prefix_1'), 'start_trace', df.pop('start:timestamp_1'))
+        return df
+    if CONF['feature_selection'] == 'complex' and CONF['explanator'] == 'dice_augmentation':
+        df = compute_durations(df)
+
+
     df = time_encoding(df, CONF['time_encoding'])
+
+
+
+    if CONF['feature_selection'] == 'complex' and CONF['explanator'] == 'dice_augmentation':
+        df = df[df.columns[~Series(df.columns).str.contains(
+            'cases|time|queue|open|group|event|lifecycle|day|hour|week|month')]]
 
     logger.debug('ALIGN DATAFRAMES')
     if train_df is not None:

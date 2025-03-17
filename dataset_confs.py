@@ -38,7 +38,7 @@ class DatasetConfs:
             self.pos_label = {dataset: "deviant"}
 
             # features for classifier
-            self.static_cat_cols = {dataset: ["lifecycle:transition"]}
+            self.static_cat_cols = {dataset: []}
             self.dynamic_cat_cols = {dataset: ["concept:name", "Resource"]}
             self.dynamic_num_cols = {
                 dataset: ["hour", "weekday", "month",
@@ -111,7 +111,7 @@ class DatasetConfs:
 
             # features for classifier
             self.static_cat_cols = {dataset: []}
-            self.dynamic_cat_cols = {dataset: ["concept:name", "org:resource"]}
+            self.dynamic_cat_cols = {dataset: ["concept:name", "org:resource",'lifecycle:transition']}
             self.dynamic_num_cols = {
                 dataset: ["hour", "weekday", "month", "queue",
                           "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",

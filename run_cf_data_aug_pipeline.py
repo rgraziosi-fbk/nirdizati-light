@@ -42,7 +42,6 @@ def convert_to_log(simulated_log, cols):
     pm4py.write_xes(simulated_log, 'exported.xes')
     return simulated_log
 
-
 def run_simple_pipeline(CONF=None, dataset_name=None):
     random.seed(CONF['seed'])
     np.random.seed(CONF['seed'])
@@ -54,6 +53,68 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     logger.debug('ENCODE DATA')
     encoder, full_df = get_encoded_df(log=log, CONF=CONF)
 
+    #full_df = full_df[full_df.columns[~pd.Series(full_df.columns).str.contains(
+    #    'cases|time|queue|open|group|event|lifecycle|day|hour|week|month')]]
+    #encoder.decode(full_df)
+
+    def reconstruct_timestamps(df):
+        """Reconstruct time:timestamp, arrival:timestamp, and start:timestamp columns iteratively."""
+        reconstructed_df = df.copy()  # Avoid modifying the original DataFrame
+
+        # Ensure start_trace exists and rename it to start:timestamp_1
+        if "start_trace" in reconstructed_df.columns:
+            reconstructed_df.rename(columns={"start_trace": "start:timestamp_1"}, inplace=True)
+
+        # Convert start:timestamp_1 to datetime
+        reconstructed_df["start:timestamp_1"] = pd.to_datetime(reconstructed_df["start:timestamp_1"], unit='s',
+                                                               errors='coerce')
+        reconstructed_df.insert(reconstructed_df.columns.get_loc('prefix_1') + 1, 'start:timestamp_1',
+                                reconstructed_df.pop('start:timestamp_1'))
+
+        for prefix in range(1, CONF['prefix_length'] + 1):
+            prefix_col = f'prefix_{prefix}'
+            # Start from 1
+            duration_col = f'duration_{prefix}'
+            waiting_col = f'waiting_{prefix}'
+            arrival_col = f'arrival_{prefix}'
+            start_timestamp_col = f'start:timestamp_{prefix}'
+            time_timestamp_col = f'time:timestamp_{prefix}'
+            if prefix < CONF['prefix_length']:
+                next_start_timestamp_col = f'start:timestamp_{prefix + 1}'
+
+            # Compute time:timestamp_x using start:timestamp_x + duration_x
+            if duration_col in reconstructed_df.columns:
+                mask = reconstructed_df[start_timestamp_col] != 0  # Ensure non-zero timestamps
+                reconstructed_df.loc[mask, time_timestamp_col] = reconstructed_df.loc[
+                                                                     mask, start_timestamp_col] + pd.to_timedelta(
+                    reconstructed_df.loc[mask, duration_col], unit='s'
+                )
+                reconstructed_df.loc[~mask, time_timestamp_col] = 0  # If start_timestamp_col is 0, keep it 0
+                # Insert time:timestamp_x **right after start:timestamp_x**
+                idx = reconstructed_df.columns.get_loc(prefix_col)
+                reconstructed_df.insert(idx + 2, time_timestamp_col, reconstructed_df.pop(time_timestamp_col))
+
+            if waiting_col in reconstructed_df.columns and next_start_timestamp_col:
+                mask = reconstructed_df[time_timestamp_col] != 0  # Ensure non-zero timestamps
+                reconstructed_df[next_start_timestamp_col] = reconstructed_df.loc[mask, time_timestamp_col] + pd.to_timedelta(
+                    reconstructed_df.loc[mask, arrival_col], unit='s'
+                )
+                reconstructed_df.loc[~mask, next_start_timestamp_col] = 0
+                if prefix < CONF['prefix_length']:
+                    idx_start = reconstructed_df.columns.get_loc(f'prefix_{prefix+1}')
+                    reconstructed_df.insert(idx_start + 1, next_start_timestamp_col, reconstructed_df.pop(next_start_timestamp_col))
+                # If time_timestamp_col is 0, keep it 0
+            if prefix_col in reconstructed_df.columns:
+                zero_mask = reconstructed_df[prefix_col] == '0'
+                for col in [duration_col, waiting_col, arrival_col, start_timestamp_col, time_timestamp_col,next_start_timestamp_col]:
+                        reconstructed_df.loc[zero_mask, col] = 0
+
+        reconstructed_df = reconstructed_df[reconstructed_df.columns[~pd.Series(reconstructed_df.columns).str.contains(
+            'arrival|waiting|duration')]]
+
+        return reconstructed_df
+
+    #reconstructed_df = reconstruct_timestamps(full_df)
     logger.debug('TRAIN PREDICTIVE MODEL')
     # split in train, val, test
     train_size = CONF['train_val_test_split'][0]
@@ -101,6 +162,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         import itertools
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
             cols = ['prefix']
+
         elif CONF['feature_selection']:
             cols = [*dataset_confs.dynamic_num_cols.values(), *dataset_confs.dynamic_cat_cols.values()]
             cols = list(itertools.chain.from_iterable(cols))
@@ -128,22 +190,34 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             train_df = train_df[~train_df.trace_id.isin(df_cf['Case ID'])]
         df_cf.drop(columns=['Case ID'], inplace=True)
         encoder.decode(train_df)
-        train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
-        df_cf['trace_id'] = df_cf.index
-        df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
+
+
+        # THIS PART SERVES TO RECONSTRUCT THE DF TIMESTAMPS SINCE WE ONLY USE DURATIONS
+        reconstructed_train_df = reconstruct_timestamps(train_df)
+        reconstructed_df_cf = reconstruct_timestamps(df_cf)
+
+        reconstructed_train_df.to_csv(os.path.join('experiments',dataset_name + '_train_df.csv'))
+        reconstructed_df_cf['trace_id'] = reconstructed_df_cf.index
+        reconstructed_df_cf.to_csv(os.path.join('experiments', dataset_name + '_cf.csv'), index=False)
 
 
         ### simulation part
         if CONF['simulation']:
-            run_simulation(train_df, df_cf, dataset_name)
+            run_simulation(reconstructed_train_df, reconstructed_df_cf, dataset_name)
             path_simulated_cfs = 'datasets/' + dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
             simulated_log = pd.read_csv(path_simulated_cfs)
             dicts_trace = {}
             for i in range(len(simulated_log)):
                 dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-2])
             df = pd.DataFrame.from_dict(dicts_trace, orient='index')
-            simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
-            simulated_log.drop(columns=['key_0','st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
+            try:
+                simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
+            except Exception as e:
+                print(e)
+            try:
+                simulated_log.drop(columns=['key_0','st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
+            except Exception as e:
+                simulated_log.drop(columns=['st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
             simulated_log.rename(columns={'queue.1': 'queue'}, inplace=True)
             if dataset_name == 'cvs_pharmacy' or dataset_name == 'ConsultaDataMining201618' or dataset_name == 'SynLoan' or dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
                 simulated_log.drop(columns=['open_cases'], inplace=True)
@@ -160,6 +234,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             cols.append('label')
             simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
             simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
+            if dataset_name != 'SynLoan':
+                simulated_log.drop(columns=[col for col in simulated_log.columns if 'transition' in col], inplace=True)
             #simulated_log['label'] = minority_class
             simulated_log = convert_to_log(simulated_log, cols)
             _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
@@ -191,6 +267,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             prefix_lengths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30, 35, 40, 45 ,50 ]
         elif 'bpic2012' in dataset_name:
             prefix_lengths = [1,2,3,4,5,6,7,8,9,10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 35, 40]
+        elif 'Productions' in dataset_name:
+            prefix_lengths = [1,2,3,4,5,6,7,8,9]
         elif 'bpic2012_2' in dataset_name:
             #prefix_lengths =  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15, 20 , 25, 30]
             prefix_lengths = [1, 2, 3, 4]
@@ -240,6 +318,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             best_model_new = predictive_models_new[best_model_idx_new]
             best_model.model = best_model_model_new
             best_model.config = best_model_config_new
+            predicted,score = best_model_new.predict(test=True)
+            print('Evaluating augmented model...')
+
             post_feat_importance = np.argsort(best_model.model.feature_importances_)[::-1]
             post_feat_importance = post_feat_importance.astype('str')
 
@@ -285,7 +366,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
             # Define the file path
             #file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_no_waiting_time_sim' + '.csv'
-            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '.csv'
+            file_path = 'experiments/new_results/model_performances_' + CONF['hyperparameter_optimisation_target'] + '_' + dataset_name + '_updated_pipeline_march.csv'
 
             # Write the DataFrame to a CSV file in append mode
             results_df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
@@ -304,18 +385,17 @@ if __name__ == '__main__':
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
         #'bpic2015_2_start': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ,14 ,15],
-        'SynLoan': [20],
+        'SynLoan': [40],
         #'ConsultaDataMining201618': [9]
-        #"BPI_Challenge_2012_W_Two_TS": [20]
-        #'Productions': [20]
-        #'PurchasingExample': [20]
+        #'Productions': [40]
+        #'PurchasingExample': [40]
         #"cvs_pharmacy": [8]
     }
     for dataset, prefix_lengths in dataset_list.items():
         for prefix in prefix_lengths:
-            for augmentation_factor in [0.1]:
+            for augmentation_factor in [0.005,0.10,0.15,0.20]:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('datasets/' + dataset, 'labelling_generate.xes'),
+                    'data': os.path.join('datasets',dataset, 'labelling_generate.xes'),
                     'train_val_test_split': [0.7, 0.15, 0.15],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,
@@ -331,12 +411,12 @@ if __name__ == '__main__':
                     'threshold': 13,
                     'top_k': 10,
                     'hyperparameter_optimisation': False,  # TODO, this parameter is not used
-                    'hyperparameter_optimisation_target': HyperoptTarget.AUC.value,
+                    'hyperparameter_optimisation_target': HyperoptTarget.MCC.value,
                     'hyperparameter_optimisation_evaluations': 20,
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,
                     'simulation': True,  ## if True the simulation of TRAIN + CF is run,
-                    'drop_factuals': False
+                    'drop_factuals':False
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

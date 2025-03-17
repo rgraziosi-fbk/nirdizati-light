@@ -44,11 +44,11 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
     except OSError as error:
         print("Directory '%s' can not be created" % model_path)
     time_start = datetime.now()
-    query_instances_for_cf = query_instances.iloc[:,:-1]
-    query_instances_for_cf = query_instances_for_cf.sample(n=int(total_traces), replace=True)
+    query_instances_for_cf = query_instances.drop(columns=['label'])
+    query_instances_for_cf = query_instances_for_cf.sample(n=int(total_traces), replace=False)
     d = dice_ml.Data(dataframe=df, continuous_features=continuous_features, outcome_name='label')
     m = dice_model(predictive_model)
-    dice_query_instance = dice_ml.Dice(d, m, method, encoder)
+    dice_query_instance = dice_ml.Dice(d, m, method)
     time_train = (datetime.now() - time_start).total_seconds()
     index_test_instances = range(len(query_instances_for_cf))
     total_cfs = 0
@@ -72,7 +72,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
         if desired_range is None:
             if method == 'genetic_conformance':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                           verbose=False,
+                                                                           verbose=False,stopping_threshold=0.6,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
@@ -81,7 +81,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            )
             elif method == 'multi_objective_genetic':
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder, desired_class='opposite',
-                                                                           verbose=False,
+                                                                           verbose=False,stopping_threshold=0.6,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k, dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                            model_path=model_path, optimization=optimization,
@@ -90,7 +90,7 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            )
             else:
                 dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
-                                                                           verbose=False,
+                                                                           verbose=False,stopping_threshold=0.6,
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
                                                                                                                 random_seed=CONF['seed'],
@@ -128,12 +128,13 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
 
         # function to decode cf from train_df and show it decoded before adding to list
         generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
+        #print(generated_cfs.values)
         cf_list = np.array(generated_cfs).astype('float64')
         y_pred = predictive_model.model.predict(x.values.reshape(1, -1))[0]
         time_test = (datetime.now() - time_start_i).total_seconds()
 
         x_eval = evaluate_cf_list(cf_list, x.values.reshape(1,-1), cont_feature_index, cat_feature_index, df=df,
-                                  nr_of_cfs=5,y_pred=y_pred,predictive_model=predictive_model,
+                                  nr_of_cfs=1,y_pred=y_pred,predictive_model=predictive_model,
                                   query_instances=query_instances,continuous_features=continuous_features,
                                   categorical_features=categorical_features,ratio_cont=ratio_cont
                                  )
@@ -184,6 +185,8 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
     if len(cf_list_all) > 0:
         df_cf = pd.DataFrame(data=cf_list_all, columns=features_names)
         df_cf['label'] = predictive_model.model.predict(cf_list_all)
+        probs = predictive_model.model.predict_proba(cf_list_all)
+        print(probs)
         encoder.decode(df_cf)
         df_cf['Case ID'] = case_ids
         if CONF['feature_selection'] in single_prefix:
