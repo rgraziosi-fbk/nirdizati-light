@@ -1,0 +1,244 @@
+import pm4py
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import os
+import joblib
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import GridSearchCV
+import matplotlib.pyplot as plt
+import random
+import math
+import warnings
+warnings.filterwarnings("ignore")
+
+# Load and preprocess data
+df = pd.read_csv('sepsis_estimated_start.csv', sep=";")
+
+ACT_2_NUMBER = {'ER Registration': 0, 'ER Triage': 1, 'ER Sepsis Triage': 2, 'LacticAcid': 3, 'Leucocytes': 4,
+                'CRP': 5, 'IV Liquid': 6, 'IV Antibiotics': 7, 'Admission NC': 8, 'Release A': 9, 'Admission IC': 10,
+                'Release B': 11, 'Return ER': 12, 'Release C': 13, 'Release D': 14, 'Release E': 15, 'PAD': 16}
+NUMBER_2_ACT = {0: 'ER Registration', 1: 'ER Triage', 2: 'ER Sepsis Triage', 3: 'LacticAcid', 4: 'Leucocytes',
+                5: 'CRP', 6: 'IV Liquid', 7: 'IV Antibiotics', 8: 'Admission NC', 9: 'Release A', 10: 'Admission IC',
+                11: 'Release B', 12: 'Return ER', 13: 'Release C', 14: 'Release D', 15: 'Release E', 16: 'PAD'}
+TRACE_ATTRIBUTES = ['InfectionSuspected',
+       'DiagnosticBlood', 'DisfuncOrg', 'SIRSCritTachypnea', 'Hypotensie',
+       'SIRSCritHeartRate', 'Infusion', 'DiagnosticArtAstrup', 'Age',
+       'DiagnosticIC', 'DiagnosticSputum', 'DiagnosticLiquor',
+       'DiagnosticOther', 'SIRSCriteria2OrMore', 'DiagnosticXthorax',
+       'SIRSCritTemperature', 'DiagnosticUrinaryCulture', 'SIRSCritLeucos',
+       'Oligurie', 'DiagnosticLacticAcid', 'Diagnose', 'Hypoxie',
+       'DiagnosticUrinarySediment', 'DiagnosticECG']
+RESOURCE_2_NUMBER = {'A': 0, 'C': 1, 'B': 2, 'I': 3, 'L': 4, 'M': 5, 'G': 6, 'F': 7, 'R': 8, 'E': 9, 'O': 10, 'V': 11,
+                     'W': 12, 'Q': 13, 'N': 14, 'D': 15, 'U': 16, 'T': 17, '?': 18, 'H': 19, 'S': 20, 'P': 21, 'X': 22,
+                     'J': 23, 'K': 24, 'Y': 25}
+NUMBER_2_RESOURCE = {0: 'A', 1: 'C', 2: 'B', 3: 'I', 4: 'L', 5: 'M', 6: 'G', 7: 'F', 8: 'R', 9: 'E', 10: 'O', 11: 'V',
+                     12: 'W', 13: 'Q', 14: 'N', 15: 'D', 16: 'U', 17: 'T', 18: '?', 19: 'H', 20: 'S', 21: 'P',
+                     22: 'X', 23: 'J', 24: 'K', 25: 'Y'}
+EVENT_ATTRIBUTES = ['Leucocytes', 'CRP', 'LacticAcid'] ### set -1 if is not present
+NUMBER_TO_DIAGNOSE = {0: 'C', 1: 'NOT', 2: 'H', 3: 'B', 4: 'E', 5: 'PC', 6: 'G', 7: 'LE', 8: 'N', 9: 'CC', 10: 'Y', 11:'LA',
+                      12: 'UD', 13: 'K', 14: 'OA', 15: 'D', 16: 'QB', 17: 'BB', 18: 'LD', 19: 'J', 20: 'S', 21: 'Q', 22: 'RC',
+                      23: 'KE', 24: 'AC', 25: 'HE', 26: 'CA', 27: 'OB', 28: 'R', 29: 'KA', 30: 'O', 31: 'FA', 32:'GB',
+                      33: 'GA', 34: 'AA', 35: 'JD', 36: 'EA', 37: 'IC', 38: 'GC', 39: 'JC', 40: 'VB', 41: 'T', 42: 'RA',
+                      43: 'GD', 44: 'ZC', 45: 'ID', 46: 'I', 47: 'WC', 48: 'FC', 49: 'VA', 50: 'HC', 51: 'P', 52: 'ND',
+                      53: 'MD', 54: 'ZB', 55: 'RB', 56: 'HA', 57: 'MA', 58: 'Z', 59: 'BA', 60: 'WA', 61: 'SB', 62: 'AE',
+                      63: 'SA', 64: 'ZA', 65: 'XA', 66: 'EB', 67: 'U', 68: 'M', 69: 'W', 70: 'TC', 71: 'PB', 72: 'QC',
+                      73: 'MC', 74: 'GE', 75: 'BC', 76: 'NB', 77: 'EE', 78: 'JA', 79: 'UC', 80: 'IB', 81: 'FB', 82: 'F',
+                      83: 'HB', 84: 'IA', 85: 'FE', 86: 'X', 87: 'OC', 88: 'SD', 89: 'L', 90: 'YD', 91: 'CD', 92: 'IE',
+                      93: 'XC', 94: 'SC', 95: 'TA', 96: 'TB', 97: 'JE', 98: 'AB', 99: 'XB', 100: 'DE', 101: 'KD', 102: 'CE',
+                      103: 'ZD', 104: 'UA', 105: 'XD', 106: 'KB', 107: 'LB', 108: 'AD', 109: 'LC', 110: 'QA', 111: 'PD',
+                      112: 'KC', 113: 'RD', 114: 'YA', 115: 'DB', 116: 'OD', 117: 'WD', 118: 'OE', 119: 'FD', 120: 'PE',
+                      121: 'ME', 122: 'VD', 123: 'EC', 124: 'BE', 125: 'ED', 126: 'A', 127: 'CB', 128: 'BD', 129: 'HD',
+                      130: 'DD', 131: 'QD', 132: 'UB', 133: 'NC', 134: 'MB', 135: 'QE', 136: 'YC', 137: 'VC', 138: 'TD',
+                      139: 'JB', 140: 'V', 141: 'PA', 142: 'YB', 143: 'DA', 144: 'DC', 145: 'WB'}
+DIAGNOSE_TO_NUMBER = {'C': 0, 'NOT': 1, 'H': 2, 'B': 3, 'E': 4, 'PC': 5, 'G': 6, 'LE': 7, 'N': 8, 'CC': 9, 'Y': 10, 'LA': 11,
+                      'UD': 12, 'K': 13, 'OA': 14, 'D': 15, 'QB': 16, 'BB': 17, 'LD': 18, 'J': 19, 'S': 20, 'Q': 21, 'RC': 22,
+                      'KE': 23, 'AC': 24, 'HE': 25, 'CA': 26, 'OB': 27, 'R': 28, 'KA': 29, 'O': 30, 'FA': 31, 'GB': 32,
+                      'GA': 33, 'AA': 34, 'JD': 35, 'EA': 36, 'IC': 37, 'GC': 38, 'JC': 39, 'VB': 40, 'T': 41, 'RA': 42,
+                      'GD': 43, 'ZC': 44, 'ID': 45, 'I': 46, 'WC': 47, 'FC': 48, 'VA': 49, 'HC': 50, 'P': 51, 'ND': 52,
+                      'MD': 53, 'ZB': 54, 'RB': 55, 'HA': 56, 'MA': 57, 'Z': 58, 'BA': 59, 'WA': 60, 'SB': 61, 'AE': 62,
+                      'SA': 63, 'ZA': 64, 'XA': 65, 'EB': 66, 'U': 67, 'M': 68, 'W': 69, 'TC': 70, 'PB': 71, 'QC': 72,
+                      'MC': 73, 'GE': 74, 'BC': 75, 'NB': 76, 'EE': 77, 'JA': 78, 'UC': 79, 'IB': 80, 'FB': 81, 'F': 82,
+                      'HB': 83, 'IA': 84, 'FE': 85, 'X': 86, 'OC': 87, 'SD': 88, 'L': 89, 'YD': 90, 'CD': 91, 'IE': 92,
+                      'XC': 93, 'SC': 94, 'TA': 95, 'TB': 96, 'JE': 97, 'AB': 98, 'XB': 99, 'DE': 100, 'KD': 101, 'CE': 102,
+                      'ZD': 103, 'UA': 104, 'XD': 105, 'KB': 106, 'LB': 107, 'AD': 108, 'LC': 109, 'QA': 110, 'PD': 111,
+                      'KC': 112, 'RD': 113, 'YA': 114, 'DB': 115, 'OD': 116, 'WD': 117, 'OE': 118, 'FD': 119, 'PE': 120,
+                      'ME': 121, 'VD': 122, 'EC': 123, 'BE': 124, 'ED': 125, 'A': 126, 'CB': 127, 'BD': 128, 'HD': 129,
+                      'DD': 130, 'QD': 131, 'UB': 132, 'NC': 133, 'MB': 134, 'QE': 135, 'YC': 136, 'VC': 137, 'TD': 138,
+                      'JB': 139, 'V': 140, 'PA': 141, 'YB': 142, 'DA': 143, 'DC': 144, 'WB': 145}
+PREFIX_LEN = 20
+PREFIX_COLUMNS = ['prefix'+str(i) for i in range(PREFIX_LEN)]
+FEATURE_COLUMNS = ["caseid", "org:resource", "concept:name"] + TRACE_ATTRIBUTES + EVENT_ATTRIBUTES + PREFIX_COLUMNS
+TARGET_COLUMN = ["processing_time", "caseid"]
+
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+#### PRE-PROCESSING DATA
+
+##### da aggiungere (ora e giorno della settimana), sistemate trace attrib and events
+#### aggiustare se prefix e' troppo lungo
+
+### create processing_time
+df = df.sort_values(by=['caseid', 'start:timestamp'], ascending=[True, True])
+df['time:timestamp'] = pd.to_datetime(df['time:timestamp'], utc=True)
+df['start:timestamp'] = pd.to_datetime(df['start:timestamp'], utc=True)
+df['processing_time'] = (df['time:timestamp'] - df['start:timestamp']).dt.total_seconds()
+### traces attributes
+caseid_unique = list(df['caseid'].unique())
+trace_attribs = {a:[] for a in TRACE_ATTRIBUTES}
+for caseid in caseid_unique:
+    group_case = df[df['caseid'] == caseid]
+    for a in TRACE_ATTRIBUTES:
+        if a == 'Diagnose':
+            if len(list(group_case[a].unique())) > 1:
+                index = group_case[a].notna().to_numpy().nonzero()[0][0]
+                encoding = DIAGNOSE_TO_NUMBER[group_case[a].iloc[index]]
+            else:
+                encoding = DIAGNOSE_TO_NUMBER['NOT']
+            trace_attribs[a] += [encoding] * len(group_case)
+        else:
+            index = group_case[a].notna().to_numpy().nonzero()[0]
+            trace_attribs[a] += [int(group_case[a].iloc[index])] * len(group_case)
+for a in TRACE_ATTRIBUTES:
+    df[a] = trace_attribs[a]
+
+#### prefix
+prefix_columns = {'prefix'+str(i): [] for i in range(PREFIX_LEN)}
+event_attrib = {e: [] for e in EVENT_ATTRIBUTES}
+for caseid in caseid_unique:
+    group_case = df[df['caseid'] == caseid]
+    prefix_case = []
+    for idx, row in enumerate(group_case.iterrows()):
+        prefix = 'prefix'+str(idx)
+        if len(prefix_case) > PREFIX_LEN:
+            prefix_case.pop(0)
+        prefix_case.append(row[1]['concept:name'])
+
+        for idx, prefix_i in enumerate(prefix_columns):
+            if idx < len(prefix_case):
+                prefix_columns[prefix_i].append(ACT_2_NUMBER[prefix_case[idx]])
+            else:
+                prefix_columns[prefix_i].append(ACT_2_NUMBER['PAD'])
+
+        for e in EVENT_ATTRIBUTES:
+            event_attrib[e].append(-1 if math.isnan(row[1][e]) else row[1][e])
+
+### resource
+#for idx, row in enumerate(df.iterrows()):
+    #df.loc[idx, 'org:resource'] = RESOURCE_2_NUMBER[df['org:resource'].iloc[idx]]
+df['org:resource'] = df['org:resource'].map(RESOURCE_2_NUMBER)
+df['concept:name'] = df['concept:name'].map(ACT_2_NUMBER)
+
+for e in EVENT_ATTRIBUTES:
+    df[e] = event_attrib[e]
+
+for prefix_i in prefix_columns:
+    df[prefix_i] = prefix_columns[prefix_i]
+
+# Define X and y
+X = df[FEATURE_COLUMNS]
+y = df[TARGET_COLUMN]
+
+# Scale the target column y
+scaler = MinMaxScaler()
+y_scaled = scaler.fit_transform(df["processing_time"].values.reshape(-1, 1)).flatten()
+y.loc[:, 'processing_time'] = y_scaled
+
+# Split the dataset into train, validation, and test sets
+#X_train, X_test, y_train, y_test = train_test_split(X, y_scaled, test_size=0.2, random_state=42)
+
+unique_case_ids = df['caseid'].unique()
+train_case_ids, test_case_ids = train_test_split(unique_case_ids, test_size=0.2, random_state=42)
+
+# Create train and test datasets based on caseid
+X_train = X[X['caseid'].isin(train_case_ids)]
+X_test = X[X['caseid'].isin(test_case_ids)]
+
+y_train = y[y['caseid'].isin(train_case_ids)]
+y_test = y[y['caseid'].isin(test_case_ids)]
+
+X_train = X_train.drop(['caseid'], axis=1)
+X_test = X_test.drop(['caseid'], axis=1)
+y_train = y_train.drop(['caseid'], axis=1)
+y_test = y_test.drop(['caseid'], axis=1)
+
+test_indices = X_test.index
+case_selected = random.sample(list(test_case_ids), 20)
+cases_to_optimize = df[df['caseid'].isin(case_selected)]
+print('cases_to_optimize', cases_to_optimize)
+#cases_to_optimize.to_csv('../syn_dependent_data_model/big_1_20_50_to_optimize.csv', index=False)
+
+y_train = y_train.values.ravel()
+y_test = y_test.values.ravel()
+
+rfr_mean = RandomForestRegressor(random_state=42)
+grid_search = GridSearchCV(estimator=rfr_mean, param_grid=param_grid, cv=5, n_jobs=-1, scoring='neg_mean_squared_error', verbose=1)
+grid_search.fit(X_train, y_train)
+rfr_mean = grid_search.best_estimator_
+print("Best Parameters MEAN:", grid_search.best_params_)
+#rfr_mean.fit(X_train, y_train.ravel())
+
+#joblib.dump(rfr_mean, '../syn_dependent_data_model/big_1_predictive_model_mean.joblib')
+
+mean_pred_train = rfr_mean.predict(X_train)
+X_new_train = np.hstack((X_train, mean_pred_train.reshape(-1, 1)))
+
+# Define y_new as the absolute difference between predicted and actual processing time (std)
+y_new_train = np.abs(mean_pred_train - y_train)
+
+# Train the second Random Forest Regressor (RFR) to predict the std of processing time
+rfr_std = RandomForestRegressor(random_state=42)
+grid_search = GridSearchCV(estimator=rfr_std, param_grid=param_grid, cv=5, n_jobs=-1, scoring='neg_mean_squared_error', verbose=1)
+grid_search.fit(X_new_train, y_new_train.ravel())
+rfr_std = grid_search.best_estimator_
+print("Best Parameters STD:", grid_search.best_params_)
+#rfr_std.fit(X_new_train, y_new_train)
+
+#joblib.dump(rfr_std, '../syn_dependent_data_model/big_1_predictive_model_std.joblib')
+#joblib.dump(scaler, '../syn_dependent_data_model/big_1_predictive_model_scaler.pkl')
+
+mean_pred_test = rfr_mean.predict(X_test)
+X_new_test = np.hstack((X_test, mean_pred_test.reshape(-1, 1)))
+std_pred_test = rfr_std.predict(X_new_test)
+
+y_pred_sampled = np.random.normal(mean_pred_test, std_pred_test)
+
+y_test_rescaled = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
+y_pred_sampled_rescaled = scaler.inverse_transform(y_pred_sampled.reshape(-1, 1)).flatten()
+
+# Calculate the Mean Absolute Error
+mae_sampled = mean_absolute_error(y_test_rescaled, y_pred_sampled_rescaled)
+
+print(f"MAE: {mae_sampled}")
+
+error_processing_time = []
+error_mu = []
+error_std = []
+
+for i in range(0, round(len(X_test)/5)):
+    mean_pred = rfr_mean.predict(X_test.iloc[[i]])
+    X_new_test = np.hstack((X_test.iloc[[i]], mean_pred.reshape(-1, 1)))
+    std_pred = rfr_std.predict(X_new_test)
+
+    original_index = test_indices[i]  # Assuming indices were saved earlier
+
+    proc_time_pred = np.random.normal(mean_pred, std_pred, 1)[0]
+    mu_rescaled = scaler.inverse_transform(mean_pred.reshape(-1, 1))[0][0]
+    sigma_rescaled = scaler.inverse_transform(std_pred.reshape(-1, 1))[0][0]
+    proc_time_pred_rescaled = scaler.inverse_transform(np.array([[proc_time_pred]]))[0][0]
+
+    print(f"Index: {original_index}, Predicted mu: {mu_rescaled}, Predicted sigma: {sigma_rescaled}, Predicted Processing Time: {proc_time_pred_rescaled}, Real Processing Time: {df.iloc[original_index]['processing_time']}")
+    print('--------------------------------------------------------------------------------------------------------------------------')
+
+    error_processing_time.append(abs(df.iloc[original_index]['processing_time'] - proc_time_pred_rescaled))
+
+print('ERROR PROCESSING TIME', np.mean(error_processing_time))
+
