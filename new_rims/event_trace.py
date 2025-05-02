@@ -55,51 +55,54 @@ class Token(object):
             next = None
         return next
 
-    def next_event(self):  ### add the consideration of parallel
+    def next_event(self, env: simpy.Environment):  ### add the consideration of parallel
         if self.sequence:
             next = self.sequence[0]
+            if next[0] == True: ### parallel
+                token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
+                          self._writer, self._parallel_object, self._buffer._get_dictionary(), next, self.CF, self.NAME_EXPERIMENT).simulation(env))
+                next_events = [token]
+                for t in next[-1]:
+                    token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
+                                              self._writer, self._parallel_object, self._buffer._get_dictionary(), t,
+                                              self.CF, self.NAME_EXPERIMENT).simulation(env))
+                    next_events.append(token)
+            else:
+                next_events = next
             del self.sequence[0]
         else:
-            next = None
-        return next
+            next_events = None
+        return next_events
 
 
     def simulation(self, env: simpy.Environment):
         """
             The main function to handle the simulation of a single trace
         """
-        trans = self.next_transition(env)
         ### register trace in process ###
+        event = self.next_event(env)
         request_resource = None
         resource_trace = self._process._get_resource_trace()
         resource_trace_request = resource_trace.request() if self._type == 'sequential' else None
 
-        while trans is not None:
+        while event is not None:
             if not self.see_activity and self._type == 'sequential':
                 yield resource_trace_request
-            if type(trans) == list:
-                yield AllOf(env, trans)
-                am_after = self._parallel_object._get_last_events()
-                for d in self._delete_places(self._am):
-                    del self._am[d]
-                for t in am_after:
-                    self._am[t] = 1
-                trans = self.next_transition(env)
-
-            if trans and trans.label:
+            if event[0] == True: ### check parallel
+                yield AllOf(env, event)
+                event = self.next_event(env)
+            if event is not None:
+                print('EVENT', event)
                 self._buffer.reset()
                 self._buffer.set_feature("id_case", self._id)
-                self._buffer.set_feature("activity", trans.label)
+                self._buffer.set_feature("activity", event[1])
                 self._buffer.set_feature("prefix", self._prefix.get_prefix(self._start_time + timedelta(seconds=env.now)))
-                self._buffer.set_feature("attribute_event", custom.event_function_attribute(self._id,
-                                                                                            self._start_time + timedelta(
-                                                                                                seconds=env.now)))
 
-                ### call predictor for waiting time
-                if trans.label in self._params.ROLE_ACTIVITY:
-                    resource = self._process._get_resource(self._params.ROLE_ACTIVITY[trans.label])
-                else:
-                    raise ValueError('Not resource/role defined for this activity', trans.label)
+                #### attribute events
+                ### attribute traces
+
+                # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
+                resource = self._process._get_resource(event[3])
 
                 #self._buffer.set_feature("wip_wait", 0 if type != 'sequential' else resource_trace.count-1)
                 self._buffer.set_feature("wip_wait", resource_trace.count)
@@ -108,14 +111,14 @@ class Token(object):
                 self._buffer.set_feature("role", resource._get_name())
 
                 ### register event in process ###
-                resource_task = self._process._get_resource_event(trans.label)
+                resource_task = self._process._get_resource_event(event[1])
                 self._buffer.set_feature("wip_activity", resource_task.count)
 
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("queue", queue)
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
 
-                waiting = self.define_waiting_time(trans.label)
+                waiting = event[4]
                 if self.see_activity:
                     yield env.timeout(waiting)
 
@@ -136,25 +139,21 @@ class Token(object):
                 stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
                 yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
-                duration = self.define_processing_time(trans.label)
+                duration = event[2]
 
                 yield env.timeout(duration)
 
                 self._buffer.set_feature("wip_end", resource_trace.count)
                 self._buffer.set_feature("end_time", self._start_time + timedelta(seconds=env.now))
                 self._buffer.print_values()
-                self._prefix.add_activity(trans.label)
+                self._prefix.add_activity(event[1])
                 resource.release(request_resource)
                 self._process._release_single_resource(resource._get_name(), single_resource)
                 resource_task.release(resource_task_request)
+                event = self.next_event(env)
 
-            self._update_marking(trans)
-            trans = self.next_transition(env) if self._am else None
-
-        if self._type == 'parallel':
-            self._parallel_object._set_last_events(self._am)
-        if self._type == 'sequential':
-            resource_trace.release(resource_trace_request)
+            if self._type == 'sequential':
+                resource_trace.release(resource_trace_request)
 
     def _get_resource_role(self, activity):
         elements = self._params.ROLE_ACTIVITY[activity.label]

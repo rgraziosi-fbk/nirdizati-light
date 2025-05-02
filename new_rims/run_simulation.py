@@ -191,6 +191,7 @@ def read_training(train):
         groups = duplicates.groupby("available_time").groups
         parallel = list(groups.values())
         for index, row in group_case.iterrows():
+            ### event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
             event = []
             event.append(False)
             event += [row['concept:name'], row['processing_time'], row['org:resource']]
@@ -250,6 +251,7 @@ def run(NAME_EXPERIMENT, log, arrivals, contrafactual, key):
 def run_simulation_sepsis(train_df, df_cf, NAME_EXPERIMENT, N_SIMULATION=1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
     input_train = pd.read_csv('sepsis_start_test.csv', sep=",")
+    input_train = input_train[input_train['caseid'] == 'AA']
     input_train['time:timestamp'] = pd.to_datetime(input_train['time:timestamp'])
     input_train['start:timestamp'] = pd.to_datetime(input_train['start:timestamp'])
     input_train['available_time'] = pd.to_datetime(input_train['available_time'])
