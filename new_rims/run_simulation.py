@@ -1,21 +1,13 @@
 from datetime import datetime
 import csv
 import simpy
-from rims.checking_process import SimulationProcess
-from rims.token_LSTM import Token
-from rims.MAINparameters import Parameters
-import sys, getopt
-import warnings
-from os.path import exists
-import os
+from process import SimulationProcess
+from event_trace import Token
+from parameters import Parameters
 import pandas as pd
-import pm4py
-from pm4py.objects.log.util import sorting
-from rims.inter_trigger_timer import InterTriggerTimer
+from inter_trigger_timer import InterTriggerTimer
 from datetime import timedelta
-from pm4py.objects.log.importer.xes import importer as xes_importer
-from operator import itemgetter
-# Check if eager execution is enabled
+from utility import *
 
 ATTRIBUTES = {
         'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
@@ -96,16 +88,19 @@ ATTRIBUTES = {
                     ]}
 }
 
+TRACE_ATTRIBUTES = ['InfectionSuspected',
+       'DiagnosticBlood', 'DisfuncOrg', 'SIRSCritTachypnea', 'Hypotensie',
+       'SIRSCritHeartRate', 'Infusion', 'DiagnosticArtAstrup', 'Age',
+       'DiagnosticIC', 'DiagnosticSputum', 'DiagnosticLiquor',
+       'DiagnosticOther', 'SIRSCriteria2OrMore', 'DiagnosticXthorax',
+       'SIRSCritTemperature', 'DiagnosticUrinaryCulture', 'SIRSCritLeucos',
+       'Oligurie', 'DiagnosticLacticAcid', 'Diagnose', 'Hypoxie',
+       'DiagnosticUrinarySediment', 'DiagnosticECG']
+EVENT_ATTRIBUTES = ['Leucocytes', 'CRP', 'LacticAcid']
 
-def read_log_csv(self, path):
-    dataframe = pd.read_csv(path, sep=',')
-    dataframe = pm4py.format_dataframe(dataframe, case_id='caseid', activity_key='task',
-                                       timestamp_key='end_timestamp')
-    event_log = pm4py.convert_to_event_log(dataframe)
-    event_log = sorting.sort_timestamp(event_log, timestamp_key='start_timestamp')
-    return event_log
 
 
+''' old version 
 def read_training(train, attrib_event, attrib_trace):
     # [event, event_processingTime, resource, wait, amount]
     arrivals_train = []
@@ -169,48 +164,8 @@ def read_contrafactual(contrafactual, attrib_event, attrib_trace):
             count_prefix += 1
             prefix = 'prefix_' + str(count_prefix)
         count_prefix = 1
-    return contrafactual_traces, arrivals_CF
+    return contrafactual_traces, arrivals_CF'''
 
-
-def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key):
-    simulation_process = SimulationProcess(env=env, params=params)
-    path_result = os.getcwd() + '/datasets/' + NAME_EXPERIMENT + '/results/simulated_log_' + NAME_EXPERIMENT + '_' + '.csv'
-    f = open(path_result, 'w')
-    writer = csv.writer(f)
-    writer.writerow(['caseid', 'task', 'arrive:timestamp', 'start:timestamp', 'time:timestamp', 'role', 'open_cases', 'st_tsk_wip', 'queue'] +
-                    ATTRIBUTES[NAME_EXPERIMENT]['EVENT'] + ['attrib_trace', 'label'])
-    params.START_SIMULATION = arrivals[0][1]
-    interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION, len(arrivals))
-    #prev = arrivals[0][1]
-    prev = params.START_SIMULATION
-    for i in range(0, len(arrivals)):
-        #next = arrivals[i][1]
-        #interval = (next - prev).total_seconds()
-        itime = interval.get_next_arrival(env, i, prev)
-        prev = prev + timedelta(seconds=itime)
-        #yield env.timeout(interval)
-        yield env.timeout(itime)
-        if str(arrivals[i][0]) in key:
-            id_arrival = str(arrivals[i][0])
-            env.process(Token(id_arrival, params, simulation_process, [], contrafactual[arrivals[i][0]].copy(), NAME_EXPERIMENT).simulation(env, writer, type))
-        else:
-            env.process(Token(arrivals[i][0], params, simulation_process, log[arrivals[i][0]].copy(), False, NAME_EXPERIMENT).simulation(env, writer, type))
-
-
-def run(NAME_EXPERIMENT, type, log, arrivals, contrafactual, key):
-    path_model = os.getcwd() + '/datasets/' + NAME_EXPERIMENT + '/' + NAME_EXPERIMENT
-    if exists(path_model + '_diapr_meta.json'):
-        FEATURE_ROLE = 'all_role'
-    elif exists(path_model + '_dispr_meta.json'):
-        FEATURE_ROLE = 'no_all_role'
-    else:
-        raise ValueError('LSTM models do not exist in the right folder')
-    N_SIMULATION = 1
-    for i in range(0, N_SIMULATION):
-        params = Parameters(NAME_EXPERIMENT, FEATURE_ROLE, i, type)
-        env = simpy.Environment()
-        env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
-        env.run(until=params.SIM_TIME)
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT, type ='rims', N_SIMULATION = 1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
@@ -220,3 +175,86 @@ def run_simulation(train_df, df_cf, NAME_EXPERIMENT, type ='rims', N_SIMULATION 
                                   ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])
     arrivals = sorted(arrivals + arrivals_CF, key=lambda x: x[1])
     run(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))
+
+def read_training(train):
+    caseid_unique = list(train['caseid'].unique())
+    traces = dict()
+    for caseid in caseid_unique:
+        trace = []
+        event_attrib = {}
+        trace_attrib = {}
+        group_case = train[train['caseid'] == caseid]
+        group_case = group_case.reset_index(drop=True)
+        #### find parallel activities
+        # Find duplicate available_time rows
+        duplicates = group_case[group_case["available_time"].duplicated(keep=False)]
+        groups = duplicates.groupby("available_time").groups
+        parallel = list(groups.values())
+        for index, row in group_case.iterrows():
+            event = []
+            event.append(False)
+            event += [row['concept:name'], row['processing_time'], row['org:resource']]
+            wait = (row['start:timestamp']-row["available_time"]).total_seconds()
+            event.append(wait)
+            for e in EVENT_ATTRIBUTES:
+                event_attrib[e] = row[e]
+            for t in TRACE_ATTRIBUTES:
+                trace_attrib[t] = row[t]
+            event.append(event_attrib)
+            event.append(trace_attrib)
+            in_parallel = next((i for i, sublist in enumerate(parallel) if index in sublist), -1)
+            if in_parallel > -1:
+                event[0]= True ### there is a parallel
+                first_event_in_parallel = parallel[in_parallel][0]
+                if len(trace) > first_event_in_parallel:
+                    trace[first_event_in_parallel][-1].append(event)
+                else:
+                    event[-1] = []
+                    trace.append(event)
+            else:
+                trace.append(event)
+        traces[caseid] = trace
+    return traces
+
+
+
+
+def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, traces_train, arrivals, contrafactual, key):
+    simulation_process = SimulationProcess(env=env, params=params)
+    path_result = 'simulated_log_' + NAME_EXPERIMENT + '_.csv'
+    f = open(path_result, 'w')
+    writer = csv.writer(f)
+    writer.writerow(Buffer(writer).get_buffer_keys())
+    interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION)
+    contrafactual = False
+    for key in traces_train: ### to add also the contrafactual
+        prefix = Prefix()
+        itime = interval.get_next_arrival(env, i)
+        yield env.timeout(itime)
+        parallel_object = ParallelObject()
+        time_trace = params.START_SIMULATION + timedelta(seconds=env.now)
+        env.process(
+            Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
+                  traces_train[key], contrafactual, NAME_EXPERIMENT, None).simulation(env))
+
+def run(NAME_EXPERIMENT, log, arrivals, contrafactual, key):
+    N_SIMULATION = 1
+    N_TRACES = 1 #len(log)
+    path_parameters = 'input_sepsis.json'
+    for i in range(0, N_SIMULATION):
+        params = Parameters(path_parameters, N_TRACES)
+        env = simpy.Environment()
+        env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
+        env.run(until=params.SIM_TIME)
+
+def run_simulation_sepsis(train_df, df_cf, NAME_EXPERIMENT, N_SIMULATION=1):
+    print(NAME_EXPERIMENT, N_SIMULATION, type)
+    input_train = pd.read_csv('sepsis_start_test.csv', sep=",")
+    input_train['time:timestamp'] = pd.to_datetime(input_train['time:timestamp'])
+    input_train['start:timestamp'] = pd.to_datetime(input_train['start:timestamp'])
+    input_train['available_time'] = pd.to_datetime(input_train['available_time'])
+    traces_train = read_training(input_train)
+    run(NAME_EXPERIMENT, traces_train, None, [], [])
+
+
+run_simulation_sepsis(None, None, 'SEPSIS', N_SIMULATION=1)

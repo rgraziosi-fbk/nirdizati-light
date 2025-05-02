@@ -4,22 +4,18 @@ import os
 import numpy as np
 import pandas as pd
 import pm4py
-from sklearn.model_selection import train_test_split
 from nirdizati_light.encoding.common import get_encoded_df, EncodingType
 from nirdizati_light.encoding.constants import TaskGenerationType, PrefixLengthStrategy, EncodingTypeAttribute
 from nirdizati_light.encoding.time_encoding import TimeEncodingType
-from nirdizati_light.evaluation.common import evaluate_classifier, evaluate_regressor
 from nirdizati_light.explanation.common import ExplainerType, explain
 from nirdizati_light.hyperparameter_optimisation.common import retrieve_best_model, HyperoptTarget
 from nirdizati_light.labeling.common import LabelTypes
 from nirdizati_light.log.common import get_log
-from nirdizati_light.predictive_model.common import ClassificationMethods, get_tensor, RegressionMethods
+from nirdizati_light.predictive_model.common import ClassificationMethods, RegressionMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
 import random
-import json
-from pm4py import convert_to_event_log, write_xes
 from dataset_confs import DatasetConfs
-from run_simulation import run_simulation
+from new_rims.run_simulation import run_simulation
 import ast
 
 logger = logging.getLogger(__name__)

@@ -71,7 +71,7 @@ DIAGNOSE_TO_NUMBER = {'C': 0, 'NOT': 1, 'H': 2, 'B': 3, 'E': 4, 'PC': 5, 'G': 6,
                       'JB': 139, 'V': 140, 'PA': 141, 'YB': 142, 'DA': 143, 'DC': 144, 'WB': 145}
 PREFIX_LEN = 20
 PREFIX_COLUMNS = ['prefix'+str(i) for i in range(PREFIX_LEN)]
-FEATURE_COLUMNS = ["caseid", "org:resource", "concept:name"] + TRACE_ATTRIBUTES + EVENT_ATTRIBUTES + PREFIX_COLUMNS
+FEATURE_COLUMNS = ["caseid", "org:resource", "concept:name", "weekday", "hour"] + TRACE_ATTRIBUTES + EVENT_ATTRIBUTES + PREFIX_COLUMNS
 TARGET_COLUMN = ["processing_time", "caseid"]
 
 param_grid = {
@@ -79,6 +79,14 @@ param_grid = {
     'max_depth': [None, 10, 20, 30],
     'min_samples_split': [2, 5, 10],
     'min_samples_leaf': [1, 2, 4]
+}
+
+
+param_grid = {
+    'n_estimators': [200],
+    'max_depth': [10],
+    'min_samples_split': [10],
+    'min_samples_leaf': [4]
 }
 
 #### PRE-PROCESSING DATA
@@ -91,6 +99,14 @@ df = df.sort_values(by=['caseid', 'start:timestamp'], ascending=[True, True])
 df['time:timestamp'] = pd.to_datetime(df['time:timestamp'], utc=True)
 df['start:timestamp'] = pd.to_datetime(df['start:timestamp'], utc=True)
 df['processing_time'] = (df['time:timestamp'] - df['start:timestamp']).dt.total_seconds()
+#### hour and weekday
+weekday = []
+hour = []
+for idx, row in enumerate(df.iterrows()):
+    weekday.append(row[1]['start:timestamp'].weekday())
+    hour.append(row[1]['start:timestamp'].hour)
+df['weekday'] = weekday
+df["hour"] = hour
 ### traces attributes
 caseid_unique = list(df['caseid'].unique())
 trace_attribs = {a:[] for a in TRACE_ATTRIBUTES}
@@ -134,14 +150,18 @@ for caseid in caseid_unique:
 ### resource
 #for idx, row in enumerate(df.iterrows()):
     #df.loc[idx, 'org:resource'] = RESOURCE_2_NUMBER[df['org:resource'].iloc[idx]]
-df['org:resource'] = df['org:resource'].map(RESOURCE_2_NUMBER)
-df['concept:name'] = df['concept:name'].map(ACT_2_NUMBER)
+#df['org:resource'] = df['org:resource'].map(RESOURCE_2_NUMBER)
+#df['concept:name'] = df['concept:name'].map(ACT_2_NUMBER)
 
 for e in EVENT_ATTRIBUTES:
     df[e] = event_attrib[e]
 
 for prefix_i in prefix_columns:
     df[prefix_i] = prefix_columns[prefix_i]
+
+for prefix_i in prefix_columns:
+    df[prefix_i] = df[prefix_i].map(NUMBER_2_ACT)
+df.to_csv('sepsis_start_training.csv')
 
 # Define X and y
 X = df[FEATURE_COLUMNS]
