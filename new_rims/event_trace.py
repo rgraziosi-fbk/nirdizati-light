@@ -12,12 +12,11 @@ import csv
 from utility import Buffer, ParallelObject
 import custom_function as custom
 
-
 class Token(object):
 
     def __init__(self, id: int,
                  params: Parameters, process: SimulationProcess, prefix: Prefix, type: str, writer: csv.writer,
-                 parallel_object: ParallelObject, time: datetime, sequence, contrafactual, NAME_EXPERIMENT, values=None):
+                 parallel_object: ParallelObject, time: datetime, sequence, contrafactual, NAME_EXPERIMENT, buffer_definition, values=None):
         self._id = id
         self._process = process
         self._start_time = params.START_SIMULATION
@@ -30,8 +29,8 @@ class Token(object):
             self.see_activity = True
         self._writer = writer
         self._parallel_object = parallel_object
-        self._buffer = Buffer(writer, values)
-        self._buffer.set_feature("attribute_case", custom.case_function_attribute(self._id, time))
+        self._buffer_definition = buffer_definition
+        self._buffer = Buffer(writer, buffer_definition)
         ### added
         self.pos = 0
         self.sequence = sequence
@@ -62,13 +61,14 @@ class Token(object):
                 next[0] = False
                 token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
                                           self._writer, self._parallel_object, self._buffer._get_dictionary(), [next],
-                                          self.CF, self.NAME_EXPERIMENT).simulation(env))
+                                          self.CF, self.NAME_EXPERIMENT, self._buffer_definition).simulation(env))
                 next_events = [next, token]
                 for t in next[-1]:
                     token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
                                               self._writer, self._parallel_object, self._buffer._get_dictionary(), [t],
-                                              self.CF, self.NAME_EXPERIMENT).simulation(env))
+                                              self.CF, self.NAME_EXPERIMENT, self._buffer_definition).simulation(env))
                     next_events.append(token)
+                del next[-1]
                 #del self.sequence[0]
                 #after_parallel = self.sequence[0]
                 #next_events.insert(0, after_parallel)
@@ -104,23 +104,20 @@ class Token(object):
                 self._buffer.set_feature("prefix", self._prefix.get_prefix(self._start_time + timedelta(seconds=env.now)))
 
                 #### attribute events
+                for e in self._params.EVENT_ATTRIBUTES:
+                    self._buffer.set_feature(e, event[-2][e])
                 ### attribute traces
+                for t in self._params.TRACES_ATTRIBUTES:
+                    self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
                 resource = self._process._get_resource(event[3])
-
-                #self._buffer.set_feature("wip_wait", 0 if type != 'sequential' else resource_trace.count-1)
-                self._buffer.set_feature("wip_wait", resource_trace.count)
-                self._buffer.set_feature("ro_single", self._process.get_occupations_single_role(resource._get_name()))
-                self._buffer.set_feature("ro_total", self._process.get_occupations_all_role())
                 self._buffer.set_feature("role", resource._get_name())
 
                 ### register event in process ###
                 resource_task = self._process._get_resource_event(event[1])
-                self._buffer.set_feature("wip_activity", resource_task.count)
 
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
-                self._buffer.set_feature("queue", queue)
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
 
                 waiting = event[4]
@@ -135,12 +132,6 @@ class Token(object):
                 resource_task_request = resource_task.request()
                 yield resource_task_request
 
-                ### call predictor for processing time
-                self._buffer.set_feature("wip_start", resource_trace.count)
-                self._buffer.set_feature("ro_single", self._process.get_occupations_single_role(resource._get_name()))
-                self._buffer.set_feature("ro_total", self._process.get_occupations_all_role())
-                self._buffer.set_feature("wip_activity", resource_task.count)
-
                 #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
                 #yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
@@ -148,7 +139,6 @@ class Token(object):
 
                 yield env.timeout(duration)
 
-                self._buffer.set_feature("wip_end", resource_trace.count)
                 self._buffer.set_feature("end_time", self._start_time + timedelta(seconds=env.now))
                 self._buffer.print_values()
                 self._prefix.add_activity(event[1])

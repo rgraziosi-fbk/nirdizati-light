@@ -81,5 +81,14 @@
                         "17": "T", "18": "?", "19": "H", "20": "S", "21": "P", "22": "X", "23": "J", "24": "K", "25": "Y"},
     "PREFIX_LEN": 20,
     "PATH_MODEL_PROCESSIG_TIME": "",
-    "PATH_MODEL_WAITING_TIME": ""
+    "PATH_MODEL_WAITING_TIME": "",
+    "TRACE_ATTRIBUTES": ["InfectionSuspected",
+         "DiagnosticBlood", "DisfuncOrg", "SIRSCritTachypnea", "Hypotensie",
+         "SIRSCritHeartRate", "Infusion", "DiagnosticArtAstrup", "Age",
+         "DiagnosticIC", "DiagnosticSputum", "DiagnosticLiquor",
+         "DiagnosticOther", "SIRSCriteria2OrMore", "DiagnosticXthorax",
+         "SIRSCritTemperature", "DiagnosticUrinaryCulture", "SIRSCritLeucos",
+         "Oligurie", "DiagnosticLacticAcid", "Diagnose", "Hypoxie",
+         "DiagnosticUrinarySediment", "DiagnosticECG"],
+    "EVENT_ATTRIBUTES": ["Leucocytes", "CRP", "LacticAcid"]
 }

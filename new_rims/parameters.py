@@ -52,3 +52,5 @@ class Parameters(object):
 
     def read_parameter_sepsis(self, data):
         self.ACT_2_NUMBER = data['ACT_2_NUMBER']
+        self.TRACES_ATTRIBUTES = data["TRACE_ATTRIBUTES"]
+        self.EVENT_ATTRIBUTES = data["EVENT_ATTRIBUTES"]

@@ -43,26 +43,30 @@ class Prefix(object):
 
 class Buffer(object):
 
-    def __init__(self, writer, values=None):
-        self.buffer = {
-            "id_case": -1,
-            "activity": None,
-            "enabled_time": None,
-            "start_time": None,
-            "end_time": None,
-            "role": None,
-            "resource": None,
-            "wip_wait": -1,
-            "wip_start": -1,
-            "wip_end": -1,
-            "wip_activity": -1,
-            "ro_total": [],
-            "ro_single": -1,
-            "queue": -1,
-            "prefix": Prefix,
-            "attribute_case": dict(),
-            "attribute_event": dict()
-        }
+    def __init__(self, writer, buffer_predefined=False, values=None):
+        if buffer_predefined != False:
+            self.buffer = buffer_predefined
+        else:
+            self.buffer = {
+                "id_case": -1,
+                "activity": None,
+                "enabled_time": None,
+                "start_time": None,
+                "end_time": None,
+                "role": None,
+                "resource": None,
+                "wip_wait": -1,
+                "wip_start": -1,
+                "wip_end": -1,
+                "wip_activity": -1,
+                "ro_total": [],
+                "ro_single": -1,
+                "queue": -1,
+                "prefix": Prefix,
+                "attribute_case": dict(),
+                "attribute_event": dict()
+            }
+        self._to_reset = buffer_predefined
         if values:
             self._decopy_value(values)
         self.writer = writer
@@ -91,15 +95,4 @@ class Buffer(object):
         return self.buffer.keys()
 
     def reset(self):
-        self.buffer["enabled_time"] = None
-        self.buffer["start_time"] = None
-        self.buffer["end_time"] = None
-        self.buffer["resource"] = None
-        self.buffer["wip_wait"] = -1
-        self.buffer["wip_start"] = -1
-        self.buffer["wip_end"] = -1
-        self.buffer["wip_activity"] = -1
-        self.buffer["ro_total"] = []
-        self.buffer["ro_single"] = -1
-        self.buffer["queue"] = -1
-        self.buffer["attribute_event"] = dict()
+        self.buffer = self._to_reset

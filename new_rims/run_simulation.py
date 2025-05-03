@@ -237,9 +237,12 @@ def read_training(train):
 def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, traces_train, arrivals, contrafactual, key):
     simulation_process = SimulationProcess(env=env, params=params)
     path_result = 'simulated_log_' + NAME_EXPERIMENT + '_.csv'
+    buffer_definition = { "id_case": -1, "activity": None, "role": None, "enabled_time": None, "start_time": None, "end_time": None, "resource": None, "prefix": Prefix}
+    buffer_definition = buffer_definition | {a: None for a in EVENT_ATTRIBUTES} | {a: None for a in TRACE_ATTRIBUTES}
+    print(buffer_definition)
     f = open(path_result, 'w')
     writer = csv.writer(f)
-    writer.writerow(Buffer(writer).get_buffer_keys())
+    writer.writerow(buffer_definition.keys())
     interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION)
     contrafactual = False
     for key in traces_train: ### to add also the contrafactual
@@ -250,7 +253,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, traces_train
         time_trace = params.START_SIMULATION + timedelta(seconds=env.now)
         env.process(
             Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
-                  traces_train[key], contrafactual, NAME_EXPERIMENT, None).simulation(env))
+                  traces_train[key], contrafactual, NAME_EXPERIMENT, buffer_definition, None).simulation(env))
 
 def run(NAME_EXPERIMENT, log, arrivals, contrafactual, key):
     N_SIMULATION = 1
