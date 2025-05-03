@@ -59,14 +59,19 @@ class Token(object):
         if self.sequence:
             next = self.sequence[0]
             if next[0] == True: ### parallel
+                next[0] = False
                 token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
-                          self._writer, self._parallel_object, self._buffer._get_dictionary(), next, self.CF, self.NAME_EXPERIMENT).simulation(env))
-                next_events = [token]
+                                          self._writer, self._parallel_object, self._buffer._get_dictionary(), [next],
+                                          self.CF, self.NAME_EXPERIMENT).simulation(env))
+                next_events = [next, token]
                 for t in next[-1]:
                     token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
-                                              self._writer, self._parallel_object, self._buffer._get_dictionary(), t,
+                                              self._writer, self._parallel_object, self._buffer._get_dictionary(), [t],
                                               self.CF, self.NAME_EXPERIMENT).simulation(env))
                     next_events.append(token)
+                #del self.sequence[0]
+                #after_parallel = self.sequence[0]
+                #next_events.insert(0, after_parallel)
             else:
                 next_events = next
             del self.sequence[0]
@@ -88,11 +93,11 @@ class Token(object):
         while event is not None:
             if not self.see_activity and self._type == 'sequential':
                 yield resource_trace_request
-            if event[0] == True: ### check parallel
-                yield AllOf(env, event)
+            if type(event[0]) == list: ### check parallel
+                yield AllOf(env, event[1:])
                 event = self.next_event(env)
+                #event = event[0]
             if event is not None:
-                print('EVENT', event)
                 self._buffer.reset()
                 self._buffer.set_feature("id_case", self._id)
                 self._buffer.set_feature("activity", event[1])
@@ -136,8 +141,8 @@ class Token(object):
                 self._buffer.set_feature("ro_total", self._process.get_occupations_all_role())
                 self._buffer.set_feature("wip_activity", resource_task.count)
 
-                stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
-                yield env.timeout(stop)
+                #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
+                #yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
                 duration = event[2]
 

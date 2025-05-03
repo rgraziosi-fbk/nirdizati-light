@@ -8,6 +8,10 @@ import pandas as pd
 from inter_trigger_timer import InterTriggerTimer
 from datetime import timedelta
 from utility import *
+from itertools import groupby
+from operator import itemgetter
+
+PARALLEL = ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid']
 
 ATTRIBUTES = {
         'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
@@ -203,14 +207,24 @@ def read_training(train):
                 trace_attrib[t] = row[t]
             event.append(event_attrib)
             event.append(trace_attrib)
-            in_parallel = next((i for i, sublist in enumerate(parallel) if index in sublist), -1)
+            ### find_parallel
+            target_indices = group_case[group_case['concept:name'].isin(PARALLEL)].index.tolist()
+            # Group sequences
+            groups = []
+            for k, g in groupby(enumerate(target_indices), lambda x: x[0] - x[1]):
+                group = list(map(itemgetter(1), g))
+                if len(group) >= 2:  # Only keep groups with 2 or more target activities
+                    groups.append(group)
+            in_parallel = next((i for i, sublist in enumerate(groups) if index in sublist), -1)
             if in_parallel > -1:
-                event[0]= True ### there is a parallel
-                first_event_in_parallel = parallel[in_parallel][0]
+                first_event_in_parallel = groups[in_parallel][0]
+                wait = (row['available_time']-group_case.iloc[first_event_in_parallel - 1]["time:timestamp"]).total_seconds()
+                event[4] = wait
                 if len(trace) > first_event_in_parallel:
                     trace[first_event_in_parallel][-1].append(event)
                 else:
-                    event[-1] = []
+                    event[0] = True  ### there is a parallel
+                    event.append([])
                     trace.append(event)
             else:
                 trace.append(event)
@@ -231,7 +245,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, traces_train
     for key in traces_train: ### to add also the contrafactual
         prefix = Prefix()
         itime = interval.get_next_arrival(env, i)
-        yield env.timeout(itime)
+        yield env.timeout(0)
         parallel_object = ParallelObject()
         time_trace = params.START_SIMULATION + timedelta(seconds=env.now)
         env.process(

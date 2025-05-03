@@ -1,5 +1,5 @@
 {
-    "start_timestamp": "2013-11-07 03:00:00",
+    "start_timestamp": "2014-12-03 02:45:51",
     "duration_simulation": 30,
     "interTriggerTimer": {
         "type": "distribution",
@@ -11,7 +11,7 @@
     "resource": {
         "A": {"resources": ["A"]},
         "C": {"resources": ["C"]},
-        "B": {"resources": ["B"]},
+        "B": {"resources": ["B", "B1", "B2"]},
         "I": {"resources": ["I"]},
         "L": {"resources": ["L"]} ,
         "M": {"resources": ["M"]},
