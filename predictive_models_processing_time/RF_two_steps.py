@@ -262,3 +262,11 @@ for i in range(0, round(len(X_test)/5)):
 
 print('ERROR PROCESSING TIME', np.mean(error_processing_time))
 
+
+
+####### TO DO LIST #######
+'''
+1) Train waiting time model
+2) Save the models and set the load from the simulator
+3) Run experiments on sepsis
+'''
