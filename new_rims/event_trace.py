@@ -16,7 +16,7 @@ class Token(object):
 
     def __init__(self, id: int,
                  params: Parameters, process: SimulationProcess, prefix: Prefix, type: str, writer: csv.writer,
-                 parallel_object: ParallelObject, time: datetime, sequence, contrafactual, NAME_EXPERIMENT, buffer_definition, values=None):
+                 parallel_object: ParallelObject, time: datetime, sequence, NAME_EXPERIMENT, buffer_definition, CF, values=None):
         self._id = id
         self._process = process
         self._start_time = params.START_SIMULATION
@@ -34,25 +34,8 @@ class Token(object):
         ### added
         self.pos = 0
         self.sequence = sequence
-        self.contrafactual = contrafactual
-        self.CF = True if self.contrafactual else False
+        self.CF = CF
         self.NAME_EXPERIMENT = NAME_EXPERIMENT
-
-    #### to update for considering the parallel of activity
-    def next_event_contrafactual(self):
-        if self.contrafactual:
-            if self.sequence and self.sequence[0][0] == self.contrafactual[0][0]:
-                next = self.sequence[0]
-            else:
-                # [event, event_processingTime, resource, wait, attrib_events, attrib_traces, label]
-                next = [self.contrafactual[0][0], -1, self.contrafactual[0][1], -1, self.contrafactual[0][-3],
-                        self.contrafactual[0][-2], self.contrafactual[0][-1]]
-            if self.sequence:
-                del self.sequence[0]
-            del self.contrafactual[0]
-        else:
-            next = None
-        return next
 
     def next_event(self, env: simpy.Environment):  ### add the consideration of parallel
         if self.sequence:
@@ -111,7 +94,8 @@ class Token(object):
                     self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
-                resource = self._process._get_resource(event[3])
+                name_res = event[2] if self.CF else event[3]
+                resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
 
                 ### register event in process ###
@@ -120,7 +104,7 @@ class Token(object):
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
 
-                waiting = event[4]
+                waiting = 0 if self.CF else event[4] #### to adjust with the prediction
                 if self.see_activity:
                     yield env.timeout(waiting)
 
@@ -135,7 +119,7 @@ class Token(object):
                 #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
                 #yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
-                duration = event[2]
+                duration = 0 if self.CF else event[2] #### to adjust with the prediction
 
                 yield env.timeout(duration)
 

@@ -10,6 +10,7 @@ from datetime import timedelta
 from utility import *
 from itertools import groupby
 from operator import itemgetter
+import json
 
 PARALLEL = ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid']
 
@@ -102,83 +103,28 @@ TRACE_ATTRIBUTES = ['InfectionSuspected',
        'DiagnosticUrinarySediment', 'DiagnosticECG']
 EVENT_ATTRIBUTES = ['Leucocytes', 'CRP', 'LacticAcid']
 
-
-
-''' old version 
-def read_training(train, attrib_event, attrib_trace):
-    # [event, event_processingTime, resource, wait, amount]
-    arrivals_train = []
-    resource = 'org:resource_'
-    columns = list(train.columns)
-    count_prefix = 1
-    traces = dict()
-    for index, row in train.iterrows():
-        prefix = 'prefix_' + str(count_prefix)
-        start = pd.to_datetime(row['start:timestamp_1'], unit='s')
-        key = str(row['trace_id'])
-        arrivals_train.append([key, start])
-        buffer = []
-        attributes_trace = {}
-        attributes_event = {}
-        while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
-            start = row['start:timestamp_'+str(count_prefix)]
-            end = row['time:timestamp_'+str(count_prefix)]
-            processing = (end - start).total_seconds()
-            if count_prefix <= 1:
-                wait = 0
+def find_parallel(row):
+    prefix_trace = []
+    for index in range(1, 20):
+        prefix = 'prefix_' + str(index)
+        prefix_trace.append(1 if row[prefix] in PARALLEL else 0)
+    parallel_find = []
+    index = 0
+    open_sub = []
+    while index<len(prefix_trace):
+        if prefix_trace[index] == 1:
+            if len(open_sub) == 0:
+                open_sub = [index]
             else:
-                start = row['start:timestamp_' + str(count_prefix)]
-                end = row['time:timestamp_'+str(count_prefix-1)]
-                wait = (end - start).total_seconds()
-            for k in attrib_event:
-                attributes_event[k] = row[k + '_' + str(count_prefix)]
-            for k in attrib_trace:
-                attributes_trace[k] = row[k]
-            buffer.append([row[prefix], processing, row[resource + str(count_prefix)], wait, attributes_event, attributes_trace, row['label']])
-            count_prefix += 1
-            prefix = 'prefix_' + str(count_prefix)
-
-        traces[key] = buffer
-        count_prefix = 1
-    return traces, arrivals_train
-
-
-def read_contrafactual(contrafactual, attrib_event, attrib_trace):
-    ## list of events = [[activity, resource], ....]
-    arrivals_CF = []
-    resource = 'org:resource_'
-    columns = list(contrafactual.columns)
-    count_prefix = 1
-    contrafactual_traces = dict()
-    for index, row in contrafactual.iterrows():
-        key = str(row['trace_id']) + "_CF"
-        contrafactual_traces[key] = []
-        prefix = 'prefix_' + str(count_prefix)
-        start = pd.to_datetime(row['start:timestamp_1'], unit='s')
-        arrivals_CF.append([key, start])
-        attributes_trace = {}
-        attributes_event = {}
-        for k in attrib_trace:
-            attributes_trace[k] = row[k]
-        for k in attrib_event:
-            attributes_event[k] = row[k + '_' + str(count_prefix)]
-        while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
-            contrafactual_traces[key].append(
-                [row[prefix], row[resource + str(count_prefix)], attributes_event, attributes_trace, row['label']])
-            count_prefix += 1
-            prefix = 'prefix_' + str(count_prefix)
-        count_prefix = 1
-    return contrafactual_traces, arrivals_CF'''
-
-
-def run_simulation(train_df, df_cf, NAME_EXPERIMENT, type ='rims', N_SIMULATION = 1):
-    print(NAME_EXPERIMENT, N_SIMULATION, type)
-    log, arrivals = read_training(train_df, ATTRIBUTES[NAME_EXPERIMENT]['EVENT'],
-                                  ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])
-    contrafactual_traces, arrivals_CF = read_contrafactual(df_cf, ATTRIBUTES[NAME_EXPERIMENT]['EVENT'],
-                                  ATTRIBUTES[NAME_EXPERIMENT]['TRACE'])
-    arrivals = sorted(arrivals + arrivals_CF, key=lambda x: x[1])
-    run(NAME_EXPERIMENT, type, log, arrivals, contrafactual_traces, list(contrafactual_traces.keys()))
+                open_sub.append(index)
+        else:
+            if len(open_sub) > 1:
+                parallel_find.append(open_sub)
+            open_sub = []
+        index+=1
+    if len(open_sub) > 0:
+        parallel_find.append(open_sub)
+    return parallel_find
 
 def read_training(train):
     caseid_unique = list(train['caseid'].unique())
@@ -231,10 +177,46 @@ def read_training(train):
         traces[caseid] = trace
     return traces
 
+def read_CF(contrafactual, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
+    resource = 'Resource_'
+    columns = list(contrafactual.columns)
+    count_prefix = 1
+    contrafactual_traces = dict()
+    for index, row in contrafactual.iterrows():
+        parallel_find = find_parallel(row)
+        key = str(row['trace_id']) + "_CF"
+        contrafactual_traces[key] = []
+        prefix = 'prefix_' + str(count_prefix)
+        attributes_trace = {}
+        attributes_event = {}
+        for k in TRACE_ATTRIBUTES:
+            if k in row:
+                attributes_trace[k] = row[k]
+        for k in EVENT_ATTRIBUTES:
+            attributes_event[k] = row[k + '_' + str(count_prefix)]
+        post_last_parallel = 0
+        while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
+            index = next((i for i, sub in enumerate(parallel_find) if count_prefix in sub), -1)
+            if index > -1:
+                head_of_parallel = parallel_find[index][0]
+                if head_of_parallel == count_prefix:
+                    contrafactual_traces[key].append(
+                        [True, row[prefix], row[resource + str(count_prefix)], row['label'], attributes_event, attributes_trace, []])
+                    post_last_parallel = len(contrafactual_traces[key])-1
+                else:
+                    event = [False, row[prefix], row[resource + str(count_prefix)], row['label'], attributes_event, attributes_trace]
+                    contrafactual_traces[key][post_last_parallel][-1].append(event)
+            else:
+                contrafactual_traces[key].append(
+                    [False, row[prefix], row[resource + str(count_prefix)], row['label'], attributes_event, attributes_trace])
+            count_prefix += 1
+            prefix = 'prefix_' + str(count_prefix)
+        count_prefix = 1
+
+    return contrafactual_traces
 
 
-
-def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, traces_train, arrivals, contrafactual, key):
+def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, traces_contrafactual):
     simulation_process = SimulationProcess(env=env, params=params)
     path_result = 'simulated_log_' + NAME_EXPERIMENT + '_.csv'
     buffer_definition = { "id_case": -1, "activity": None, "role": None, "enabled_time": None, "start_time": None, "end_time": None, "resource": None, "prefix": Prefix}
@@ -244,28 +226,41 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, type, traces_train
     writer = csv.writer(f)
     writer.writerow(buffer_definition.keys())
     interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION)
-    contrafactual = False
-    for key in traces_train: ### to add also the contrafactual
+    contrafactual = True
+    for key in traces_contrafactual: ### to add also the traces_train
         prefix = Prefix()
         itime = interval.get_next_arrival(env, i)
-        yield env.timeout(0)
+        yield env.timeout(itime)
         parallel_object = ParallelObject()
         time_trace = params.START_SIMULATION + timedelta(seconds=env.now)
         env.process(
             Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
-                  traces_train[key], contrafactual, NAME_EXPERIMENT, buffer_definition, None).simulation(env))
+                  traces_contrafactual[key], NAME_EXPERIMENT, buffer_definition, contrafactual).simulation(env))
 
-def run(NAME_EXPERIMENT, log, arrivals, contrafactual, key):
-    N_SIMULATION = 1
-    N_TRACES = 1 #len(log)
+
+def run_simulation(train_df, df_cf, NAME_EXPERIMENT):
+    print(NAME_EXPERIMENT)
     path_parameters = 'input_sepsis.json'
+    with open(path_parameters, 'r') as f:
+        data = json.load(f)
+        TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
+        EVENT_ATTRIBUTES = data['EVENT_ATTRIBUTES']
+    contrafactual_traces = read_CF(df_cf, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
+    log = None
+    N_TRACES = len(contrafactual_traces)
+    N_SIMULATION = 1
     for i in range(0, N_SIMULATION):
         params = Parameters(path_parameters, N_TRACES)
         env = simpy.Environment()
-        env.process(setup(env, NAME_EXPERIMENT, params, i, type, log, arrivals, contrafactual, key))
+        env.process(setup(env, NAME_EXPERIMENT, params, i, log, contrafactual_traces))
         env.run(until=params.SIM_TIME)
 
-def run_simulation_sepsis(train_df, df_cf, NAME_EXPERIMENT, N_SIMULATION=1):
+NAME_EXPERIMENT = 'sepsis'
+df_cf = pd.read_csv('cfs.csv', sep=",")
+run_simulation(None, df_cf, NAME_EXPERIMENT)
+
+
+'''def run_simulation_sepsis(train_df, df_cf, NAME_EXPERIMENT, N_SIMULATION=1):
     print(NAME_EXPERIMENT, N_SIMULATION, type)
     input_train = pd.read_csv('sepsis_start_test.csv', sep=",")
     input_train = input_train[input_train['caseid'] == 'AA']
@@ -274,6 +269,4 @@ def run_simulation_sepsis(train_df, df_cf, NAME_EXPERIMENT, N_SIMULATION=1):
     input_train['available_time'] = pd.to_datetime(input_train['available_time'])
     traces_train = read_training(input_train)
     run(NAME_EXPERIMENT, traces_train, None, [], [])
-
-
-run_simulation_sepsis(None, None, 'SEPSIS', N_SIMULATION=1)
+run_simulation_sepsis(None, None, 'SEPSIS', N_SIMULATION=1)'''

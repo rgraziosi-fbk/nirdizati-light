@@ -79,6 +79,7 @@ class Buffer(object):
         return self.buffer
 
     def set_feature(self, feature, value):
+        print(self.buffer)
         if isinstance(self.buffer[feature], list):
             self.buffer[feature] = value
         else:

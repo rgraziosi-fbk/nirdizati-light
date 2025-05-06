@@ -5,7 +5,7 @@
         "type": "distribution",
         "name": "exponential",
         "parameters": {
-            "scale": 300
+            "scale": 600
         }
     },
     "resource": {
@@ -34,14 +34,15 @@
         "X": {"resources": ["X"]},
         "J": {"resources": ["J"]},
         "K": {"resources": ["K"]},
-        "Y": {"resources": ["Y"]}
+        "Y": {"resources": ["Y"]},
+        "other": {"resources": ["Y"]}
     },
     "ACT_2_NUMBER": {"ER Registration": 0, "ER Triage": 1, "ER Sepsis Triage": 2, "LacticAcid": 3, "Leucocytes": 4,
                 "CRP": 5, "IV Liquid": 6, "IV Antibiotics": 7, "Admission NC": 8, "Release A": 9, "Admission IC": 10,
-                "Release B": 11, "Return ER": 12, "Release C": 13, "Release D": 14, "Release E": 15, "PAD": 16},
+                "Release B": 11, "Return ER": 12, "Release C": 13, "Release D": 14, "Release E": 15, "PAD": 16, "other":  17},
     "NUMBER_2_ACT": {"0": "ER Registration", "1": "ER Triage", "2": "ER Sepsis Triage", "3": "LacticAcid", "4": "Leucocytes",
                 "5": "CRP", "6": "IV Liquid", "7": "IV Antibiotics", "8": "Admission NC", "9": "Release A", "10": "Admission IC",
-                "11": "Release B", "12": "Return ER", "13": "Release C", "14": "Release D", "15": "Release E", "16": "PAD"},
+                "11": "Release B", "12": "Return ER", "13": "Release C", "14": "Release D", "15": "Release E", "16": "PAD", "17": "other"},
     "DIAGNOSE_TO_NUMBER": {"C": 0, "NOT": 1, "H": 2, "B": 3, "E": 4, "PC": 5, "G": 6, "LE": 7, "N": 8, "CC": 9, "Y": 10, "LA": 11,
                       "UD": 12, "K": 13, "OA": 14, "D": 15, "QB": 16, "BB": 17, "LD": 18, "J": 19, "S": 20, "Q": 21, "RC": 22,
                       "KE": 23, "AC": 24, "HE": 25, "CA": 26, "OB": 27, "R": 28, "KA": 29, "O": 30, "FA": 31, "GB": 32,
@@ -84,7 +85,7 @@
     "PATH_MODEL_WAITING_TIME": "",
     "TRACE_ATTRIBUTES": ["InfectionSuspected",
          "DiagnosticBlood", "DisfuncOrg", "SIRSCritTachypnea", "Hypotensie",
-         "SIRSCritHeartRate", "Infusion", "DiagnosticArtAstrup", "Age",
+         "SIRSCritHeartRate", "Infusion", "DiagnosticArtAstrup",
          "DiagnosticIC", "DiagnosticSputum", "DiagnosticLiquor",
          "DiagnosticOther", "SIRSCriteria2OrMore", "DiagnosticXthorax",
          "SIRSCritTemperature", "DiagnosticUrinaryCulture", "SIRSCritLeucos",
