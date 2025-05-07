@@ -227,6 +227,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
     writer.writerow(buffer_definition.keys())
     interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION)
     contrafactual = True
+    #traces_contrafactual = {"0_CF": traces_contrafactual["0_CF"]}
     for key in traces_contrafactual: ### to add also the traces_train
         prefix = Prefix()
         itime = interval.get_next_arrival(env, i)

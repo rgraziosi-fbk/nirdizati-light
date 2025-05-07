@@ -35,7 +35,7 @@
         "J": {"resources": ["J"]},
         "K": {"resources": ["K"]},
         "Y": {"resources": ["Y"]},
-        "other": {"resources": ["Y"]}
+        "other": {"resources": ["other"]}
     },
     "ACT_2_NUMBER": {"ER Registration": 0, "ER Triage": 1, "ER Sepsis Triage": 2, "LacticAcid": 3, "Leucocytes": 4,
                 "CRP": 5, "IV Liquid": 6, "IV Antibiotics": 7, "Admission NC": 8, "Release A": 9, "Admission IC": 10,
@@ -91,5 +91,6 @@
          "SIRSCritTemperature", "DiagnosticUrinaryCulture", "SIRSCritLeucos",
          "Oligurie", "DiagnosticLacticAcid", "Diagnose", "Hypoxie",
          "DiagnosticUrinarySediment", "DiagnosticECG"],
-    "EVENT_ATTRIBUTES": ["Leucocytes", "CRP", "LacticAcid"]
+    "EVENT_ATTRIBUTES": ["Leucocytes", "CRP", "LacticAcid"],
+    "RESOURCE_EMPTY": "?"
 }

@@ -43,13 +43,13 @@ class Token(object):
             if next[0] == True: ### parallel
                 next[0] = False
                 token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
-                                          self._writer, self._parallel_object, self._buffer._get_dictionary(), [next],
-                                          self.CF, self.NAME_EXPERIMENT, self._buffer_definition).simulation(env))
+                                          self._writer, self._parallel_object, self._start_time, [next],
+                                          self.NAME_EXPERIMENT, self._buffer_definition, self.CF).simulation(env))
                 next_events = [next, token]
                 for t in next[-1]:
                     token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
-                                              self._writer, self._parallel_object, self._buffer._get_dictionary(), [t],
-                                              self.CF, self.NAME_EXPERIMENT, self._buffer_definition).simulation(env))
+                                              self._writer, self._parallel_object, self._start_time, [next],
+                                          self.NAME_EXPERIMENT, self._buffer_definition, self.CF).simulation(env))
                     next_events.append(token)
                 del next[-1]
                 #del self.sequence[0]
@@ -95,6 +95,7 @@ class Token(object):
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
                 name_res = event[2] if self.CF else event[3]
+                name_res = self._params.RESOURCE_EMPTY if name_res == '0' else name_res
                 resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
 
