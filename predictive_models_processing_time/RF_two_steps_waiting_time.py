@@ -90,7 +90,8 @@ for caseid in caseid_unique:
             trace_attribs[a] += [encoding] * len(group_case)
         else:
             index = group_case[a].notna().to_numpy().nonzero()[0]
-            trace_attribs[a] += [int(group_case[a].iloc[index])] * len(group_case)
+            index = 0
+            trace_attribs[a] += [int(bool(group_case[a].iloc[index]))] * len(group_case)
 for a in TRACE_ATTRIBUTES:
     df[a] = trace_attribs[a]
 
@@ -139,7 +140,7 @@ for e in EVENT_ATTRIBUTES:
 for prefix_i in prefix_columns:
     df[prefix_i] = prefix_columns[prefix_i]
 
-df.to_csv('sepsis_start_training.csv')
+#df.to_csv('sepsis_start_training.csv')
 
 # Define X and y
 X = df[FEATURE_COLUMNS]

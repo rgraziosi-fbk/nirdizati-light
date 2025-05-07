@@ -55,3 +55,8 @@ class Parameters(object):
         self.TRACES_ATTRIBUTES = data["TRACE_ATTRIBUTES"]
         self.EVENT_ATTRIBUTES = data["EVENT_ATTRIBUTES"]
         self.RESOURCE_EMPTY = data["RESOURCE_EMPTY"]
+        self.RESOURCE_2_NUMBER = data["RESOURCE_2_NUMBER"]
+        self.predictive_model_processing_time = data["predictive_model_processing_time"]
+        self.predictive_model_waiting_time = data["predictive_model_waiting_time"]
+        self.PREFIX_LEN = data["PREFIX_LEN"]
+        self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']

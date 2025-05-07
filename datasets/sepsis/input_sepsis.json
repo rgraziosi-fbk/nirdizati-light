@@ -76,10 +76,10 @@
         "144": "DC", "145": "WB"},
     "RESOURCE_2_NUMBER": {"A": 0, "C": 1, "B": 2, "I": 3, "L": 4, "M": 5, "G": 6, "F": 7, "R": 8, "E": 9, "O": 10, "V": 11,
                      "W": 12, "Q": 13, "N": 14, "D": 15, "U": 16, "T": 17, "?": 18, "H": 19, "S": 20, "P": 21, "X": 22,
-                     "J": 23, "K": 24, "Y": 25},
+                     "J": 23, "K": 24, "Y": 25, "other": 26},
     "NUMBER_2_RESOURCE": {"0": "A", "1": "C", "2": "B", "3": "I", "4": "L", "5": "M", "6": "G", "7": "F", "8": "R",
                         "9": "E", "10": "O", "11": "V", "12": "W", "13": "Q", "14": "N", "15": "D", "16": "U",
-                        "17": "T", "18": "?", "19": "H", "20": "S", "21": "P", "22": "X", "23": "J", "24": "K", "25": "Y"},
+                        "17": "T", "18": "?", "19": "H", "20": "S", "21": "P", "22": "X", "23": "J", "24": "K", "25": "Y", "26": "other"},
     "PREFIX_LEN": 20,
     "PATH_MODEL_PROCESSIG_TIME": "",
     "PATH_MODEL_WAITING_TIME": "",
@@ -91,6 +91,9 @@
          "SIRSCritTemperature", "DiagnosticUrinaryCulture", "SIRSCritLeucos",
          "Oligurie", "DiagnosticLacticAcid", "Diagnose", "Hypoxie",
          "DiagnosticUrinarySediment", "DiagnosticECG"],
+    "ATTRIB_TO_ENCODE": ["Diagnone", "Leucocytes", "CRP", "LacticAcid"],
     "EVENT_ATTRIBUTES": ["Leucocytes", "CRP", "LacticAcid"],
-    "RESOURCE_EMPTY": "?"
+    "RESOURCE_EMPTY": "?",
+    "predictive_model_processing_time": {"mean": "sepsis/sepsis_predictive_model_mean.joblib", "std": "sepsis/sepsis_predictive_model_std.joblib", "scaler": "sepsis/sepsis_predictive_model_scaler.pkl"},
+    "predictive_model_waiting_time": {"mean": "sepsis/sepsis_predictive_model_mean_wait.joblib", "std": "sepsis/sepsis_predictive_model_std_wait.joblib", "scaler": "sepsis/sepsis_predictive_model_scaler_wait.pkl"}
 }

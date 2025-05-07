@@ -8,9 +8,14 @@ from parameters import Parameters
 from utility import Prefix
 from simpy.events import AnyOf, AllOf, Event
 import copy
+import numpy as np
+import math
 import csv
 from utility import Buffer, ParallelObject
 import custom_function as custom
+
+import warnings
+warnings.filterwarnings("ignore", message="X does not have valid feature names")
 
 class Token(object):
 
@@ -63,6 +68,69 @@ class Token(object):
         return next_events
 
 
+    def predict_processing_time(self, res, act, time, event):
+        ## input features: ["caseid", "org:resource", "concept:name", "weekday", "hour"] + TRACE_ATTRIBUTES + EVENT_ATTRIBUTES + PREFIX_COLUMNS
+        input = [self._params.RESOURCE_2_NUMBER[res], self._params.ACT_2_NUMBER[act],
+                 time.weekday(), time.hour]
+        ### for sepsis
+        for t in self._params.TRACES_ATTRIBUTES: #int(bool('True'))
+            if t == 'DIAGNOSE':
+                value = self._params.DIAGNOSE_2_NUMBER[event[-1][t]]
+                input += [value]
+            else:
+                input += [int(bool(event[-1][t]))]
+        for e in self._params.EVENT_ATTRIBUTES:
+            input += [0 if event[-2][e] == 'other' else int(event[-2][e])]
+
+        actual_prefix = self._prefix.get_prefix()
+        for p in range(self._params.PREFIX_LEN):
+            if p < len(actual_prefix):
+                input += [self._params.ACT_2_NUMBER[actual_prefix[p]]]
+            else:
+                input += [self._params.ACT_2_NUMBER['PAD']]
+
+        input_array = np.array(input).reshape(1, -1)
+        mean_pred = self._process.mean_processing.predict(input_array)
+        input_std = np.hstack((input_array, mean_pred.reshape(1, -1)))
+        std_pred = self._process.std_processing.predict(input_std)
+        mu_rescaled = self._process.scalar_processing.inverse_transform(mean_pred.reshape(-1, 1))[0][0]
+        sigma_rescaled = self._process.scalar_processing.inverse_transform(std_pred.reshape(-1, 1))[0][0]
+
+        proc_time_pred = round(np.random.normal(mu_rescaled, sigma_rescaled))
+        return max(0, proc_time_pred)
+
+
+    def predict_waiting_time(self, res, act, time, event):
+        ## input features: ["caseid", "org:resource", "concept:name", "weekday", "hour"] + TRACE_ATTRIBUTES + EVENT_ATTRIBUTES + PREFIX_COLUMNS
+        input = [self._params.RESOURCE_2_NUMBER[res], self._params.ACT_2_NUMBER[act],
+                 time.weekday(), time.hour]
+        ### for sepsis
+        for t in self._params.TRACES_ATTRIBUTES: #int(bool('True'))
+            if t == 'DIAGNOSE':
+                value = self._params.DIAGNOSE_2_NUMBER[event[-1][t]]
+                input += [value]
+            else:
+                input += [int(bool(event[-1][t]))]
+        for e in self._params.EVENT_ATTRIBUTES:
+            input += [0 if event[-2][e] == 'other' else int(event[-2][e])]
+
+        actual_prefix = self._prefix.get_prefix()
+        for p in range(self._params.PREFIX_LEN):
+            if p < len(actual_prefix):
+                input += [self._params.ACT_2_NUMBER[actual_prefix[p]]]
+            else:
+                input += [self._params.ACT_2_NUMBER['PAD']]
+
+        input_array = np.array(input).reshape(1, -1)
+        mean_pred = self._process.mean_waiting.predict(input_array)
+        input_std = np.hstack((input_array, mean_pred.reshape(1, -1)))
+        std_pred = self._process.std_waiting.predict(input_std)
+        mu_rescaled = self._process.scalar_waiting.inverse_transform(mean_pred.reshape(-1, 1))[0][0]
+        sigma_rescaled = self._process.scalar_waiting.inverse_transform(std_pred.reshape(-1, 1))[0][0]
+
+        wait_time_pred = round(np.random.normal(mu_rescaled, sigma_rescaled))
+        return max(0, wait_time_pred)
+
     def simulation(self, env: simpy.Environment):
         """
             The main function to handle the simulation of a single trace
@@ -84,7 +152,7 @@ class Token(object):
                 self._buffer.reset()
                 self._buffer.set_feature("id_case", self._id)
                 self._buffer.set_feature("activity", event[1])
-                self._buffer.set_feature("prefix", self._prefix.get_prefix(self._start_time + timedelta(seconds=env.now)))
+                self._buffer.set_feature("prefix", self._prefix.get_prefix())
 
                 #### attribute events
                 for e in self._params.EVENT_ATTRIBUTES:
@@ -105,7 +173,7 @@ class Token(object):
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
 
-                waiting = 0 if self.CF else event[4] #### to adjust with the prediction
+                waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) if self.CF else event[4] #### to adjust with the prediction
                 if self.see_activity:
                     yield env.timeout(waiting)
 
@@ -120,7 +188,7 @@ class Token(object):
                 #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
                 #yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
-                duration = 0 if self.CF else event[2] #### to adjust with the prediction
+                duration = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) if self.CF else event[2] #### to adjust with the prediction
 
                 yield env.timeout(duration)
 

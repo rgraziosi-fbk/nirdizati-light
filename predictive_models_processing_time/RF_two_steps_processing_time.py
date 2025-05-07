@@ -24,16 +24,8 @@ param_grid = {
     'min_samples_leaf': [1, 2, 4]
 }
 
-
-param_grid = {
-    'n_estimators': [200],
-    'max_depth': [10],
-    'min_samples_split': [10],
-    'min_samples_leaf': [4]
-}
-
 #### PRE-PROCESSING DATA
-PATH_DATA = 'sepsis_estimated_start.csv'
+PATH_DATA = 'full_label_sepsis.csv'
 NAME_EXPERIMENT = 'sepsis'
 PATH_SAVE_MODEL = '../datasets/' + NAME_EXPERIMENT
 PATH_PARAMETERS = '../datasets/' + NAME_EXPERIMENT + '/input_' + NAME_EXPERIMENT + '.json'
@@ -57,7 +49,7 @@ TARGET_COLUMN = ["processing_time", "caseid"]
 
 ### create processing_time
 # Load and preprocess data
-df = pd.read_csv(PATH_DATA, sep=";")
+df = pd.read_csv(PATH_DATA, sep=",")
 df = df.sort_values(by=['caseid', 'start:timestamp'], ascending=[True, True])
 df['time:timestamp'] = pd.to_datetime(df['time:timestamp'], utc=True)
 df['start:timestamp'] = pd.to_datetime(df['start:timestamp'], utc=True)
@@ -72,7 +64,7 @@ df['weekday'] = weekday
 df["hour"] = hour
 ### traces attributes
 caseid_unique = list(df['caseid'].unique())
-trace_attribs = {a:[] for a in TRACE_ATTRIBUTES}
+trace_attribs = {a: [] for a in TRACE_ATTRIBUTES}
 for caseid in caseid_unique:
     group_case = df[df['caseid'] == caseid]
     for a in TRACE_ATTRIBUTES:
@@ -85,7 +77,8 @@ for caseid in caseid_unique:
             trace_attribs[a] += [encoding] * len(group_case)
         else:
             index = group_case[a].notna().to_numpy().nonzero()[0]
-            trace_attribs[a] += [int(group_case[a].iloc[index])] * len(group_case)
+            index = 0
+            trace_attribs[a] += [int(bool(group_case[a].iloc[index]))] * len(group_case)
 for a in TRACE_ATTRIBUTES:
     df[a] = trace_attribs[a]
 
@@ -120,7 +113,7 @@ for e in EVENT_ATTRIBUTES:
 for prefix_i in prefix_columns:
     df[prefix_i] = prefix_columns[prefix_i]
 
-df.to_csv('sepsis_start_training.csv')
+#df.to_csv('sepsis_start_training.csv')
 
 # Define X and y
 X = df[FEATURE_COLUMNS]

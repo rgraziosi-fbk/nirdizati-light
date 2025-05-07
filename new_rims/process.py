@@ -7,7 +7,7 @@ import simpy
 from role_simulator import RoleSimulator
 import math
 from parameters import Parameters
-
+import joblib
 
 class SimulationProcess(object):
 
@@ -19,6 +19,19 @@ class SimulationProcess(object):
         self._resource_events = self._define_resource_events(env)
         self._resource_trace = simpy.Resource(env, math.inf)
         self._am_parallel = []
+        ### import predictive models
+        self.import_predictive_models()
+
+    def import_predictive_models(self):
+        path_folder = '../datasets/'
+        # processing_time
+        self.mean_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["mean"])
+        self.std_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["std"])
+        self.scalar_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["scaler"])
+        # waiting_time
+        self.mean_waiting = joblib.load(path_folder + self._params.predictive_model_waiting_time["mean"])
+        self.std_waiting = joblib.load(path_folder + self._params.predictive_model_waiting_time["std"])
+        self.scalar_waiting = joblib.load(path_folder + self._params.predictive_model_waiting_time["scaler"])
 
     def define_single_role(self):
         """
