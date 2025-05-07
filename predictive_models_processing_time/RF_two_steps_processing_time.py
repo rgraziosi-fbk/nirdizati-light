@@ -206,3 +206,12 @@ for i in range(0, round(len(X_test)/5)):
     error_processing_time.append(abs(df.iloc[original_index]['processing_time'] - proc_time_pred_rescaled))
 
 print('ERROR PROCESSING TIME', np.mean(error_processing_time)/3600)
+
+'''
+Fitting 5 folds for each of 108 candidates, totalling 540 fits
+Best Parameters MEAN: {'max_depth': 10, 'min_samples_leaf': 4, 'min_samples_split': 2, 'n_estimators': 50}
+Fitting 5 folds for each of 108 candidates, totalling 540 fits
+Best Parameters STD: {'max_depth': 10, 'min_samples_leaf': 4, 'min_samples_split': 2, 'n_estimators': 200}
+MAE: 6.4054862607810295
+ERROR PROCESSING TIME 8.768604861348889
+'''

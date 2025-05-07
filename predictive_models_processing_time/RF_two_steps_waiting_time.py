@@ -24,14 +24,6 @@ param_grid = {
     'min_samples_leaf': [1, 2, 4]
 }
 
-
-param_grid = {
-    'n_estimators': [200],
-    'max_depth': [10],
-    'min_samples_split': [10],
-    'min_samples_leaf': [4]
-}
-
 #### PRE-PROCESSING DATA
 PATH_DATA = 'sepsis_estimated_start.csv'
 NAME_EXPERIMENT = 'sepsis'
@@ -233,3 +225,5 @@ for i in range(0, round(len(X_test)/5)):
     error_processing_time.append(abs(df.iloc[original_index]['waiting_time'] - proc_time_pred_rescaled))
 
 print('ERROR PROCESSING TIME', np.mean(error_processing_time)/3600)
+
+
