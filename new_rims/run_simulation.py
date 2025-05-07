@@ -241,7 +241,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT):
     print(NAME_EXPERIMENT)
-    path_parameters = 'input_sepsis.json'
+    path_parameters = '../datasets/sepsis/input_sepsis.json'
     with open(path_parameters, 'r') as f:
         data = json.load(f)
         TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
@@ -257,7 +257,7 @@ def run_simulation(train_df, df_cf, NAME_EXPERIMENT):
         env.run(until=params.SIM_TIME)
 
 NAME_EXPERIMENT = 'sepsis'
-df_cf = pd.read_csv('cfs.csv', sep=",")
+df_cf = pd.read_csv('../datasets/sepsis/cfs.csv', sep=",")
 run_simulation(None, df_cf, NAME_EXPERIMENT)
 
 
