@@ -162,7 +162,7 @@ class Token(object):
                     self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
-                name_res = event[2] if self.CF else event[2]
+                name_res = event[3]
                 name_res = self._params.RESOURCE_EMPTY if name_res == '0' else name_res
                 resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
@@ -172,8 +172,11 @@ class Token(object):
 
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
-                ###TODO BOSS Fix the waiting time for training trces
-                waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[4] #### to adjust with the prediction
+                if self.CF:
+                    waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[4] #### to adjust with the prediction
+                else:
+                    waiting = event[4]
+
                 if self.see_activity:
                     yield env.timeout(waiting)
 
@@ -188,8 +191,10 @@ class Token(object):
                 #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
                 #yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
-                ###TODO BOSS Fix the duration time for training traces
-                duration = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[2] #### to adjust with the prediction
+                if self.CF:
+                    duration = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[2] #### to adjust with the prediction
+                else:
+                    duration = event[2]
 
                 yield env.timeout(duration)
 
