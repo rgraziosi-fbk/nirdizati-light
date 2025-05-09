@@ -28,7 +28,7 @@ used as input from a predictive model.
 '''
 
 from statsmodels.tsa.ar_model import AutoRegResults
-from utility import Buffer
+from new_rims.utility import Buffer
 import random
 import pickle
 from datetime import datetime

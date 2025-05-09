@@ -1,13 +1,13 @@
 from datetime import datetime
 import csv
 import simpy
-from process import SimulationProcess
-from event_trace import Token
-from parameters import Parameters
+from new_rims.process import SimulationProcess
+from new_rims.event_trace import Token
+from new_rims.parameters import Parameters
 import pandas as pd
-from inter_trigger_timer import InterTriggerTimer
+from new_rims.inter_trigger_timer import InterTriggerTimer
 from datetime import timedelta
-from utility import *
+from new_rims.utility import *
 from itertools import groupby
 from operator import itemgetter
 import json
@@ -124,16 +124,54 @@ def find_parallel(row):
         index+=1
     if len(open_sub) > 0:
         parallel_find.append(open_sub)
+    parallel_find = [[x + 1 for x in sublist] for sublist in parallel_find]
     return parallel_find
+def read_training(train, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
+    resource = 'Resource_'
+    columns = list(train.columns)
+    count_prefix = 1
+    traces = dict()
+    for index, row in train.iterrows():
+        parallel_find = find_parallel(row)
+        key = str(row['trace_id'])
+        traces[key] = []
+        prefix = 'prefix_' + str(count_prefix)
+        attributes_trace = {}
+        attributes_event = {}
+        for k in TRACE_ATTRIBUTES:
+            if k in row:
+                attributes_trace[k] = row[k]
+        for k in EVENT_ATTRIBUTES:
+            attributes_event[k] = row[k + '_' + str(count_prefix)]
+        post_last_parallel = 0
+        while prefix in columns and row[prefix] != '0' and row[prefix] != 0:
+            index = next((i for i, sub in enumerate(parallel_find) if count_prefix in sub), -1)
+            if index > -1:
+                head_of_parallel = parallel_find[index][0]
+                if head_of_parallel == count_prefix:
+                    traces[key].append(
+                        [True, row[prefix], row[resource + str(count_prefix)], row['label'], attributes_event, attributes_trace, []])
+                    post_last_parallel = len(traces[key])-1
+                else:
+                    event = [False, row[prefix], row[resource + str(count_prefix)], row['label'], attributes_event, attributes_trace]
+                    traces[key][post_last_parallel][-1].append(event)
+            else:
+                traces[key].append(
+                    [False, row[prefix], row[resource + str(count_prefix)], row['label'], attributes_event, attributes_trace])
+            count_prefix += 1
+            prefix = 'prefix_' + str(count_prefix)
+        count_prefix = 1
 
-def read_training(train):
-    caseid_unique = list(train['caseid'].unique())
+    return traces
+'''
+def read_training(train, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
+    caseid_unique = list(train['trace_id'].unique())
     traces = dict()
     for caseid in caseid_unique:
         trace = []
         event_attrib = {}
         trace_attrib = {}
-        group_case = train[train['caseid'] == caseid]
+        group_case = train[train['trace_id'] == caseid]
         group_case = group_case.reset_index(drop=True)
         #### find parallel activities
         # Find duplicate available_time rows
@@ -176,7 +214,7 @@ def read_training(train):
                 trace.append(event)
         traces[caseid] = trace
     return traces
-
+'''
 def read_CF(contrafactual, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
     resource = 'Resource_'
     columns = list(contrafactual.columns)
@@ -214,7 +252,10 @@ def read_CF(contrafactual, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
         count_prefix = 1
 
     return contrafactual_traces
-
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with keys and values of x
+    z.update(y)    # modifies z with keys and values of y
+    return z
 
 def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, traces_contrafactual):
     simulation_process = SimulationProcess(env=env, params=params)
@@ -228,37 +269,55 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
     interval = InterTriggerTimer(params, simulation_process, params.START_SIMULATION)
     contrafactual = True
     #traces_contrafactual = {"0_CF": traces_contrafactual["0_CF"]}
-    for key in traces_contrafactual: ### to add also the traces_train
+    traces = merge_two_dicts(traces_train, traces_contrafactual)
+#   for key in traces: ### to add also the traces_train
+#        prefix = Prefix()
+#        itime = interval.get_next_arrival(env, i)
+#        yield env.timeout(itime)
+#        parallel_object = ParallelObject()
+#        time_trace = params.START_SIMULATION + timedelta(seconds=env.now)
+#        env.process(
+#            Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
+#                  traces_contrafactual[key], NAME_EXPERIMENT, buffer_definition, contrafactual).simulation(env))
+    for key in traces:
         prefix = Prefix()
         itime = interval.get_next_arrival(env, i)
         yield env.timeout(itime)
         parallel_object = ParallelObject()
         time_trace = params.START_SIMULATION + timedelta(seconds=env.now)
-        env.process(
-            Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
-                  traces_contrafactual[key], NAME_EXPERIMENT, buffer_definition, contrafactual).simulation(env))
-
+        if key not in traces_contrafactual:
+            contrafactual = False
+            env.process(
+                Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
+                  traces[key], NAME_EXPERIMENT, buffer_definition, contrafactual).simulation(env))
+        elif key in traces_contrafactual:
+            contrafactual = True
+            env.process(
+                Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
+                  traces[key], NAME_EXPERIMENT, buffer_definition, contrafactual).simulation(env))
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT):
     print(NAME_EXPERIMENT)
-    path_parameters = '../datasets/sepsis/input_sepsis.json'
+    path_parameters = 'datasets/sepsis/input_sepsis.json'
     with open(path_parameters, 'r') as f:
         data = json.load(f)
         TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
         EVENT_ATTRIBUTES = data['EVENT_ATTRIBUTES']
     contrafactual_traces = read_CF(df_cf, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
+    #train_df = train_df.iloc[:10, :]
+    train_traces = read_training(train_df,TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
     log = None
     N_TRACES = len(contrafactual_traces)
     N_SIMULATION = 1
     for i in range(0, N_SIMULATION):
         params = Parameters(path_parameters, N_TRACES)
         env = simpy.Environment()
-        env.process(setup(env, NAME_EXPERIMENT, params, i, log, contrafactual_traces))
+        env.process(setup(env, NAME_EXPERIMENT, params, i, train_traces, contrafactual_traces))
         env.run(until=params.SIM_TIME)
 
-NAME_EXPERIMENT = 'sepsis'
-df_cf = pd.read_csv('../datasets/sepsis/cfs.csv', sep=",")
-run_simulation(None, df_cf, NAME_EXPERIMENT)
+#NAME_EXPERIMENT = 'sepsis'
+#df_cf = pd.read_csv('datasets/sepsis/cfs.csv', sep=",")
+#run_simulation(None, df_cf, NAME_EXPERIMENT)
 
 
 '''def run_simulation_sepsis(train_df, df_cf, NAME_EXPERIMENT, N_SIMULATION=1):

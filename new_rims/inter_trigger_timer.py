@@ -4,9 +4,9 @@ Class to manage the arrivals times of tokes in the process.
 
 import numpy as np
 from datetime import datetime, timedelta
-from parameters import Parameters
-from process import SimulationProcess
-import custom_function as custom
+from new_rims.parameters import Parameters
+from new_rims.process import SimulationProcess
+import new_rims.custom_function as custom
 
 
 class InterTriggerTimer(object):

@@ -117,7 +117,7 @@ class DatasetConfs:
                           "timesincemidnight", "timesincelastevent", "timesincecasestart", "event_nr",
                           'start:timestamp']}
             self.static_num_cols = {dataset: ["amount"]}
-        elif dataset_name in ["sepsis_cases_1","sepsis_cases_2","sepsis_cases_3","sepsis_cases_4","sepsis_cases_5"]:
+        elif dataset_name in ["sepsis_cases_1","sepsis_cases_2","sepsis_cases_3","sepsis_cases_4","sepsis_cases_5",'sepsis']:
             #### Sepsis Cases settings ####
             dataset = dataset_name
             if where_is_the_file != '':

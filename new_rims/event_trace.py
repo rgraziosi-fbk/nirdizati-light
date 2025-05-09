@@ -2,17 +2,17 @@ from datetime import datetime, timedelta
 import simpy
 import pm4py
 import random
-from process import SimulationProcess
+from new_rims.process import SimulationProcess
 from pm4py.objects.petri_net import semantics
-from parameters import Parameters
-from utility import Prefix
+from new_rims.parameters import Parameters
+from new_rims.utility import Prefix
 from simpy.events import AnyOf, AllOf, Event
 import copy
 import numpy as np
 import math
 import csv
-from utility import Buffer, ParallelObject
-import custom_function as custom
+from new_rims.utility import Buffer, ParallelObject
+import new_rims.custom_function as custom
 
 import warnings
 warnings.filterwarnings("ignore", message="X does not have valid feature names")
@@ -162,7 +162,7 @@ class Token(object):
                     self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
-                name_res = event[2] if self.CF else event[3]
+                name_res = event[2] if self.CF else event[2]
                 name_res = self._params.RESOURCE_EMPTY if name_res == '0' else name_res
                 resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
@@ -172,8 +172,8 @@ class Token(object):
 
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
-
-                waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) if self.CF else event[4] #### to adjust with the prediction
+                ###TODO BOSS Fix the waiting time for training trces
+                waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[4] #### to adjust with the prediction
                 if self.see_activity:
                     yield env.timeout(waiting)
 
@@ -188,7 +188,8 @@ class Token(object):
                 #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
                 #yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
-                duration = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) if self.CF else event[2] #### to adjust with the prediction
+                ###TODO BOSS Fix the duration time for training traces
+                duration = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[2] #### to adjust with the prediction
 
                 yield env.timeout(duration)
 

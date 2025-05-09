@@ -4,9 +4,9 @@ Class to manage the resources shared by all the traces in the process.
 <img src="../docs/images/process_class.png" alt="Alt Text" width="780">
 '''
 import simpy
-from role_simulator import RoleSimulator
+from new_rims.role_simulator import RoleSimulator
 import math
-from parameters import Parameters
+from new_rims.parameters import Parameters
 import joblib
 
 class SimulationProcess(object):
@@ -23,7 +23,7 @@ class SimulationProcess(object):
         self.import_predictive_models()
 
     def import_predictive_models(self):
-        path_folder = '../datasets/'
+        path_folder = 'datasets/'
         # processing_time
         self.mean_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["mean"])
         self.std_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["std"])

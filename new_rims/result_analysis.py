@@ -18,7 +18,7 @@ import glob
 import os
 import pandas as pd
 import json
-from parameters import Parameters
+from new_rims.parameters import Parameters
 import pm4py
 from datetime import datetime, timedelta
 
