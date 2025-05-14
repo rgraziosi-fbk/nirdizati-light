@@ -23,7 +23,7 @@ class SimulationProcess(object):
         self.import_predictive_models()
 
     def import_predictive_models(self):
-        path_folder = '../datasets/'
+        path_folder = 'datasets/'
         # processing_time
         self.mean_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["mean"])
         self.std_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["std"])

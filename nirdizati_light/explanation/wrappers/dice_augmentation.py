@@ -89,13 +89,24 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            features_to_vary=features_to_vary
                                                                            )
             else:
-                dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
-                                                                           verbose=False,stopping_threshold=0.6,
-                                                                           posthoc_sparsity_algorithm='linear',
-                                                                           total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
-                                                                                                                random_seed=CONF['seed'],
-                                                                           features_to_vary=features_to_vary
-                                                                                                               )#stopping_threshold=0.7
+                df_len = 0
+                stopping_threshold = 0.6
+                tries = 0
+
+                while df_len == 0 and tries <= 5:
+                    dice_result = dice_query_instance.generate_counterfactuals(x,encoder=encoder,desired_class='opposite',
+                                                                               verbose=False,stopping_threshold=stopping_threshold,
+                                                                               posthoc_sparsity_algorithm='linear',
+                                                                               total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length']),
+                                                                                                                    random_seed=CONF['seed'],
+                                                                               features_to_vary=features_to_vary
+                                                                                                                   )#stopping_threshold=0.7
+                    df_len = len(dice_result.cf_examples_list[0].final_cfs_df)
+                    stopping_threshold = max(0.5, stopping_threshold - 0.025)
+                    tries += 1
+                    if tries == 5:
+                        print('No counterfactuals generated')
+                        break
 
         else:
             if method == 'genetic_conformance':
@@ -122,10 +133,9 @@ def dice_augmentation(CONF, predictive_model, encoder, df, query_instances, meth
                                                                            posthoc_sparsity_algorithm='linear',
                                                                            total_CFs=k,dataset=dataset+'_'+str(CONF['prefix_length'],
                                                                                                                random_seed=random_seed,
-                                                                                                               features_to_vary=features_to_vary
-)
-                 )
-
+                                                                                                               features_to_vary=features_to_vary))
+        if len(dice_result.cf_examples_list) == 0:
+            continue
         # function to decode cf from train_df and show it decoded before adding to list
         generated_cfs = dice_result.cf_examples_list[0].final_cfs_df
         #print(generated_cfs.values)

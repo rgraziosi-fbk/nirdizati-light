@@ -12,7 +12,7 @@ from itertools import groupby
 from operator import itemgetter
 import json
 
-PARALLEL = ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid']
+PARALLEL = ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid', 'Admission IC', 'Admission NC', 'ER Sepsis Triage', 'IV Antibiotics']
 
 ATTRIBUTES = {
         'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
@@ -95,7 +95,7 @@ ATTRIBUTES = {
 
 TRACE_ATTRIBUTES = ['InfectionSuspected',
        'DiagnosticBlood', 'DisfuncOrg', 'SIRSCritTachypnea', 'Hypotensie',
-       'SIRSCritHeartRate', 'Infusion', 'DiagnosticArtAstrup', 'Age',
+       'SIRSCritHeartRate', 'Infusion', 'DiagnosticArtAstrup',
        'DiagnosticIC', 'DiagnosticSputum', 'DiagnosticLiquor',
        'DiagnosticOther', 'SIRSCriteria2OrMore', 'DiagnosticXthorax',
        'SIRSCritTemperature', 'DiagnosticUrinaryCulture', 'SIRSCritLeucos',
@@ -260,9 +260,8 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with keys and values of y
     return z
 
-def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, traces_contrafactual):
+def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, traces_contrafactual, imbalance_factor, path_result):
     simulation_process = SimulationProcess(env=env, params=params)
-    path_result = 'simulated_log_' + NAME_EXPERIMENT + '_.csv'
     buffer_definition = { "id_case": -1, "activity": None, "role": None, "enabled_time": None, "start_time": None, "end_time": None, "resource": None, "prefix": Prefix}
     buffer_definition = buffer_definition | {a: None for a in EVENT_ATTRIBUTES} | {a: None for a in TRACE_ATTRIBUTES}
     print(buffer_definition)
@@ -299,9 +298,9 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
                 Token(key, params, simulation_process, prefix, 'sequential', writer, parallel_object, time_trace,
                   traces[key], NAME_EXPERIMENT, buffer_definition, contrafactual).simulation(env))
 
-def run_simulation(train_df, df_cf, NAME_EXPERIMENT):
+def run_simulation(train_df, df_cf, NAME_EXPERIMENT, imbalance_factor, path_result):
     print(NAME_EXPERIMENT)
-    path_parameters = '../datasets/sepsis/input_sepsis.json'
+    path_parameters = 'datasets/sepsis/input_sepsis.json'
     with open(path_parameters, 'r') as f:
         data = json.load(f)
         TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
@@ -310,17 +309,16 @@ def run_simulation(train_df, df_cf, NAME_EXPERIMENT):
     #train_df = train_df.iloc[:10, :]
     train_traces = read_training(train_df,TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
     log = None
-    N_TRACES = len(contrafactual_traces)
+    N_TRACES = len(contrafactual_traces) + len(train_traces)
     N_SIMULATION = 1
     for i in range(0, N_SIMULATION):
         params = Parameters(path_parameters, N_TRACES)
         env = simpy.Environment()
-        env.process(setup(env, NAME_EXPERIMENT, params, i, train_traces, contrafactual_traces))
-        env.run(until=params.SIM_TIME)
+        env.process(setup(env, NAME_EXPERIMENT, params, i, train_traces, contrafactual_traces, imbalance_factor, path_result))
+        env.run()
 
 
 NAME_EXPERIMENT = 'sepsis'
-reconstructed_train_val_log_df = pd.read_csv('../datasets/sepsis/sepsis_df_cf_0.2_pref_len_25.csv')
-reconstructed_df_cf = pd.read_csv('../datasets/sepsis/sepsis_train_df_0.2_pref_len_25.csv')
-run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, NAME_EXPERIMENT)
-
+#reconstructed_train_val_log_df = pd.read_csv('../datasets/sepsis/sepsis_df_cf_0.2_pref_len_25.csv')
+#reconstructed_df_cf = pd.read_csv('../datasets/sepsis/sepsis_train_df_0.2_pref_len_25.csv')
+#run_simulation(r

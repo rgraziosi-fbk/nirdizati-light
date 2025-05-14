@@ -15,15 +15,16 @@ from nirdizati_light.labeling.common import LabelTypes
 from nirdizati_light.log.common import get_log
 from nirdizati_light.predictive_model.common import ClassificationMethods, get_tensor, RegressionMethods
 from nirdizati_light.predictive_model.predictive_model import PredictiveModel, drop_columns
+from nirdizati_light.evaluation.log_evaluation import logs_evaluation
 import random
 import json
 from pm4py import convert_to_event_log, write_xes
 from dataset_confs import DatasetConfs
 from new_rims.run_simulation import run_simulation
 import ast
-
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
+import itertools
 
 
 def dict_mean(dict_list):
@@ -59,7 +60,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
     def reconstruct_timestamps(df):
         """Reconstruct time:timestamp, arrival:timestamp, and start:timestamp columns iteratively."""
-        reconstructed_df = df.copy()  # Avoid modifying the original DataFrame
+        reconstructed_df = df.copy()# Avoid modifying the original DataFrame
 
         # Ensure start_trace exists and rename it to start:timestamp_1
         if "start_trace" in reconstructed_df.columns:
@@ -144,7 +145,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
     train_df_maj = full_df_maj
     # 20% from Label B
-    train_df_min = full_df_min.sample(frac=CONF['undersampling_factor'], random_state=42)
+    train_df_min = full_df_min.sample(frac=CONF['undersampling_factor'], random_state=CONF['seed'])
     #Remove the 20%
     test_df = full_df_min.drop(train_df_min.index)
 
@@ -153,7 +154,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     y_train = train_df['label']
 
     from sklearn.model_selection import StratifiedShuffleSplit,ShuffleSplit
-    ss_val_test = StratifiedShuffleSplit(n_splits=1, test_size=val_size, random_state=42)
+    ss_val_test = StratifiedShuffleSplit(n_splits=1, test_size=val_size, random_state=CONF['seed'])
     for train_index, val_index in ss_val_test.split(X_train, y_train):
         X_train, X_val = X_train.iloc[train_index], X_train.iloc[val_index]
         y_train, y_val = y_train.iloc[train_index], y_train.iloc[val_index]
@@ -161,6 +162,61 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     # Now you have your splits
     train_df = pd.concat([X_train, y_train], axis=1)
     val_df = pd.concat([X_val, y_val], axis=1)
+    '''
+    encoder.decode(train_df)
+    encoder.decode(val_df)
+    encoder.decode(test_df)
+
+    reconstructed_train_df = reconstruct_timestamps(train_df)
+    reconstructed_val_df = reconstruct_timestamps(val_df)
+    reconstructed_test_df = reconstruct_timestamps(test_df)
+
+    cols = [*dataset_confs.dynamic_num_cols.values(), *dataset_confs.dynamic_cat_cols.values()]
+    event_cols = list(itertools.chain.from_iterable(cols))+ ['prefix','time:timestamp']
+    long_train_df = pd.wide_to_long(reconstructed_train_df, stubnames=event_cols, i='trace_id',j='order', sep='_', suffix=r'\w+')
+    long_val_df = pd.wide_to_long(reconstructed_val_df, stubnames=event_cols, i='trace_id',j='order', sep='_', suffix=r'\w+')
+    long_test_df = pd.wide_to_long(reconstructed_test_df, stubnames=event_cols, i='trace_id',j='order', sep='_', suffix=r'\w+')
+    long_train_df.reset_index(inplace=True)
+    long_val_df.reset_index(inplace=True)
+    long_test_df.reset_index(inplace=True)
+    long_train_df.drop(columns=['order'], inplace=True
+                       )
+    long_val_df.drop(columns=['order'], inplace=True)
+    long_test_df.drop(columns=['order'], inplace=True)
+
+    long_val_df = long_val_df[long_val_df['time:timestamp'] != 0]
+    long_test_df = long_test_df[long_test_df['time:timestamp'] != 0]
+    long_train_df = long_train_df[long_train_df['time:timestamp'] != 0]
+
+
+    long_train_df['time:timestamp'] = pd.to_datetime(long_train_df['time:timestamp'], unit='s', errors='coerce')
+    long_val_df['time:timestamp'] = pd.to_datetime(long_val_df['time:timestamp'], unit='s', errors='coerce')
+    long_test_df['time:timestamp'] = pd.to_datetime(long_test_df['time:timestamp'], unit='s', errors='coerce')
+
+    if not os.path.exists(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor'])):
+        os.makedirs(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']))
+    long_train_df.to_csv(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']) +'/'  + dataset_name + '_train' + '.csv', sep=',')
+    long_val_df.to_csv(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']) +'/'  + dataset_name + '_val' + '.csv', sep=',')
+    long_test_df.to_csv(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']) +'/'  + dataset_name + '_test' + '.csv', sep=',')
+    
+    '''
+    test_df_convert = test_df.copy()
+    encoder.decode(test_df_convert)
+    # TEST DF TRANSFORM TO LOG
+    cols = [*dataset_confs.dynamic_num_cols.values(), *dataset_confs.dynamic_cat_cols.values()]
+    event_cols = list(itertools.chain.from_iterable(cols))+ ['prefix','time:timestamp']
+    reconstructed_test_df = reconstruct_timestamps(test_df_convert)
+    long_test_df = pd.wide_to_long(reconstructed_test_df, stubnames=event_cols, i='trace_id',j='order', sep='_', suffix=r'\w+').reset_index()
+    long_test_df.drop(columns=['order'], inplace=True)
+    long_test_df = long_test_df[long_test_df['time:timestamp'] != 0]
+    long_test_df['time:timestamp'] = pd.to_datetime(long_test_df['time:timestamp'], unit='s', errors='coerce')
+    long_test_df['start:timestamp'] = pd.to_datetime(long_test_df['start:timestamp'], unit='s', errors='coerce')
+    long_test_df.rename(columns={'trace_id': 'Case ID','prefix':'Activity'}, inplace=True)
+    test_log = long_test_df
+    del long_test_df
+
+
+
     predictive_models = [PredictiveModel(CONF, predictive_model, train_df, val_df, test_df) for predictive_model in
                          CONF['predictive_models']]
     best_candidates, best_model_idx, best_model_model, best_model_config = retrieve_best_model(
@@ -179,7 +235,17 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     for index in range(len(initial_feat_importance)):
         initial_feat_importance[index] = train_df.columns[int(initial_feat_importance[index])]
     logger.debug('COMPUTE EXPLANATION')
-    if CONF['explanator'] is ExplainerType.DICE_AUGMENTATION.value:
+    model_path = 'experiments/process_models/'
+    support = 0.9
+
+    encoder.decode(train_df)
+    encoder.decode(val_df)
+
+    reconstructed_train_val_log_df = pd.concat([train_df, val_df], ignore_index=True)
+
+    encoder.encode(train_df)
+    encoder.encode(val_df)
+    if CONF['method'] == 'counterfactual':
         predicted_test = best_model.model.predict(drop_columns(test_df))
         predicted_train = best_model.model.predict(drop_columns(train_df))
         if best_model.model_type in [item.value for item in ClassificationMethods]:
@@ -189,92 +255,194 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         train_df_correct = train_df_correct[train_df_correct['label'] == y_maj]
         total_traces_to_gen = len(test_df)
 
-
-        model_path = 'experiments/process_models/'
-        support = 0.9
-        import itertools
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
             cols = ['prefix']
         features_to_vary = None
+        path_baseline_cfs = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/baseline_cf_df_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
+        if os.path.exists(path_baseline_cfs):
+            print('Baseline CF already exists')
+            df_cf = pd.read_csv(path_baseline_cfs)
+            df_cf.rename(columns={'Case ID':'trace_id'},inplace=True)
+            reconstructed_df_cf = reconstruct_timestamps(df_cf)
+            long_df_cf = pd.wide_to_long(reconstructed_df_cf, stubnames=event_cols, i='trace_id', j='order',
+                                           sep='_', suffix=r'\w+').reset_index()
+            long_df_cf.drop(columns=['order'], inplace=True)
+            long_df_cf = long_df_cf[long_df_cf['time:timestamp'] != 0]
+            long_df_cf['time:timestamp'] = pd.to_datetime(long_df_cf['time:timestamp'], unit='s', errors='coerce')
+            long_df_cf['start:timestamp'] = pd.to_datetime(long_df_cf['start:timestamp'], unit='s', errors='coerce')
+            long_df_cf.rename(columns={'trace_id': 'Case ID', 'prefix': 'Activity'}, inplace=True)
+            baseline_log = long_df_cf
+        else:
+            df_cf, x_eval = explain(CONF, best_model, encoder=encoder,
+                            query_instances=train_df_correct,
+                            method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
+                            heuristic='heuristic_2', support=support,
+                            timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
+                            model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces_to_gen,
+                            minority_class=y_min, cfs_to_gen=1 #how many cfs to generate at one time
+                                    , features_to_vary=features_to_vary
+                            )
+            df_cf.rename(columns={'Case ID':'trace_id'},inplace=True)
 
-        df_cf, x_eval = explain(CONF, best_model, encoder=encoder,
-                        query_instances=train_df_correct,
-                        method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
-                        heuristic='heuristic_2', support=support,
-                        timestamp_col_name=[*dataset_confs.timestamp_col.values()][0],
-                        model_path=model_path, random_seed=CONF['seed'], total_traces=total_traces_to_gen,
-                        minority_class=y_min, cfs_to_gen=1 #how many cfs to generate at one time
-                                , features_to_vary=features_to_vary
-                        )
-        if CONF['drop_factuals']:
-            train_df = train_df[~train_df.trace_id.isin(df_cf['Case ID'])]
-        df_cf.rename(columns={'Case ID':'trace_id'},inplace=True)
-        encoder.decode(train_df)
-        encoder.decode(val_df)
-
-        reconstructed_train_val_log_df = pd.concat([train_df, val_df], ignore_index=True)
+            reconstructed_df_cf = reconstruct_timestamps(df_cf)
+            long_df_cf = pd.wide_to_long(reconstructed_df_cf, stubnames=event_cols, i='trace_id', j='order',
+                                           sep='_', suffix=r'\w+').reset_index()
+            long_df_cf.drop(columns=['order'], inplace=True)
+            long_df_cf = long_df_cf[long_df_cf['time:timestamp'] != 0]
+            long_df_cf['time:timestamp'] = pd.to_datetime(long_df_cf['time:timestamp'], unit='s', errors='coerce')
+            long_df_cf['start:timestamp'] = pd.to_datetime(long_df_cf['start:timestamp'], unit='s', errors='coerce')
+            long_df_cf.rename(columns={'trace_id': 'Case ID', 'prefix': 'Activity'}, inplace=True)
+            baseline_log = long_df_cf
         reconstructed_df_cf = df_cf.copy()
 
+        path_baseline_cfs = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/baseline_cf_df_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
+        reconstructed_df_cf.to_csv(path_baseline_cfs, index=False)
+        path_full_simulated = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/simulated_log_full_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
+        path_simulated_cfs = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/simulated_log_test_only_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
+
+
         ### simulation part
-        if CONF['simulation']:
-            run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, dataset_name)
-            path_simulated_cfs = os.getcwd()+'/experiments/icpm_data_gen_eval/datasets/' + dataset_name + '/results/simulated_log_' + dataset_name + '_.csv'
-            simulated_log = pd.read_csv(path_simulated_cfs)
-            dicts_trace = {}
-            for i in range(len(simulated_log)):
-                dicts_trace[i] = ast.literal_eval(simulated_log.loc[i][-2])
-            df = pd.DataFrame.from_dict(dicts_trace, orient='index')
-            try:
-                simulated_log = pd.merge(simulated_log, df, how='inner', on=df.index)
-            except Exception as e:
-                print(e)
-            try:
-                simulated_log.drop(columns=['key_0','st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            except Exception as e:
-                simulated_log.drop(columns=['st_tsk_wip', 'queue', 'arrive:timestamp', 'attrib_trace'], inplace=True)
-            simulated_log.rename(columns={'queue.1': 'queue'}, inplace=True)
-            if dataset_name == 'cvs_pharmacy' or dataset_name == 'ConsultaDataMining201618' or dataset_name == 'SynLoan' or dataset_name == 'PurchasingExample' or dataset_name == 'Productions' or dataset_name == 'BPI_Challenge_2012_W_Two_TS' or dataset_name == 'bpic2015_4_start' or dataset_name == 'sepsis_cases_2_start':
-                simulated_log.drop(columns=['open_cases'], inplace=True)
-            simulated_log.rename(
-                    columns={'role': 'org:resource', 'task': 'concept:name', 'caseid': 'case:concept:name'}, inplace=True)
-            if dataset_name == 'sepsis_cases_1_start' or dataset_name == 'sepsis_cases_2_start' or dataset_name == 'sepsis_cases_3_start':
-                simulated_log['org:group'] = simulated_log['org:resource']
-            simulated_log['lifecycle:transition'] = 'complete'
-            cols = [*dataset_confs.static_cat_cols.values(), *dataset_confs.static_num_cols.values()]
-            cols = list(itertools.chain.from_iterable(cols))
-            for i in range(len(simulated_log)):
-                for x in cols:
-                    simulated_log.at[i, x] = dicts_trace[i][x]
-            cols.append('label')
-            simulated_log['time:timestamp'] = pd.to_datetime(simulated_log['time:timestamp'], utc=True)
-            simulated_log['start:timestamp'] = pd.to_datetime(simulated_log['start:timestamp'], utc=True)
-            if dataset_name != 'SynLoan':
-                simulated_log.drop(columns=[col for col in simulated_log.columns if 'transition' in col], inplace=True)
-            #simulated_log['label'] = minority_class
-            simulated_log = convert_to_log(simulated_log, cols)
-            _, simulated_df = get_encoded_df(log=simulated_log, encoder=encoder, CONF=CONF)
-            updated_test_df = simulated_df.copy()
-            encoder.decode(updated_test_df)
-            encoder.decode(simulated_df)
-            updated_test_df = reconstruct_timestamps(updated_test_df)
-            #simulated_df.to_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'))
-            updated_test_df.to_csv(path_or_buf=os.path.join('experiments', 'new_logs_icpm', dataset_name,
-                                                             dataset_name + '_test_df_cf_simulated_aug_' + str(
-                                                                 augmentation_factor) + '_pref_len_' + str(
-                                                                 CONF['prefix_length']) + '.csv'), index=False)
+        if os.path.exists(path_simulated_cfs):
+            print('Simulated log already exists')
         else:
-            updated_test_df = pd.concat([reconstructed_test_df, reconstructed_test_df], ignore_index=True)
-            updated_test_df.to_csv(path_or_buf=os.path.join('experiments', 'new_logs_icpm', dataset_name,
-                                                             dataset_name + '_test_df_cf_aug_' + str(
-                                                                 augmentation_factor) + '_pref_len_' + str(
-                                                                 CONF['prefix_length']) + '.csv'), index=False)
-            x_eval.to_csv(path_or_buf=os.path.join('experiments', 'cf_eval_results', dataset_name + '_cf_eval' + str(
-                augmentation_factor) + '_pref_len_' + str(CONF['prefix_length']) + '.csv'), index=False)
-            #updated_train_df.to_csv(os.path.join('experiments', dataset_name + '_train_baseline.csv'))
-            updated_test_df.to_csv(os.path.join('experiments', dataset_name + '_train_baseline.csv'))
-            #encoder.encode(updated_train_df)
-        # Have to do the prefixes loop here to get the results for each prefix length, train each predictive model again, add the counterfactuals and retrain with the updated_train_df
-        #updated_train_df = pd.read_csv(os.path.join('experiments', dataset_name + '_train_sim.csv'),index_col=[0])
+            run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, dataset_name, CONF['undersampling_factor'],path_full_simulated)
+            simulated_log = pd.read_csv(path_simulated_cfs)
+
+            simulated_log.rename(columns={'id_case': 'trace_id'}, inplace=True)
+            simulated_log = simulated_log[simulated_log['trace_id'].str.contains('_CF')].reset_index()
+
+            simulated_log.to_csv(path_simulated_cfs)
+
+        simulated_log = pd.read_csv(path_simulated_cfs)
+        if 'Unnamed: 0' in simulated_log.columns:
+            simulated_log.drop(columns=['Unnamed: 0'], inplace=True)
+        simulated_log.rename(columns={'trace_id': 'Case ID', 'activity': 'Activity', 'start_time': 'start_timestamp',
+                                      'end_time': 'time_timestamp', 'resource': 'Resource'}, inplace=True)
+        simulated_log.drop(columns=['role', 'prefix', 'enabled_time','index'], inplace=True)
+
+        #x_eval.to_csv('experiments/new_logs_icpm/' + dataset_name + '/results/cf_eval' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv')
+    elif CONF['method'] == 'kappel':
+        # TODO, implement kappel method
+        pass
+
+    elif CONF['method'] == 'cvae':
+        baseline_vae_log = 'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_' + str(CONF['undersampling_factor']) + '.xes'
+        path_simulated_log = 'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_full' + str(
+            CONF['undersampling_factor']) + '.csv'
+        if os.path.exists(baseline_vae_log):
+
+            print('Baseline log already exists')
+            baseline_log = pm4py.read_xes(baseline_vae_log)
+            baseline_log['time:timestamp'] = pd.to_datetime(
+                baseline_log['time:timestamp'], errors='coerce'
+            ).apply(lambda x: x.tz_localize(None) if pd.notnull(x) and x.tzinfo is not None else x)
+            baseline_log['start:timestamp'] = baseline_log['time:timestamp']
+            baseline_log['start:timestamp'] = pd.to_datetime(
+                baseline_log['start:timestamp'], errors='coerce'
+            ).apply(lambda x: x.tz_localize(None) if pd.notnull(x) and x.tzinfo is not None else x)
+            baseline_log.drop(columns=['relative_timestamp_from_start',
+                                       'relative_timestamp_from_previous_activity', 'Unnamed: 0','Case ID','Activity','org:resource'],inplace=True)
+            cols = [*dataset_confs.static_num_cols.values(), *dataset_confs.static_cat_cols.values(),['label']]
+            cols = list(itertools.chain.from_iterable(cols))
+            cols = cols
+            cols_for_traces = ['case:' + col for col in cols]
+
+            baseline_log.rename(columns=dict(zip(cols, cols_for_traces)), inplace=True)
+            baseline_log = baseline_log.iloc[:,:-1]
+            baseline_log = pm4py.convert_to_event_log(baseline_log, timestamp_key='time:timestamp',
+                                                       case_id_key='case:concept:name', activity_key='concept:name',
+                                                       resource_key='Resource')
+        else:
+            print('Baseline log does not exist')
+        if os.path.exists(path_simulated_log):
+            print('Simulated log already exists')
+            simulated_log = pd.read_csv(
+                'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_test_only' + dataset_name + '_' + str(
+                    CONF['undersampling_factor']) + '.csv').reset_index(drop=True)
+
+            baseline_log = pm4py.convert_to_dataframe(baseline_log, timestamp_key='time:timestamp',
+                                                      case_id_key='case:concept:name', activity_key='concept:name')
+        else:
+            _, baseline_df = get_encoded_df(log=baseline_log, CONF=CONF, encoder=encoder)
+
+            encoder.decode(baseline_df)
+
+            run_simulation(reconstructed_train_val_log_df, baseline_df, dataset_name, CONF['undersampling_factor'],
+                           path_result=path_simulated_log)
+
+
+            simulated_log = pd.read_csv(path_simulated_log)
+            simulated_log = simulated_log[simulated_log['id_case'].str.contains('_CF')].reset_index()
+
+            simulated_log.to_csv(
+                'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_test_only' + dataset_name + '_' + str(
+                    CONF['undersampling_factor']) + '.csv')
+            baseline_log = pm4py.convert_to_dataframe(baseline_log, timestamp_key='time:timestamp',
+                                                      case_id_key='case:concept:name', activity_key='concept:name')
+
+
+        simulated_log.rename(columns={'id_case': 'Case ID', 'activity': 'Activity', 'start_time': 'start_timestamp',
+                                      'end_time': 'time_timestamp', 'resource': 'Resource'}, inplace=True)
+        if 'role' in simulated_log.columns:
+            simulated_log.drop(columns=['role', 'prefix', 'enabled_time'], inplace=True)
+
+        if 'Unnamed: 0' in simulated_log.columns:
+            simulated_log.drop(columns=['Unnamed: 0'], inplace=True)
+        if 'index' in simulated_log.columns:
+            simulated_log.drop(columns=['index'], inplace=True)
+
+    evaluations = []
+    if CONF['simulation']:
+    # First evaluation: simulated log
+        gen_eval_sim = logs_evaluation(
+            original_log=test_log,
+            generated_log=simulated_log,
+            timestamp_col_name='time:timestamp',
+            CONF=CONF,
+            dataset=dataset_name,
+            model_path=model_path
+        )
+        gen_eval_sim['method'] = CONF['method']
+        gen_eval_sim['prefix_length'] = CONF['prefix_length']
+        gen_eval_sim['undersampling_factor'] = CONF['undersampling_factor']
+        gen_eval_sim['dataset'] = dataset_name
+        gen_eval_sim['label_to_gen'] = CONF['label_to_gen']
+        gen_eval_sim['simulation'] = CONF['simulation']
+        evaluations.append(gen_eval_sim)
+    if CONF['method'] == 'cvae':
+    # Second evaluation: baseline log
+        baseline_log.rename(columns=dict(zip(cols_for_traces, cols)), inplace=True)
+    try:
+        baseline_log.rename(columns={'case:concept:name': 'Case ID', 'concept:name': 'Activity'}, inplace=True)
+    except:
+        print('No columns to rename')
+
+    gen_eval_baseline = logs_evaluation(
+        original_log=test_log,
+        generated_log=baseline_log,
+        timestamp_col_name='time:timestamp',
+        CONF=CONF,
+        dataset=dataset_name,
+        model_path=model_path
+    )
+    gen_eval_baseline['method'] = CONF['method']
+    gen_eval_baseline['prefix_length'] = CONF['prefix_length']
+    gen_eval_baseline['undersampling_factor'] = CONF['undersampling_factor']
+    gen_eval_baseline['dataset'] = dataset_name
+    gen_eval_baseline['label_to_gen'] = CONF['label_to_gen']
+    gen_eval_baseline['simulation'] = 'False'
+    evaluations.append(gen_eval_baseline)
+
+    # Convert to DataFrame
+    generation_evaluation_df = pd.DataFrame(evaluations)
+
+    # Save to CSV
+    if not os.path.exists('experiments/new_logs_icpm/' + dataset_name + '/results_evaluation'):
+        os.makedirs('experiments/new_logs_icpm/' + dataset_name + '/results_evaluation')
+    output_path = f'experiments/new_logs_icpm/{dataset_name}/results_evaluation/generation_evaluation_{dataset_name}.csv'
+    generation_evaluation_df.to_csv(output_path, index=False, mode='a', header=not os.path.exists(output_path))
+
+    logger.info('RESULT')
 
     logger.info('RESULT')
     logger.info('Done, cheers!')
@@ -283,7 +451,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'bpic2012_2_start_old': [45],
+        #'bpic2012': [45],
         #'sepsis_cases_2_start': [12],
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
@@ -295,7 +463,7 @@ if __name__ == '__main__':
         #"cvs_pharmacy": [8]
         'sepsis': [25],
     }
-    factors = [0.2, 0.1, 0.05, 0.01]
+    factors = [0.3,0.2,0.15,0.1, 0.05]
     for dataset, prefix_lengths in dataset_list.items():
         for factor in factors:
             for prefix in prefix_lengths:
@@ -320,9 +488,10 @@ if __name__ == '__main__':
                     'time_encoding': TimeEncodingType.NONE.value,
                     'target_event': None,
                     'seed': 666,
-                    'simulation': True,  ## if True the simulation of TRAIN + CF is run,
+                    'simulation': True,  # if True the simulation of TRAIN + CF is run,
                     'drop_factuals': False,
                     'label_to_gen': 'deviant',# regular or deviant
-                    'undersampling_factor':factor#how much to retain from the undersampled class for training
+                    'undersampling_factor':factor, # how much to retain from the undersampled class for training
+                    'method':'cvae' #method for data generation: kappel, cvae, counterfactual
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)

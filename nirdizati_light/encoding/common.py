@@ -93,12 +93,20 @@ def get_encoded_df(
 
 
             # Compute duration (convert timedelta to seconds)
-            df[duration_col] = (df[timestamp_col] - df[start_timestamp_col]).dt.total_seconds()
-            df[duration_col] = df[duration_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
+            try:
+                df[duration_col] = (df[timestamp_col] - df[start_timestamp_col]).dt.total_seconds()
+                df[duration_col] = df[duration_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
+            except Exception as e:
+                logger.error(f"Error computing duration for prefix {prefix}: {e}")
+                df[duration_col] = 0
 
             if prefix > 1 and previous_timestamp_col in df.columns:
                 df[previous_timestamp_col] = to_datetime(df[previous_timestamp_col], errors='coerce')
-                df[waiting_col] = (df[timestamp_col] - df[previous_timestamp_col]).dt.total_seconds()
+                try:
+                    df[waiting_col] = (df[timestamp_col] - df[previous_timestamp_col]).dt.total_seconds()
+                except Exception as e:
+                    logger.error(f"Error computing waiting time for prefix {prefix}: {e}")
+                    df[waiting_col] = 0
                 df[waiting_col] = df[waiting_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
             else:
                 df[waiting_col] = 0
@@ -106,7 +114,11 @@ def get_encoded_df(
             if next_start_timestamp_col and next_start_timestamp_col in df.columns:
                 df[next_start_timestamp_col] = to_datetime(df[next_start_timestamp_col], errors='coerce').fillna(
                     "1970-01-01 00:00+00")
-                df[arrival_col] = (df[next_start_timestamp_col] - df[timestamp_col]).dt.total_seconds()
+                try:
+                    df[arrival_col] = (df[next_start_timestamp_col] - df[timestamp_col]).dt.total_seconds()
+                except Exception as e:
+                    logger.error(f"Error computing arrival for prefix {prefix}: {e}")
+                    df[arrival_col] = 0
                 df[arrival_col] = df[arrival_col].fillna(0).apply(lambda x: max(x, 0))  # Handle NaN and negatives
             else:
                 df[arrival_col] = 0  # If there's no next start timestamp
