@@ -27,8 +27,8 @@ param_grid = {
 #### PRE-PROCESSING DATA
 PATH_DATA = 'BPI_Challenge_2012_estimated_start.csv'
 NAME_EXPERIMENT = 'BPI_Challenge_2012'
-PATH_SAVE_MODEL = '../datasets/' + NAME_EXPERIMENT
-PATH_PARAMETERS = '../datasets/' + NAME_EXPERIMENT + '/input_' + NAME_EXPERIMENT + '.json'
+PATH_SAVE_MODEL = '/Users/andrei/Desktop/PhD/experiments/what_if_augmentation/datasets/' + NAME_EXPERIMENT
+PATH_PARAMETERS = '/Users/andrei/Desktop/PhD/experiments/what_if_augmentation/datasets/' + NAME_EXPERIMENT + '/input_' + NAME_EXPERIMENT + '.json'
 
 #### retrieve information from json file
 with open(PATH_PARAMETERS) as file:

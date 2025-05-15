@@ -49,7 +49,33 @@ def conformance_score(simulated_log, CONF, dataset, model_path):
     avg_conformance = np.mean(conformance_score)
     print('Average conformance score', np.mean(conformance_score))
     return avg_conformance
-
+def start_error(log):
+    error = 0
+    log['time:timestamp'] = pd.to_datetime(log['time:timestamp'])
+    log['start:timestamp'] = pd.to_datetime(log['start:timestamp'])
+    for index, row in log.iterrows():
+        if row['start:timestamp']>row['time:timestamp']:
+            error += 1
+    return error
+def overlap_error(log):
+    log = log[log['Resource'].notna()]
+    res = log['Resource'].unique().tolist()
+    capacity = {r: 1 for r in res}
+    overlap_error = 0
+    resource_work = {r: {} for r in res}
+    log['time:timestamp'] = pd.to_datetime(log['time:timestamp'])
+    log['start:timestamp'] = pd.to_datetime(log['start:timestamp'])
+    for index, row in log.iterrows():
+        start = int(row['start:timestamp'].timestamp())
+        end = int(row['time:timestamp'].timestamp())
+        for i in range(start, end):
+            if i in resource_work[row['Resource']]:
+                resource_work[row['Resource']][i] += 1
+                if resource_work[row['Resource']][i] > capacity[row['Resource']]:
+                    overlap_error += 1
+            else:
+                resource_work[row['Resource']][i] = 1
+    return overlap_error
 def logs_evaluation(original_log, generated_log, timestamp_col_name=None, csv_ids=None,
                     absolute_timestamp_type=AbsoluteTimestampType.END, discretize_to_day=discretize_to_day, CONF=None,
                     dataset=None, d4py=None, model_path=None):
@@ -73,9 +99,9 @@ def logs_evaluation(original_log, generated_log, timestamp_col_name=None, csv_id
         generated_log.rename(columns={'start:timestamp': 'start_timestamp'}, inplace=True)
     log_ids = EventLogIDs(activity = 'Activity',
                           case = 'Case ID',
-                          start_time = 'start_timestamp',
-                          end_time = 'time_timestamp',
-                          resource = 'Resource')
+                          start_time='start_timestamp',
+                          end_time='time_timestamp',
+                          resource='Resource')
 
     original_log.start_timestamp = pd.to_datetime(original_log.start_timestamp, utc=True)
     original_log.time_timestamp = pd.to_datetime(original_log.time_timestamp, utc=True)
@@ -130,7 +156,8 @@ def logs_evaluation(original_log, generated_log, timestamp_col_name=None, csv_id
       log_ids,
     ),
         'conformance_score': conformance_score(generated_log, CONF, dataset, model_path),
-
+    'start_error':start_error(generated_log),
+    'overlap_error': overlap_error(generated_log),
     }
 
     return results

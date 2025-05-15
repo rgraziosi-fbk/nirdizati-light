@@ -172,11 +172,11 @@ class Token(object):
 
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
-                if self.CF:
-                    waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[4] #### to adjust with the prediction
-                else:
-                    waiting = event[4]
-
+                #if self.CF:
+                #    waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[4] #### to adjust with the prediction
+                #else:
+                #    waiting = event[4]
+                waiting = 0
                 if self.see_activity:
                     yield env.timeout(waiting)
 

@@ -254,7 +254,7 @@ class DatasetConfs:
             #     dynamic_cat_cols[dataset] = [col for col in dynamic_cat_cols[dataset] if col != "isCancelled"]
             # elif i == 2:
             #     dynamic_cat_cols[dataset] = [col for col in dynamic_cat_cols[dataset] if col != "isClosed"]
-        elif dataset_name in ['bpic2012_2_start_old','bpic2012_2_start', 'bpic2012','bpic2012_O_ACCEPTED-COMPLETE','bpic2012_O_CANCELLED-COMPLETE','bpic2012_O_DECLINED-COMPLETE','full_triple_pattern.xes','full_complex_direct_pattern.xes', 'full_double_pattern_symmetrical_0.8.xes', 'full_direct_follow.xes', 'full_eventually_follow.xes', 'full.xes',
+        elif dataset_name in ['bpic2012_2_start_old','bpic2012_2_start','bpic2012_O_ACCEPTED-COMPLETE','bpic2012_O_CANCELLED-COMPLETE','bpic2012_O_DECLINED-COMPLETE','full_triple_pattern.xes','full_complex_direct_pattern.xes', 'full_double_pattern_symmetrical_0.8.xes', 'full_direct_follow.xes', 'full_eventually_follow.xes', 'full.xes',
                               'full_triple_pattern_0.8.xes','full_triple_direct_pattern.xes','full_complex_concurrent_pattern.xes','full_a_a_pattern.xes','full_a_b_pattern_pareto.xes','full_a_b_c_pattern.xes'
                               'full_complex_direct_both_pattern.xes','']:
             dataset = dataset_name
@@ -278,6 +278,26 @@ class DatasetConfs:
                                          "timesincecasestart", "event_nr"]}
             self.static_num_cols = {dataset: ['AMOUNT_REQ']}
         #elif dataset_name in ['full.xes', "BPIC15_%s_f%s" % (municipality, formula) for municipality in range(1, 6) for formula in range(1, 3)]:
+        elif dataset_name == 'BPI_Challenge_2012':
+            dataset = dataset_name
+            if where_is_the_file != '':
+                self.filename = {dataset: where_is_the_file}
+            else:
+                self.filename = {dataset: ''}
+
+            self.case_id_col = {dataset: "Case ID"}
+            self.activity_col = {dataset: "concept:name"}
+            self.resource_col = {dataset: "Resource"}
+            self.timestamp_col = {dataset: "time:timestamp"}
+            self.label_col = {dataset: "label"}
+            self.neg_label = {dataset: "regular"}
+            self.pos_label = {dataset: "deviant"}
+
+            # features for classifier
+            self.dynamic_cat_cols = {dataset: ["concept:name", "Resource", "lifecycle:transition"]}
+            self.static_cat_cols = {dataset: []}
+            self.dynamic_num_cols = {dataset: ['start:timestamp']}
+            self.static_num_cols = {dataset: ['AMOUNT_REQ']}
         elif dataset_name in ['bpic2015_2_start']:
             dataset = dataset_name
             if where_is_the_file != '':

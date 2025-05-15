@@ -91,9 +91,20 @@ ATTRIBUTES = {
                                                  #"hour", "month", "timesincecasestart",
                                                  #"timesincelastevent",
                                                  #"timesincemidnight", "weekday", "queue"
-                    ]}
-}
-
+                    ]},
+        'sepsis':{'TRACE_ATTRIBUTES' : ['InfectionSuspected',
+       'DiagnosticBlood', 'DisfuncOrg', 'SIRSCritTachypnea', 'Hypotensie',
+       'SIRSCritHeartRate', 'Infusion', 'DiagnosticArtAstrup',
+       'DiagnosticIC', 'DiagnosticSputum', 'DiagnosticLiquor',
+       'DiagnosticOther', 'SIRSCriteria2OrMore', 'DiagnosticXthorax',
+       'SIRSCritTemperature', 'DiagnosticUrinaryCulture', 'SIRSCritLeucos',
+       'Oligurie', 'DiagnosticLacticAcid', 'Diagnose', 'Hypoxie',
+       'DiagnosticUrinarySediment', 'DiagnosticECG'],
+                  'EVENT_ATTRIBUTES' : ['Leucocytes', 'CRP', 'LacticAcid']},
+        'BPI_Challenge_2012':{
+                    'TRACE_ATTRIBUTES' : ['AMOUNT_REQ'],
+                    'EVENT_ATTRIBUTES' : []}}
+'''
 TRACE_ATTRIBUTES = ['InfectionSuspected',
        'DiagnosticBlood', 'DisfuncOrg', 'SIRSCritTachypnea', 'Hypotensie',
        'SIRSCritHeartRate', 'Infusion', 'DiagnosticArtAstrup',
@@ -103,7 +114,7 @@ TRACE_ATTRIBUTES = ['InfectionSuspected',
        'Oligurie', 'DiagnosticLacticAcid', 'Diagnose', 'Hypoxie',
        'DiagnosticUrinarySediment', 'DiagnosticECG']
 EVENT_ATTRIBUTES = ['Leucocytes', 'CRP', 'LacticAcid']
-
+'''
 def find_parallel(row):
     prefix_trace = []
     for index in range(1, 25):
@@ -211,7 +222,9 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with keys and values of y
     return z
 
-def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, traces_contrafactual, imbalance_factor, path_result):
+def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, traces_contrafactual, imbalance_factor, path_result,
+          TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
+
     simulation_process = SimulationProcess(env=env, params=params)
     buffer_definition = { "id_case": -1, "activity": None, "role": None, "enabled_time": None, "start_time": None, "end_time": None, "resource": None, "prefix": Prefix}
     buffer_definition = buffer_definition | {a: None for a in EVENT_ATTRIBUTES} | {a: None for a in TRACE_ATTRIBUTES}
@@ -241,7 +254,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT, imbalance_factor, path_result):
     print(NAME_EXPERIMENT)
-    path_parameters = 'datasets/sepsis/input_sepsis.json'
+    path_parameters = 'datasets/'+NAME_EXPERIMENT+'/input_'+NAME_EXPERIMENT+'.json'
     with open(path_parameters, 'r') as f:
         data = json.load(f)
         TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
@@ -255,11 +268,12 @@ def run_simulation(train_df, df_cf, NAME_EXPERIMENT, imbalance_factor, path_resu
     for i in range(0, N_SIMULATION):
         params = Parameters(path_parameters, N_TRACES)
         env = simpy.Environment()
-        env.process(setup(env, NAME_EXPERIMENT, params, i, train_traces, contrafactual_traces, imbalance_factor, path_result))
+        env.process(setup(env, NAME_EXPERIMENT, params, i, train_traces, contrafactual_traces, imbalance_factor, path_result,
+                          TRACE_ATTRIBUTES, EVENT_ATTRIBUTES))
         env.run()
 
 
-NAME_EXPERIMENT = 'sepsis'
-reconstructed_train_val_log_df = pd.read_csv('../datasets/sepsis/sepsis_df_cf_0.2_pref_len_25.csv')
-reconstructed_df_cf = pd.read_csv('../datasets/sepsis/sepsis_train_df_0.2_pref_len_25.csv')
-run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, NAME_EXPERIMENT, 0.2, '../datasets/sepsis/simulation.csv')
+#NAME_EXPERIMENT = 'sepsis'
+#reconstructed_train_val_log_df = pd.read_csv('../datasets/sepsis/sepsis_df_cf_0.2_pref_len_25.csv')
+#reconstructed_df_cf = pd.read_csv('../datasets/sepsis/sepsis_train_df_0.2_pref_len_25.csv')
+#run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, NAME_EXPERIMENT, 0.2, '../datasets/sepsis/simulation.csv')

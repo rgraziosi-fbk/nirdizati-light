@@ -35,7 +35,7 @@ class Parameters(object):
                 else:
                     self.ROLE_CAPACITY = {'TRIGGER_TIMER': [math.inf, []]}
                 self._define_roles_resources(data['resource'])
-                self.read_parameter_sepsis(data)
+                self.read_parameters(data)
         else:
             raise ValueError('Parameter file does not exist')
 
@@ -50,7 +50,7 @@ class Parameters(object):
             value = data['duration_simulation']*86400000 if type in data else 31536000000
         return value
 
-    def read_parameter_sepsis(self, data):
+    def read_parameters(self, data):
         self.ACT_2_NUMBER = data['ACT_2_NUMBER']
         self.TRACES_ATTRIBUTES = data["TRACE_ATTRIBUTES"]
         self.EVENT_ATTRIBUTES = data["EVENT_ATTRIBUTES"]
@@ -59,4 +59,6 @@ class Parameters(object):
         self.predictive_model_processing_time = data["predictive_model_processing_time"]
         self.predictive_model_waiting_time = data["predictive_model_waiting_time"]
         self.PREFIX_LEN = data["PREFIX_LEN"]
-        self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']
+        if 'DIAGNOSE_2_NUMBER' in data:
+            self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']
+        #self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']

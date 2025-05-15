@@ -162,7 +162,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     # Now you have your splits
     train_df = pd.concat([X_train, y_train], axis=1)
     val_df = pd.concat([X_val, y_val], axis=1)
-    '''
+
     encoder.decode(train_df)
     encoder.decode(val_df)
     encoder.decode(test_df)
@@ -179,10 +179,18 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     long_train_df.reset_index(inplace=True)
     long_val_df.reset_index(inplace=True)
     long_test_df.reset_index(inplace=True)
-    long_train_df.drop(columns=['order'], inplace=True
+    long_train_df.drop(columns=['order','concept:name'], inplace=True
                        )
-    long_val_df.drop(columns=['order'], inplace=True)
-    long_test_df.drop(columns=['order'], inplace=True)
+    long_val_df.drop(columns=['order','concept:name'], inplace=True)
+    long_test_df.drop(columns=['order','concept:name'], inplace=True)
+
+    long_train_df.rename(columns={'prefix':'concept:name','trace_id':'Case ID'}, inplace=True)
+    long_val_df.rename(columns={'prefix':'concept:name','trace_id':'Case ID'}, inplace=True)
+    long_test_df.rename(columns={'prefix':'concept:name','trace_id':'Case ID'}, inplace=True)
+
+    long_train_df['lifecycle:transition'] = 'complete'
+    long_val_df['lifecycle:transition'] = 'complete'
+    long_test_df['lifecycle:transition'] = 'complete'
 
     long_val_df = long_val_df[long_val_df['time:timestamp'] != 0]
     long_test_df = long_test_df[long_test_df['time:timestamp'] != 0]
@@ -246,13 +254,14 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     encoder.encode(train_df)
     encoder.encode(val_df)
     if CONF['method'] == 'counterfactual':
-        predicted_test = best_model.model.predict(drop_columns(test_df))
-        predicted_train = best_model.model.predict(drop_columns(train_df))
+        pred_df = reconstructed_train_val_log_df.copy()
+        encoder.encode(pred_df)
+        pred_df = pred_df[pred_df['label'] == y_maj]
+        predicted_train = best_model.model.predict(drop_columns(pred_df))
         if best_model.model_type in [item.value for item in ClassificationMethods]:
-            train_df_correct = train_df[(train_df['label'] == predicted_train)]
+            train_df_correct = pred_df[(pred_df['label'] == predicted_train)]
         else:
-            train_df_correct = train_df_correct
-        train_df_correct = train_df_correct[train_df_correct['label'] == y_maj]
+            train_df_correct = train_df_maj
         total_traces_to_gen = len(test_df)
 
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
@@ -260,19 +269,22 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         features_to_vary = None
         path_baseline_cfs = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/baseline_cf_df_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
         if os.path.exists(path_baseline_cfs):
-            print('Baseline CF already exists')
-            df_cf = pd.read_csv(path_baseline_cfs)
-            df_cf.rename(columns={'Case ID':'trace_id'},inplace=True)
-            reconstructed_df_cf = reconstruct_timestamps(df_cf)
-            long_df_cf = pd.wide_to_long(reconstructed_df_cf, stubnames=event_cols, i='trace_id', j='order',
-                                           sep='_', suffix=r'\w+').reset_index()
-            long_df_cf.drop(columns=['order'], inplace=True)
-            long_df_cf = long_df_cf[long_df_cf['time:timestamp'] != 0]
-            long_df_cf['time:timestamp'] = pd.to_datetime(long_df_cf['time:timestamp'], unit='s', errors='coerce')
-            long_df_cf['start:timestamp'] = pd.to_datetime(long_df_cf['start:timestamp'], unit='s', errors='coerce')
-            long_df_cf.rename(columns={'trace_id': 'Case ID', 'prefix': 'Activity'}, inplace=True)
-            baseline_log = long_df_cf
+            baseline_log = pd.read_csv(path_baseline_cfs)
+            baseline_log['time:timestamp'] = pd.to_datetime(baseline_log['time:timestamp'], errors='coerce')
+            baseline_log['start:timestamp'] = pd.to_datetime(baseline_log['start:timestamp'], errors='coerce')
+            baseline_log['Case ID'] = baseline_log['Case ID'].astype('str')
+            baseline_log.drop(columns=['concept:name'], inplace=True)
+            baseline_log.rename(
+                columns={'label': 'case:label', 'AMOUNT_REQ': 'case:AMOUNT_REQ', 'Case ID': 'case:concept:name',
+                         'Activity': 'concept:name'}, inplace=True)
+            baseline_log = pm4py.convert_to_event_log(baseline_log, timestamp_key='time:timestamp',
+                                                      case_id_key='case:concept:name', activity_key='concept:name',
+                                                      resource_key='Resource')
+            _, baseline_df = get_encoded_df(log=baseline_log, CONF=CONF, encoder=encoder)
+            encoder.decode(baseline_df)
+            df_cf = baseline_df.copy()
         else:
+            os.makedirs('experiments/new_logs_icpm/' + dataset_name + '/results_cf', exist_ok=True)
             df_cf, x_eval = explain(CONF, best_model, encoder=encoder,
                             query_instances=train_df_correct,
                             method='genetic', df=full_df.iloc[:, 1:], optimization='baseline',
@@ -293,10 +305,10 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             long_df_cf['start:timestamp'] = pd.to_datetime(long_df_cf['start:timestamp'], unit='s', errors='coerce')
             long_df_cf.rename(columns={'trace_id': 'Case ID', 'prefix': 'Activity'}, inplace=True)
             baseline_log = long_df_cf
+            baseline_log.to_csv(path_baseline_cfs, index=False)
+
         reconstructed_df_cf = df_cf.copy()
 
-        path_baseline_cfs = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/baseline_cf_df_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
-        reconstructed_df_cf.to_csv(path_baseline_cfs, index=False)
         path_full_simulated = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/simulated_log_full_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
         path_simulated_cfs = 'experiments/new_logs_icpm/' + dataset_name + '/results_cf/simulated_log_test_only_' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv'
 
@@ -305,20 +317,21 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         if os.path.exists(path_simulated_cfs):
             print('Simulated log already exists')
         else:
-            run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, dataset_name, CONF['undersampling_factor'],path_full_simulated)
+            if CONF['simulation']:
+                run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, dataset_name, CONF['undersampling_factor'],path_full_simulated)
+                simulated_log = pd.read_csv(path_simulated_cfs)
+
+                simulated_log.rename(columns={'id_case': 'trace_id'}, inplace=True)
+                simulated_log = simulated_log[simulated_log['trace_id'].str.contains('_CF')].reset_index()
+
+                simulated_log.to_csv(path_simulated_cfs)
+        if CONF['simulation']:
             simulated_log = pd.read_csv(path_simulated_cfs)
-
-            simulated_log.rename(columns={'id_case': 'trace_id'}, inplace=True)
-            simulated_log = simulated_log[simulated_log['trace_id'].str.contains('_CF')].reset_index()
-
-            simulated_log.to_csv(path_simulated_cfs)
-
-        simulated_log = pd.read_csv(path_simulated_cfs)
-        if 'Unnamed: 0' in simulated_log.columns:
-            simulated_log.drop(columns=['Unnamed: 0'], inplace=True)
-        simulated_log.rename(columns={'trace_id': 'Case ID', 'activity': 'Activity', 'start_time': 'start_timestamp',
-                                      'end_time': 'time_timestamp', 'resource': 'Resource'}, inplace=True)
-        simulated_log.drop(columns=['role', 'prefix', 'enabled_time','index'], inplace=True)
+            if 'Unnamed: 0' in simulated_log.columns:
+                simulated_log.drop(columns=['Unnamed: 0'], inplace=True)
+            simulated_log.rename(columns={'trace_id': 'Case ID', 'activity': 'Activity', 'start_time': 'start_timestamp',
+                                          'end_time': 'time_timestamp', 'resource': 'Resource'}, inplace=True)
+            simulated_log.drop(columns=['role', 'prefix', 'enabled_time','index'], inplace=True)
 
         #x_eval.to_csv('experiments/new_logs_icpm/' + dataset_name + '/results/cf_eval' + dataset_name +'_' + str(CONF['undersampling_factor']) + '.csv')
     elif CONF['method'] == 'kappel':
@@ -327,7 +340,9 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
     elif CONF['method'] == 'cvae':
         baseline_vae_log = 'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_' + str(CONF['undersampling_factor']) + '.xes'
-        path_simulated_log = 'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_full' + str(
+        path_simulated_log = 'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim' + str(
+            CONF['undersampling_factor']) + '.csv'
+        path_sim_gen_test = 'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_test_only' + dataset_name + '_' + str(
             CONF['undersampling_factor']) + '.csv'
         if os.path.exists(baseline_vae_log):
 
@@ -357,8 +372,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         if os.path.exists(path_simulated_log):
             print('Simulated log already exists')
             simulated_log = pd.read_csv(
-                'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_test_only' + dataset_name + '_' + str(
-                    CONF['undersampling_factor']) + '.csv').reset_index(drop=True)
+                path_sim_gen_test).reset_index(drop=True)
 
             baseline_log = pm4py.convert_to_dataframe(baseline_log, timestamp_key='time:timestamp',
                                                       case_id_key='case:concept:name', activity_key='concept:name')
@@ -374,9 +388,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             simulated_log = pd.read_csv(path_simulated_log)
             simulated_log = simulated_log[simulated_log['id_case'].str.contains('_CF')].reset_index()
 
-            simulated_log.to_csv(
-                'experiments/new_logs_icpm/' + dataset_name + '/results_vae/gen_sim_test_only' + dataset_name + '_' + str(
-                    CONF['undersampling_factor']) + '.csv')
+            simulated_log.to_csv(path_sim_gen_test)
             baseline_log = pm4py.convert_to_dataframe(baseline_log, timestamp_key='time:timestamp',
                                                       case_id_key='case:concept:name', activity_key='concept:name')
 
@@ -412,10 +424,10 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     if CONF['method'] == 'cvae':
     # Second evaluation: baseline log
         baseline_log.rename(columns=dict(zip(cols_for_traces, cols)), inplace=True)
-    try:
-        baseline_log.rename(columns={'case:concept:name': 'Case ID', 'concept:name': 'Activity'}, inplace=True)
-    except:
-        print('No columns to rename')
+        try:
+            baseline_log.rename(columns={'case:concept:name': 'Case ID', 'concept:name': 'Activity'}, inplace=True)
+        except:
+            print('No columns to rename')
 
     gen_eval_baseline = logs_evaluation(
         original_log=test_log,
@@ -439,19 +451,19 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     # Save to CSV
     if not os.path.exists('experiments/new_logs_icpm/' + dataset_name + '/results_evaluation'):
         os.makedirs('experiments/new_logs_icpm/' + dataset_name + '/results_evaluation')
-    output_path = f'experiments/new_logs_icpm/{dataset_name}/results_evaluation/generation_evaluation_{dataset_name}.csv'
+    output_path = f'experiments/new_logs_icpm/{dataset_name}/results_evaluation/generation_evaluation_updated_sim_{dataset_name}.csv'
     generation_evaluation_df.to_csv(output_path, index=False, mode='a', header=not os.path.exists(output_path))
 
     logger.info('RESULT')
 
     logger.info('RESULT')
     logger.info('Done, cheers!')
-
+    '''
 
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        #'bpic2012': [45],
+        'BPI_Challenge_2012': [45],
         #'sepsis_cases_2_start': [12],
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
@@ -461,7 +473,7 @@ if __name__ == '__main__':
         #'Productions': [40]
         #'PurchasingExample': [40]
         #"cvs_pharmacy": [8]
-        'sepsis': [25],
+        #'sepsis': [25],
     }
     factors = [0.3,0.2,0.15,0.1, 0.05]
     for dataset, prefix_lengths in dataset_list.items():
@@ -492,6 +504,6 @@ if __name__ == '__main__':
                     'drop_factuals': False,
                     'label_to_gen': 'deviant',# regular or deviant
                     'undersampling_factor':factor, # how much to retain from the undersampled class for training
-                    'method':'cvae' #method for data generation: kappel, cvae, counterfactual
+                    'method':'counterfactual' #method for data generation: kappel, cvae, counterfactual
                 }
                 run_simple_pipeline(CONF=CONF, dataset_name=dataset)
