@@ -25,8 +25,8 @@ param_grid = {
 }
 
 #### PRE-PROCESSING DATA
-PATH_DATA = 'sepsis_estimated_start.csv'
-NAME_EXPERIMENT = 'sepsis'
+PATH_DATA = 'BPI_Challenge_2012_estimated_start.csv'
+NAME_EXPERIMENT = 'BPI_Challenge_2012'
 PATH_SAVE_MODEL = '../datasets/' + NAME_EXPERIMENT
 PATH_PARAMETERS = '../datasets/' + NAME_EXPERIMENT + '/input_' + NAME_EXPERIMENT + '.json'
 
@@ -39,8 +39,9 @@ with open(PATH_PARAMETERS) as file:
     RESOURCE_2_NUMBER = data["RESOURCE_2_NUMBER"]
     NUMBER_2_RESOURCE = data["NUMBER_2_RESOURCE"]
     EVENT_ATTRIBUTES = data["EVENT_ATTRIBUTES"]
-    NUMBER_2_DIAGNOSE = data["NUMBER_2_DIAGNOSE"]
-    DIAGNOSE_2_NUMBER = data["DIAGNOSE_2_NUMBER"]
+    if NAME_EXPERIMENT == 'sepsis':
+        NUMBER_2_DIAGNOSE = data["NUMBER_2_DIAGNOSE"]
+        DIAGNOSE_2_NUMBER = data["DIAGNOSE_2_NUMBER"]
     PREFIX_LEN = data["PREFIX_LEN"]
 
 PREFIX_COLUMNS = ['prefix'+str(i) for i in range(PREFIX_LEN)]
@@ -49,11 +50,14 @@ TARGET_COLUMN = ["waiting_time", "caseid"]
 
 ### create processing_time
 # Load and preprocess data
-df = pd.read_csv(PATH_DATA, sep=";")
+df = pd.read_csv(PATH_DATA, sep=",")
+df['start:timestamp'] = df['start:timestamp'].astype(str).str[:19]
+df['time:timestamp'] = df['time:timestamp'].astype(str).str[:19]
+df['available_time'] = df['available_time'].astype(str).str[:19]
 df = df.sort_values(by=['caseid', 'start:timestamp'], ascending=[True, True])
-df['time:timestamp'] = pd.to_datetime(df['time:timestamp'], utc=True, errors='coerce')
-df['start:timestamp'] = pd.to_datetime(df['start:timestamp'], utc=True, errors='coerce')
-df['available_time'] = pd.to_datetime(df['available_time'], utc=True, errors='coerce')
+df['time:timestamp'] = pd.to_datetime(df['time:timestamp'], utc=True, format="%Y-%m-%d %H:%M:%S")
+df['start:timestamp'] = pd.to_datetime(df['start:timestamp'], utc=True, format="%Y-%m-%d %H:%M:%S")
+df['available_time'] = pd.to_datetime(df['available_time'], utc=True, format="%Y-%m-%d %H:%M:%S")
 #invalid_dates = df[pd.to_datetime(df['start:timestamp'], errors='coerce').isna()]
 #print(invalid_dates)
 ##### compute waiting_time

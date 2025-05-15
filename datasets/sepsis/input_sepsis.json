@@ -5,13 +5,13 @@
         "type": "distribution",
         "name": "exponential",
         "parameters": {
-            "scale": 600
+            "scale": 36028
         }
     },
     "resource": {
         "A": {"resources": ["A"]},
         "C": {"resources": ["C"]},
-        "B": {"resources": ["B", "B1", "B2"]},
+        "B": {"resources": ["B", "B", "B"]},
         "I": {"resources": ["I"]},
         "L": {"resources": ["L"]} ,
         "M": {"resources": ["M"]},
