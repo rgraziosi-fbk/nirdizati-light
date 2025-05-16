@@ -25,8 +25,8 @@ param_grid = {
 }
 
 #### PRE-PROCESSING DATA
-PATH_DATA = 'BPI_Challenge_2012_estimated_start.csv'
-NAME_EXPERIMENT = 'BPI_Challenge_2012'
+PATH_DATA = 'full_label.xes'
+NAME_EXPERIMENT = 'BPI17'
 PATH_SAVE_MODEL = '../datasets/' + NAME_EXPERIMENT
 PATH_PARAMETERS = '../datasets/' + NAME_EXPERIMENT + '/input_' + NAME_EXPERIMENT + '.json'
 
@@ -50,7 +50,11 @@ TARGET_COLUMN = ["processing_time", "caseid"]
 
 ### create processing_time
 # Load and preprocess data
-df = pd.read_csv(PATH_DATA, sep=",")
+if PATH_DATA.endswith('.xes'):
+    log = pm4py.read_xes(PATH_DATA)
+    df = pm4py.convert_to_dataframe(log)
+else:
+    df = pd.read_csv(PATH_DATA, sep=",")
 df['start:timestamp'] = df['start:timestamp'].astype(str).str[:19]
 df['time:timestamp'] = df['time:timestamp'].astype(str).str[:19]
 df = df.sort_values(by=['caseid', 'start:timestamp'], ascending=[True, True])
