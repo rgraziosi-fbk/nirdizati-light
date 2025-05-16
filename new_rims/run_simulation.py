@@ -12,8 +12,7 @@ from itertools import groupby
 from operator import itemgetter
 import json
 
-PARALLEL = ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid',
-            'Admission IC', 'Admission NC', 'ER Sepsis Triage', 'IV Antibiotics']
+PARALLEL = []
 
 ATTRIBUTES = {
         'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',

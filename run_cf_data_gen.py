@@ -50,14 +50,12 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
     logger.debug('LOAD DATA')
     log = get_log(filepath=CONF['data'])
-
     logger.debug('ENCODE DATA')
     encoder, full_df = get_encoded_df(log=log, CONF=CONF)
 
     #full_df = full_df[full_df.columns[~pd.Series(full_df.columns).str.contains(
     #    'cases|time|queue|open|group|event|lifecycle|day|hour|week|month')]]
     #encoder.decode(full_df)
-
     def reconstruct_timestamps(df):
         """Reconstruct time:timestamp, arrival:timestamp, and start:timestamp columns iteratively."""
         reconstructed_df = df.copy()# Avoid modifying the original DataFrame
@@ -162,7 +160,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     # Now you have your splits
     train_df = pd.concat([X_train, y_train], axis=1)
     val_df = pd.concat([X_val, y_val], axis=1)
-
+    '''
     encoder.decode(train_df)
     encoder.decode(val_df)
     encoder.decode(test_df)
@@ -206,7 +204,6 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
     long_train_df.to_csv(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']) +'/'  + dataset_name + '_train' + '.csv', sep=',')
     long_val_df.to_csv(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']) +'/'  + dataset_name + '_val' + '.csv', sep=',')
     long_test_df.to_csv(CONF['data'].split('/')[0] + '/' + CONF['data'].split('/')[1] +'/' +  'imbalance_' + str(CONF['undersampling_factor']) +'/'  + dataset_name + '_test' + '.csv', sep=',')
-    
     '''
     test_df_convert = test_df.copy()
     encoder.decode(test_df_convert)
@@ -458,7 +455,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 
     logger.info('RESULT')
     logger.info('Done, cheers!')
-    '''
+
 
 if __name__ == '__main__':
     dataset_list = {
@@ -475,7 +472,7 @@ if __name__ == '__main__':
         #"cvs_pharmacy": [8]
         #'sepsis': [25],
     }
-    factors = [0.3,0.2,0.15,0.1, 0.05]
+    factors = [0.3, 0.2, 0.15, 0.1, 0.05]
     for dataset, prefix_lengths in dataset_list.items():
         for factor in factors:
             for prefix in prefix_lengths:
