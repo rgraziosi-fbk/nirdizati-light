@@ -259,7 +259,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             train_df_correct = pred_df[(pred_df['label'] == predicted_train)]
         else:
             train_df_correct = train_df_maj
-        total_traces_to_gen = len(test_df)
+        #total_traces_to_gen = len(test_df)
+        total_traces_to_gen = 5
 
         if CONF['feature_selection'] in ['simple', 'simple_trace']:
             cols = ['prefix']
@@ -470,14 +471,16 @@ if __name__ == '__main__':
         #'Productions': [40]
         #'PurchasingExample': [40]
         #"cvs_pharmacy": [8]
-        #'sepsis': [25],
+        #'sepsis': [25]
     }
-    factors = [0.3, 0.2, 0.15, 0.1, 0.05]
+    #factors = [0.3, 0.2, 0.15, 0.1, 0.05]
+    factors = [0.1]
     for dataset, prefix_lengths in dataset_list.items():
-        for factor in factors:
+         print(os.path.join('datasets', dataset, 'full_label.xes'))
+         for factor in factors:
             for prefix in prefix_lengths:
                 CONF = {  # This contains the configuration for the run
-                    'data': os.path.join('datasets',dataset, 'full_label.xes'),
+                    'data': os.path.join('datasets',dataset, 'full_label_small.xes'),
                     'train_val_test_split': [0.8, 0.15, 0.05],
                     'output': os.path.join('..', 'output_data'),
                     'prefix_length_strategy': PrefixLengthStrategy.FIXED.value,

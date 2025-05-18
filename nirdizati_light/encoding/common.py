@@ -85,10 +85,10 @@ def get_encoded_df(
             next_start_timestamp_col = f'start:timestamp_{prefix + 1}' if prefix + 1 <= CONF['prefix_length'] else None
 
             # Convert timestamps to datetime, handling errors safely
-            df[timestamp_col] = to_datetime(df[timestamp_col], errors='coerce')
-            df[start_timestamp_col] = to_datetime(df[start_timestamp_col], errors='coerce').fillna(
+            df[timestamp_col] = to_datetime(df[timestamp_col], errors='coerce', utc=True)
+            df[start_timestamp_col] = to_datetime(df[start_timestamp_col], errors='coerce', utc=True).fillna(
                 "1970-01-01 00:00+00")
-            df[timestamp_col] = to_datetime(df[timestamp_col], errors='coerce').fillna(
+            df[timestamp_col] = to_datetime(df[timestamp_col], errors='coerce', utc=True).fillna(
                 "1970-01-01 00:00+00")
 
 
@@ -112,8 +112,12 @@ def get_encoded_df(
                 df[waiting_col] = 0
 
             if next_start_timestamp_col and next_start_timestamp_col in df.columns:
-                df[next_start_timestamp_col] = to_datetime(df[next_start_timestamp_col], errors='coerce').fillna(
-                    "1970-01-01 00:00+00")
+                #df[next_start_timestamp_col] = to_datetime(df[next_start_timestamp_col], errors='coerce').fillna(
+                #    "1970-01-01 00:00+00")
+                df[next_start_timestamp_col] = (
+                    to_datetime(df[next_start_timestamp_col], errors='coerce', utc=True)
+                    .fillna(to_datetime("1970-01-01 00:00+00"))
+                )
                 try:
                     df[arrival_col] = (df[next_start_timestamp_col] - df[timestamp_col]).dt.total_seconds()
                 except Exception as e:
