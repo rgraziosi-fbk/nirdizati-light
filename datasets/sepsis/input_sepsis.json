@@ -28,6 +28,11 @@
           "resources": ["other"]
         }
     },
+    "activity_to_role": {
+        "ER Registration": "Role 2", "ER Triage": "Role 4", "ER Sepsis Triage": "Role 2", "LacticAcid": "Role 3", "Leucocytes": "Role 3",
+        "CRP": "Role 2", "IV Liquid": "Role 2", "IV Antibiotics": "Role 2", "Admission NC": "Role 1", "Release A": "Role 5", "Admission IC": "Role 1",
+        "Release B": "Role 5", "Return ER": "Role 3", "Release C": "Role 5", "Release D": "Role 5", "Release E": "Role 5"
+    },
     "resource_to_role": {
         "A": "Role 2", "C": "Role 4", "B": "Role 3", "I": "Role 1", "L": "Role 2", "M": "Role 1",
         "G": "Role 1", "F": "Role 1", "R": "Role 1", "E": "Role 5", "O": "Role 1", "V": "Role 1",

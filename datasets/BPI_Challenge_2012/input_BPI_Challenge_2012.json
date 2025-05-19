@@ -53,6 +53,9 @@
       "10859.0": "Role 3", "11200.0": "Role 3", "11049.0": "Role 4", "10789.0": "Role 4", "11259.0": "Role 4",
       "10899.0": "Role 4", "10188.0": "Role 5", "11304.0": "Role 5", "112.0": "Role 6", "11029.0": "Role 7",
       "TRIGGER_TIMER": "TRIGGER_TIMER"},
+    "activity_to_role": {
+
+    },
     "ACT_2_NUMBER": {"A_SUBMITTED": 0, "A_PARTLYSUBMITTED": 1, "A_PREACCEPTED": 2, "W_Completeren aanvraag": 3,
       "A_ACCEPTED": 4, "O_SELECTED": 5, "A_FINALIZED": 6, "O_CREATED": 7, "O_SENT": 8, "W_Nabellen offertes": 9,
       "O_SENT_BACK": 10, "W_Valideren aanvraag": 11, "A_REGISTERED": 12, "A_APPROVED": 13, "O_ACCEPTED": 14,
