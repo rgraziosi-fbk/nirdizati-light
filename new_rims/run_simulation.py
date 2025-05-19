@@ -14,7 +14,12 @@ import json
 import warnings
 warnings.filterwarnings("ignore")
 
-PARALLEL = ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid', 'Admission IC', 'Admission NC', 'ER Sepsis Triage', 'IV Antibiotics']
+PARALLEL = {'sepsis': ['LacticAcid', 'CRP', 'Leucocytes', 'IV Liquid', 'Admission IC', 'Admission NC', 'ER Sepsis Triage', 'IV Antibiotics'],
+            "BPI_Challenge_2012": ['A_ACCEPTED', 'A_ACTIVATED', 'A_APPROVED', 'A_CANCELLED', 'A_DECLINED', 'A_FINALIZED',
+             'A_PREACCEPTED', 'A_REGISTERED', 'O_ACCEPTED', 'O_CANCELLED', 'O_DECLINED', 'O_SELECTED', 'O_SENT_BACK', 'W_Afhandelen leads',
+             'W_Beoordelen fraude', 'W_Completeren aanvraag', 'W_Nabellen incomplete dossiers', 'W_Nabellen offertes', 'W_Valideren aanvraag']}
+
+PREFIX_LEN = {'sepsis': 25, 'BPI_Challenge_2012': 45}
 
 ATTRIBUTES = {
         'sepsis_cases_1_start': {'TRACE': ['Age', 'Diagnose', 'DiagnosticArtAstrup', 'DiagnosticBlood', 'DiagnosticECG', 'DiagnosticIC', 'DiagnosticLacticAcid', 'DiagnosticLiquor',
@@ -106,11 +111,13 @@ ATTRIBUTES = {
                     'TRACE_ATTRIBUTES' : ['AMOUNT_REQ'],
                     'EVENT_ATTRIBUTES' : []}}
 
-def find_parallel(row):
+def find_parallel(row, NAME_EXPERIMENTS):
     prefix_trace = []
-    for index in range(1, 25):
+    parallel = PARALLEL[NAME_EXPERIMENTS]
+    LEN_P = PREFIX_LEN[NAME_EXPERIMENTS]
+    for index in range(1, LEN_P):
         prefix = 'prefix_' + str(index)
-        prefix_trace.append(1 if row[prefix] in PARALLEL else 0)
+        prefix_trace.append(1 if row[prefix] in parallel else 0)
     parallel_find = []
     index = 0
     open_sub = []
@@ -129,14 +136,15 @@ def find_parallel(row):
         parallel_find.append(open_sub)
     parallel_find = [[x + 1 for x in sublist] for sublist in parallel_find]
     return parallel_find
-def read_training(train, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
+
+def read_training(train, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES, NAME_EXPERIMENTS):
     ### event = [sequence/parallel, task, processing_time, resource, wait, 'label', attributes_event, attributes_trace
     resource = 'Resource_'
     columns = list(train.columns)
     count_prefix = 1
     traces = dict()
     for index, row in train.iterrows():
-        parallel_find = find_parallel(row)
+        parallel_find = find_parallel(row, NAME_EXPERIMENTS)
         key = str(row['trace_id'])
         traces[key] = []
         prefix = 'prefix_' + str(count_prefix)
@@ -170,14 +178,14 @@ def read_training(train, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
     return traces
 
 
-def read_CF(contrafactual, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
+def read_CF(contrafactual, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES, NAME_EXPERIMENTS):
     ### event = [sequence/parallel, sequence/parallel, task, processing_time, resource, wait, 'label', attributes_event, attributes_trace
     resource = 'Resource_'
     columns = list(contrafactual.columns)
     count_prefix = 1
     contrafactual_traces = dict()
     for index, row in contrafactual.iterrows():
-        parallel_find = find_parallel(row)
+        parallel_find = find_parallel(row, NAME_EXPERIMENTS)
         key = str(row['trace_id']) + "_CF"
         contrafactual_traces[key] = []
         prefix = 'prefix_' + str(count_prefix)
@@ -208,6 +216,7 @@ def read_CF(contrafactual, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES):
         count_prefix = 1
 
     return contrafactual_traces
+
 def merge_two_dicts(x, y):
     z = x.copy()   # start with keys and values of x
     z.update(y)    # modifies z with keys and values of y
@@ -240,13 +249,13 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT, imbalance_factor, path_result):
     print(NAME_EXPERIMENT)
-    path_parameters = '../datasets/'+NAME_EXPERIMENT+'/input_'+NAME_EXPERIMENT+'.json'
+    path_parameters = 'datasets/'+NAME_EXPERIMENT+'/input_'+NAME_EXPERIMENT+'.json'
     with open(path_parameters, 'r') as f:
         data = json.load(f)
         TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
         EVENT_ATTRIBUTES = data['EVENT_ATTRIBUTES']
-    contrafactual_traces = read_CF(df_cf, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
-    train_traces = read_training(train_df,TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
+    contrafactual_traces = read_CF(df_cf, TRACE_ATTRIBUTES, EVENT_ATTRIBUTES, NAME_EXPERIMENT)
+    train_traces = read_training(train_df,TRACE_ATTRIBUTES, EVENT_ATTRIBUTES, NAME_EXPERIMENT)
     log = None
     N_TRACES = len(contrafactual_traces) + len(train_traces)
     N_SIMULATION = 1
@@ -258,7 +267,7 @@ def run_simulation(train_df, df_cf, NAME_EXPERIMENT, imbalance_factor, path_resu
         env.run()
 
 
-NAME_EXPERIMENT = 'sepsis'
-reconstructed_train_val_log_df = pd.read_csv('../datasets/sepsis/sepsis_train_df_0.2_pref_len_25.csv')
-reconstructed_df_cf = pd.read_csv('../datasets/sepsis/sepsis_df_cf_0.2_pref_len_25.csv')
-run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, NAME_EXPERIMENT, 0.2, '../datasets/sepsis/simulation.csv')
+#NAME_EXPERIMENT = 'sepsis'
+#reconstructed_train_val_log_df = pd.read_csv('../datasets/sepsis/sepsis_train_df_0.2_pref_len_25.csv')
+#reconstructed_df_cf = pd.read_csv('../datasets/sepsis/sepsis_df_cf_0.2_pref_len_25.csv')
+#run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, NAME_EXPERIMENT, 0.2, '../datasets/sepsis/simulation.csv')

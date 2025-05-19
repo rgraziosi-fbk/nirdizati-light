@@ -23,7 +23,7 @@ class SimulationProcess(object):
         self.import_predictive_models()
 
     def import_predictive_models(self):
-        path_folder = '../datasets/'
+        path_folder = 'datasets/'
         # processing_time
         self.mean_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["mean"])
         self.std_processing = joblib.load(path_folder+self._params.predictive_model_processing_time["std"])
@@ -65,7 +65,7 @@ class SimulationProcess(object):
         return list_occupations
 
     def _get_resource(self, resource_label):
-        return self._resources[resource_label]
+        return self._resources[self._params.RES_TO_ROLE[resource_label]]
 
     def _get_resource_event(self, task):
         return self._resource_events[task]

@@ -9,31 +9,33 @@
         }
     },
     "resource": {
-        "Role 1": {
-          "resources": ["I", "M", "G", "F", "R", "0", "V", "Q", "N", "D", "U", "T", "H", "S", "X", "J", "K", "Y", "W", "P"]
-        },
-        "Role 2": {
-          "resources": ["A", "L"]
-        },
-        "Role 3": {
-          "resources": ["B1", "B2", "B2", "?"]
-        },
-        "Role 4": {
-          "resources": ["C"]
-        },
-        "Role 5": {
-          "resources": ["E"]
-        },
-        "other": {
-          "resources": ["other"]
-        }
-    },
-    "resource_to_role": {
-        "A": "Role 2", "C": "Role 4", "B": "Role 3", "I": "Role 1", "L": "Role 2", "M": "Role 1",
-        "G": "Role 1", "F": "Role 1", "R": "Role 1", "E": "Role 5", "O": "Role 1", "V": "Role 1",
-        "W": "Role 1", "Q": "Role 1", "N": "Role 1", "D": "Role 1", "U": "Role 1", "T": "Role 1", "?": "Role 3",
-        "H": "Role 1", "S": "Role 1", "P": "Role 1", "X": "Role 1", "J": "Role 1", "K": "Role 1", "Y": "Role 1", "other": "other",
-        "TRIGGER_TIMER": "TRIGGER_TIMER"
+        "A": {"resources": ["A"]},
+        "C": {"resources": ["C"]},
+        "B": {"resources": ["B", "B", "B"]},
+        "I": {"resources": ["I"]},
+        "L": {"resources": ["L"]} ,
+        "M": {"resources": ["M"]},
+        "G": {"resources": ["G"]},
+        "F": {"resources": ["F"]},
+        "R": {"resources": ["R"]},
+        "E": {"resources": ["E"]},
+        "O": {"resources": ["O"]},
+        "V": {"resources": ["V"]},
+        "W": {"resources": ["W"]},
+        "Q": {"resources": ["Q"]},
+        "N": {"resources": ["N"]},
+        "D": {"resources": ["D"]},
+        "U": {"resources": ["U"]},
+        "T": {"resources": ["T"]},
+        "?": {"resources": ["?"]},
+        "H": {"resources": ["H"]},
+        "S": {"resources": ["S"]},
+        "P": {"resources": ["P"]},
+        "X": {"resources": ["X"]},
+        "J": {"resources": ["J"]},
+        "K": {"resources": ["K"]},
+        "Y": {"resources": ["Y"]},
+        "other": {"resources": ["other"]}
     },
     "ACT_2_NUMBER": {"ER Registration": 0, "ER Triage": 1, "ER Sepsis Triage": 2, "LacticAcid": 3, "Leucocytes": 4,
                 "CRP": 5, "IV Liquid": 6, "IV Antibiotics": 7, "Admission NC": 8, "Release A": 9, "Admission IC": 10,

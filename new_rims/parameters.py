@@ -59,6 +59,7 @@ class Parameters(object):
         self.predictive_model_processing_time = data["predictive_model_processing_time"]
         self.predictive_model_waiting_time = data["predictive_model_waiting_time"]
         self.PREFIX_LEN = data["PREFIX_LEN"]
+        self.RES_TO_ROLE = data["resource_to_role"]
         if 'DIAGNOSE_2_NUMBER' in data:
             self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']
         #self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']
