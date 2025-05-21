@@ -65,7 +65,7 @@ class SimulationProcess(object):
         return list_occupations
 
     def _get_resource(self, resource_label):
-        return self._resources[self._params.RES_TO_ROLE[resource_label]]
+        return self._resources[resource_label]
 
     def _get_resource_event(self, task):
         return self._resource_events[task]

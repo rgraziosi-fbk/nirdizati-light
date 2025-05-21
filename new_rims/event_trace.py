@@ -159,8 +159,7 @@ class Token(object):
                     self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
-                name_res = event[3]
-                name_res = self._params.RESOURCE_EMPTY if name_res == '0' else name_res
+                name_res = self._params.ACT_TO_ROLE[event[1]] if self.CF else self._params.RES_TO_ROLE[event[3]]
                 resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
 

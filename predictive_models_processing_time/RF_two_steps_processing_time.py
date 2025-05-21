@@ -24,9 +24,16 @@ param_grid = {
     'min_samples_leaf': [1, 2, 4]
 }
 
+#param_grid = {
+#    'n_estimators': [50],
+#    'max_depth': [None],
+#    'min_samples_split': [2],
+#    'min_samples_leaf': [1]
+#}
+
 #### PRE-PROCESSING DATA
-PATH_DATA = 'BPI_Challenge_2012_estimated_start.csv'
-NAME_EXPERIMENT = 'BPI_Challenge_2012'
+PATH_DATA = 'sepsis_estimated_start.csv'
+NAME_EXPERIMENT = 'sepsis'
 PATH_SAVE_MODEL = '../datasets/' + NAME_EXPERIMENT
 PATH_PARAMETERS = '../datasets/' + NAME_EXPERIMENT + '/input_' + NAME_EXPERIMENT + '.json'
 
@@ -36,8 +43,13 @@ with open(PATH_PARAMETERS) as file:
     ACT_2_NUMBER = data["ACT_2_NUMBER"]
     NUMBER_2_ACT = data["NUMBER_2_ACT"]
     TRACE_ATTRIBUTES = data["TRACE_ATTRIBUTES"]
-    RESOURCE_2_NUMBER = data["RESOURCE_2_NUMBER"]
-    NUMBER_2_RESOURCE = data["NUMBER_2_RESOURCE"]
+    RES_TO_ROLE = data['resource_to_role']
+    #RESOURCE_2_NUMBER = data["RESOURCE_2_NUMBER"]
+    #NUMBER_2_RESOURCE = data["NUMBER_2_RESOURCE"]
+    RESOURCE_2_NUMBER = {"Role 1": 1, "Role 2": 2, "Role 3": 3, "Role 4": 4, "Role 5": 5, "TRIGGER_TIMER": 6}
+    NUMBER_2_RESOURCE = {1: "Role 1", 2: "Role 2", 3: "Role 3", 4: "Role 4", 5: "Role 5", 6: "TRIGGER_TIMER"}
+    print(RESOURCE_2_NUMBER)
+    print(NUMBER_2_RESOURCE)
     EVENT_ATTRIBUTES = data["EVENT_ATTRIBUTES"]
     if NAME_EXPERIMENT == 'sepsis':
         NUMBER_2_DIAGNOSE = data["NUMBER_2_DIAGNOSE"]
@@ -50,7 +62,7 @@ TARGET_COLUMN = ["processing_time", "caseid"]
 
 ### create processing_time
 # Load and preprocess data
-df = pd.read_csv(PATH_DATA, sep=",")
+df = pd.read_csv(PATH_DATA, sep=";")
 df['start:timestamp'] = df['start:timestamp'].astype(str).str[:19]
 df['time:timestamp'] = df['time:timestamp'].astype(str).str[:19]
 df = df.sort_values(by=['caseid', 'start:timestamp'], ascending=[True, True])
@@ -107,6 +119,7 @@ for caseid in caseid_unique:
             event_attrib[e].append(-1 if math.isnan(row[1][e]) else row[1][e])
 
 ### resource
+df['org:resource'] = df['org:resource'].map(RES_TO_ROLE)
 df['org:resource'] = df['org:resource'].map(RESOURCE_2_NUMBER)
 df['concept:name'] = df['concept:name'].map(ACT_2_NUMBER)
 

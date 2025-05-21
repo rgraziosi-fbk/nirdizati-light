@@ -474,7 +474,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'BPI_Challenge_2012': [45],
+        #'BPI_Challenge_2012': [45],
         #'sepsis_cases_2_start': [12],
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
@@ -484,10 +484,10 @@ if __name__ == '__main__':
         #'Productions': [40]
         #'PurchasingExample': [40]
         #"cvs_pharmacy": [8]
-        #'sepsis': [25]
+        'sepsis': [25]
     }
     #factors = [0.3, 0.2, 0.15, 0.1, 0.05]
-    factors = [0.2]
+    factors = [0.3]
     for dataset, prefix_lengths in dataset_list.items():
          print(os.path.join('datasets', dataset, 'full_label.xes'))
          for factor in factors:
