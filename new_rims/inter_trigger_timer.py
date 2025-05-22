@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from new_rims.parameters import Parameters
 from new_rims.process import SimulationProcess
 import new_rims.custom_function as custom
-
+from scipy.interpolate import interp1d
 
 class InterTriggerTimer(object):
 
@@ -16,28 +16,21 @@ class InterTriggerTimer(object):
         self._start_time = start
         self._type = params.INTER_TRIGGER['type']
         self._previous = None
-        if self._type == 'distribution':
+        if self._type == 'distribution' or self._type == 'histogram_sampling':
             """Define the distribution of token arrivals from specified in the file json"""
-            self.name_distribution = params.INTER_TRIGGER['name']
             self.params = params.INTER_TRIGGER['parameters']
 
     def get_next_arrival(self, env, case):
         """Generate a new arrival from the distribution and check if the new token arrival is inside calendar,
         otherwise wait for a suitable time."""
         next = 0
-        if self._type == 'distribution':
-            resource = self._process._get_resource('TRIGGER_TIMER')
-            arrival = getattr(np.random, self.name_distribution)(**self.params, size=1)[0]
-            if resource._get_calendar():
-                stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now + arrival))
-                next = stop + arrival
-            else:
-                next = arrival
-        elif self._type == 'custom':
-            next = self.custom_arrival(case, self._previous)
-        else:
-            raise ValueError('ERROR: Invalid arrival times generator')
-        self._previous = self._start_time + timedelta(seconds=env.now + next)
+        if self._type == 'histogram_sampling':
+            bin_midpoints = self.params["bin_midpoints"]
+            cdf = self.params["histogram_data"]
+            inverse_cdf = interp1d(cdf, bin_midpoints, bounds_error=False,
+                                   fill_value=(bin_midpoints[0], bin_midpoints[-1]))
+            random_samples = np.random.rand(1)
+            next = inverse_cdf(random_samples)[0]
         return next
 
     def custom_arrival(self, case, previous):

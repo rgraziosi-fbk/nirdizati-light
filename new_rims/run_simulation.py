@@ -249,7 +249,7 @@ def setup(env: simpy.Environment, NAME_EXPERIMENT, params, i, traces_train, trac
 
 def run_simulation(train_df, df_cf, NAME_EXPERIMENT, imbalance_factor, path_result):
     print(NAME_EXPERIMENT)
-    path_parameters = 'datasets/'+NAME_EXPERIMENT+'/input_'+NAME_EXPERIMENT+'.json'
+    path_parameters = 'datasets/'+NAME_EXPERIMENT+'/input_'+NAME_EXPERIMENT+'_0.1.json'
     with open(path_parameters, 'r') as f:
         data = json.load(f)
         TRACE_ATTRIBUTES = data['TRACE_ATTRIBUTES']
