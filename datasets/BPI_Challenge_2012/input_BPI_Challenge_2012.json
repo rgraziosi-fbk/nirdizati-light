@@ -33,9 +33,6 @@
         },
         "Role 7": {
           "resources": ["11029.0"]
-        },
-        "other": {
-          "resources": ["other"]
         }
     },
     "resource_to_role": {"NOT_SET": "Role 1", "10912.0": "Role 1", "11019.0": "Role 1", "10939.0": "Role 1",
