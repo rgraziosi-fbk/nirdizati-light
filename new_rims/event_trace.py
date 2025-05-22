@@ -21,7 +21,7 @@ class Token(object):
 
     def __init__(self, id: int,
                  params: Parameters, process: SimulationProcess, prefix: Prefix, type: str, writer: csv.writer,
-                 parallel_object: ParallelObject, time: datetime, sequence, NAME_EXPERIMENT, buffer_definition, CF, values=None):
+                 parallel_object: ParallelObject, time: datetime, sequence, NAME_EXPERIMENT,  TRACE_ATTRIBUTES, EVENT_ATTRIBUTES, CF, values=None):
         self._id = id
         self._process = process
         self._start_time = params.START_SIMULATION
@@ -34,8 +34,9 @@ class Token(object):
             self.see_activity = True
         self._writer = writer
         self._parallel_object = parallel_object
-        self._buffer_definition = buffer_definition
-        self._buffer = Buffer(writer, buffer_definition)
+        self._TRACE_ATTRIBUTES = TRACE_ATTRIBUTES
+        self._EVENT_ATTRIBUTES = EVENT_ATTRIBUTES
+        self._buffer = Buffer(writer,  TRACE_ATTRIBUTES, EVENT_ATTRIBUTES)
         ### added
         self.pos = 0
         self.sequence = sequence
@@ -49,17 +50,14 @@ class Token(object):
                 next[0] = False
                 token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
                                           self._writer, self._parallel_object, self._start_time, [next],
-                                          self.NAME_EXPERIMENT, self._buffer_definition, self.CF).simulation(env))
+                                          self.NAME_EXPERIMENT, self._TRACE_ATTRIBUTES, self._EVENT_ATTRIBUTES, self.CF).simulation(env))
                 next_events = [next, token]
                 for t in next[-1]:
                     token = env.process(Token(self._id, self._params, self._process, self._prefix, "parallel",
-                                              self._writer, self._parallel_object, self._start_time, [next],
-                                          self.NAME_EXPERIMENT, self._buffer_definition, self.CF).simulation(env))
+                                              self._writer, self._parallel_object, self._start_time, [t],
+                                          self.NAME_EXPERIMENT, self._TRACE_ATTRIBUTES, self._EVENT_ATTRIBUTES, self.CF).simulation(env))
                     next_events.append(token)
                 del next[-1]
-                #del self.sequence[0]
-                #after_parallel = self.sequence[0]
-                #next_events.insert(0, after_parallel)
             else:
                 next_events = next
             del self.sequence[0]
@@ -147,7 +145,6 @@ class Token(object):
             if type(event[0]) == list: ### check parallel
                 yield AllOf(env, event[1:])
                 event = self.next_event(env)
-                #event = event[0]
             if event is not None:
                 self._buffer.reset()
                 self._buffer.set_feature("id_case", self._id)
@@ -162,8 +159,7 @@ class Token(object):
                     self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
-                name_res = event[3]
-                name_res = self._params.RESOURCE_EMPTY if name_res == '0' else name_res
+                name_res = self._params.ACT_TO_ROLE[event[1]] if self.CF else self._params.RES_TO_ROLE[event[3]]
                 resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
 

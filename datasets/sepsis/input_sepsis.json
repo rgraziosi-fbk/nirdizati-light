@@ -1,5 +1,5 @@
 {
-    "start_timestamp": "2014-12-03 02:45:51",
+    "start_timestamp": "2013-11-07 08:00:00",
     "duration_simulation": 30,
     "interTriggerTimer": {
         "type": "distribution",
@@ -9,33 +9,36 @@
         }
     },
     "resource": {
-        "A": {"resources": ["A"]},
-        "C": {"resources": ["C"]},
-        "B": {"resources": ["B", "B", "B"]},
-        "I": {"resources": ["I"]},
-        "L": {"resources": ["L"]} ,
-        "M": {"resources": ["M"]},
-        "G": {"resources": ["G"]},
-        "F": {"resources": ["F"]},
-        "R": {"resources": ["R"]},
-        "E": {"resources": ["E"]},
-        "O": {"resources": ["O"]},
-        "V": {"resources": ["V"]},
-        "W": {"resources": ["W"]},
-        "Q": {"resources": ["Q"]},
-        "N": {"resources": ["N"]},
-        "D": {"resources": ["D"]},
-        "U": {"resources": ["U"]},
-        "T": {"resources": ["T"]},
-        "?": {"resources": ["?"]},
-        "H": {"resources": ["H"]},
-        "S": {"resources": ["S"]},
-        "P": {"resources": ["P"]},
-        "X": {"resources": ["X"]},
-        "J": {"resources": ["J"]},
-        "K": {"resources": ["K"]},
-        "Y": {"resources": ["Y"]},
-        "other": {"resources": ["other"]}
+        "Role 1": {
+          "resources": ["I", "M", "G", "F", "R", "0", "V", "Q", "N", "D", "U", "T", "H", "S", "X", "J", "K", "Y", "W", "P"]
+        },
+        "Role 2": {
+          "resources": ["A", "L"]
+        },
+        "Role 3": {
+          "resources": ["B1", "B2", "B2", "?"]
+        },
+        "Role 4": {
+          "resources": ["C"]
+        },
+        "Role 5": {
+          "resources": ["E"]
+        },
+        "other": {
+          "resources": ["other"]
+        }
+    },
+    "activity_to_role": {
+        "ER Registration": "Role 2", "ER Triage": "Role 4", "ER Sepsis Triage": "Role 2", "LacticAcid": "Role 3", "Leucocytes": "Role 3",
+        "CRP": "Role 2", "IV Liquid": "Role 2", "IV Antibiotics": "Role 2", "Admission NC": "Role 1", "Release A": "Role 5", "Admission IC": "Role 1",
+        "Release B": "Role 5", "Return ER": "Role 3", "Release C": "Role 5", "Release D": "Role 5", "Release E": "Role 5"
+    },
+    "resource_to_role": {
+        "A": "Role 2", "C": "Role 4", "B": "Role 3", "I": "Role 1", "L": "Role 2", "M": "Role 1",
+        "G": "Role 1", "F": "Role 1", "R": "Role 1", "E": "Role 5", "O": "Role 1", "V": "Role 1",
+        "W": "Role 1", "Q": "Role 1", "N": "Role 1", "D": "Role 1", "U": "Role 1", "T": "Role 1", "?": "Role 3",
+        "H": "Role 1", "S": "Role 1", "P": "Role 1", "X": "Role 1", "J": "Role 1", "K": "Role 1", "Y": "Role 1", "other": "other",
+        "TRIGGER_TIMER": "TRIGGER_TIMER"
     },
     "ACT_2_NUMBER": {"ER Registration": 0, "ER Triage": 1, "ER Sepsis Triage": 2, "LacticAcid": 3, "Leucocytes": 4,
                 "CRP": 5, "IV Liquid": 6, "IV Antibiotics": 7, "Admission NC": 8, "Release A": 9, "Admission IC": 10,
@@ -74,12 +77,8 @@
         "126": "A", "127": "CB", "128": "BD", "129": "HD", "130": "DD", "131": "QD", "132": "UB", "133": "NC", "134": "MB",
         "135": "QE", "136": "YC", "137": "VC", "138": "TD", "139": "JB", "140": "V", "141": "PA", "142": "YB", "143": "DA",
         "144": "DC", "145": "WB"},
-    "RESOURCE_2_NUMBER": {"A": 0, "C": 1, "B": 2, "I": 3, "L": 4, "M": 5, "G": 6, "F": 7, "R": 8, "E": 9, "O": 10, "V": 11,
-                     "W": 12, "Q": 13, "N": 14, "D": 15, "U": 16, "T": 17, "?": 18, "H": 19, "S": 20, "P": 21, "X": 22,
-                     "J": 23, "K": 24, "Y": 25, "other": 26},
-    "NUMBER_2_RESOURCE": {"0": "A", "1": "C", "2": "B", "3": "I", "4": "L", "5": "M", "6": "G", "7": "F", "8": "R",
-                        "9": "E", "10": "O", "11": "V", "12": "W", "13": "Q", "14": "N", "15": "D", "16": "U",
-                        "17": "T", "18": "?", "19": "H", "20": "S", "21": "P", "22": "X", "23": "J", "24": "K", "25": "Y", "26": "other"},
+    "RESOURCE_2_NUMBER": {"Role 1": 1, "Role 2": 2, "Role 3": 3, "Role 4": 4, "Role 5": 5, "TRIGGER_TIMER": 6},
+    "NUMBER_2_RESOURCE": {"1": "Role 1", "2": "Role 2", "3": "Role 3", "4": "Role 4", "5": "Role 5", "6": "TRIGGER_TIMER"},
     "PREFIX_LEN": 20,
     "PATH_MODEL_PROCESSIG_TIME": "",
     "PATH_MODEL_WAITING_TIME": "",

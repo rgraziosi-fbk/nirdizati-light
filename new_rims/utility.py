@@ -43,33 +43,15 @@ class Prefix(object):
 
 class Buffer(object):
 
-    def __init__(self, writer, buffer_predefined=False, values=None):
-        if buffer_predefined != False:
-            self.buffer = buffer_predefined
-        else:
-            self.buffer = {
-                "id_case": -1,
-                "activity": None,
-                "enabled_time": None,
-                "start_time": None,
-                "end_time": None,
-                "role": None,
-                "resource": None,
-                "wip_wait": -1,
-                "wip_start": -1,
-                "wip_end": -1,
-                "wip_activity": -1,
-                "ro_total": [],
-                "ro_single": -1,
-                "queue": -1,
-                "prefix": Prefix,
-                "attribute_case": dict(),
-                "attribute_event": dict()
-            }
-        self._to_reset = buffer_predefined
+    def __init__(self, writer, TRACE_ATTRIBUTES=None, EVENT_ATTRIBUTES=None, values=None):
+        self.buffer = {"id_case": -1, "activity": None, "role": None, "enabled_time": None, "start_time": None,
+                             "end_time": None, "resource": None, "prefix": Prefix} | {a: None for a in EVENT_ATTRIBUTES} | {a: None for a in
+                                                                                       TRACE_ATTRIBUTES}
         if values:
             self._decopy_value(values)
         self.writer = writer
+        self._TRACE_ATTRIBUTES = TRACE_ATTRIBUTES
+        self._EVENT_ATTRIBUTES = EVENT_ATTRIBUTES
 
     def _decopy_value(self, values):
         for key in values:
@@ -79,7 +61,6 @@ class Buffer(object):
         return self.buffer
 
     def set_feature(self, feature, value):
-        #print(self.buffer)
         if isinstance(self.buffer[feature], list):
             self.buffer[feature] = value
         else:
@@ -96,4 +77,12 @@ class Buffer(object):
         return self.buffer.keys()
 
     def reset(self):
-        self.buffer = self._to_reset
+        self.buffer["activity"] = None
+        self.buffer["role"] = None
+        self.buffer["enabled_time"] = None
+        self.buffer["start_time"] = None
+        self.buffer["end_time"] = -1
+        for a in self._EVENT_ATTRIBUTES:
+            self.buffer[a] = None
+        for a in self._TRACE_ATTRIBUTES:
+            self.buffer[a] = None

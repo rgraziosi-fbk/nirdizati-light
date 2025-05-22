@@ -270,10 +270,22 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
             baseline_log['time:timestamp'] = pd.to_datetime(baseline_log['time:timestamp'], errors='coerce')
             baseline_log['start:timestamp'] = pd.to_datetime(baseline_log['start:timestamp'], errors='coerce')
             baseline_log['Case ID'] = baseline_log['Case ID'].astype('str')
-            baseline_log.drop(columns=['concept:name'], inplace=True)
-            baseline_log.rename(
-                columns={'label': 'case:label', 'AMOUNT_REQ': 'case:AMOUNT_REQ', 'Case ID': 'case:concept:name',
-                         'Activity': 'concept:name'}, inplace=True)
+            if dataset_name == 'BPI_Challenge_2012':
+                baseline_log.drop(columns=['concept:name'], inplace=True)
+                baseline_log.rename(
+                    columns={'label': 'case:label', 'AMOUNT_REQ': 'case:AMOUNT_REQ', 'Case ID': 'case:concept:name',
+                             'Activity': 'concept:name'}, inplace=True)
+            elif dataset_name == 'sepsis':
+                cols = [*dataset_confs.static_num_cols.values(), *dataset_confs.static_cat_cols.values(), ['label']]
+                cols = list(itertools.chain.from_iterable(cols))
+                cols = cols
+                cols_for_traces = ['case:' + col for col in cols]
+
+                baseline_log.rename(columns=dict(zip(cols, cols_for_traces)), inplace=True)
+                baseline_log.rename(
+                    columns={'Case ID': 'case:concept:name',
+                             'Activity': 'concept:name'}, inplace=True)
+
             baseline_log = pm4py.convert_to_event_log(baseline_log, timestamp_key='time:timestamp',
                                                       case_id_key='case:concept:name', activity_key='concept:name',
                                                       resource_key='Resource')
@@ -316,7 +328,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         else:
             if CONF['simulation']:
                 run_simulation(reconstructed_train_val_log_df, reconstructed_df_cf, dataset_name, CONF['undersampling_factor'],path_full_simulated)
-                simulated_log = pd.read_csv(path_simulated_cfs)
+                simulated_log = pd.read_csv(path_full_simulated)
 
                 simulated_log.rename(columns={'id_case': 'trace_id'}, inplace=True)
                 simulated_log = simulated_log[simulated_log['trace_id'].str.contains('_CF')].reset_index()
@@ -426,6 +438,8 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
         except:
             print('No columns to rename')
 
+    baseline_log = pm4py.convert_to_dataframe(baseline_log)
+    baseline_log.rename(columns={'case:concept:name': 'Case ID', 'concept:name': 'Activity'}, inplace=True)
     gen_eval_baseline = logs_evaluation(
         original_log=test_log,
         generated_log=baseline_log,
@@ -460,7 +474,7 @@ def run_simple_pipeline(CONF=None, dataset_name=None):
 if __name__ == '__main__':
     dataset_list = {
         ### prefix length
-        'BPI_Challenge_2012': [45],
+        #'BPI_Challenge_2012': [45],
         #'sepsis_cases_2_start': [12],
         #'bpic2015_2_start': [55],
         #'bpic2015_2_start': [12],
@@ -470,11 +484,13 @@ if __name__ == '__main__':
         #'Productions': [40]
         #'PurchasingExample': [40]
         #"cvs_pharmacy": [8]
-        #'sepsis': [25],
+        'sepsis': [25]
     }
-    factors = [0.3, 0.2, 0.15, 0.1, 0.05]
+    #factors = [0.3, 0.2, 0.15, 0.1, 0.05]
+    factors = [0.3]
     for dataset, prefix_lengths in dataset_list.items():
-        for factor in factors:
+         print(os.path.join('datasets', dataset, 'full_label.xes'))
+         for factor in factors:
             for prefix in prefix_lengths:
                 CONF = {  # This contains the configuration for the run
                     'data': os.path.join('datasets',dataset, 'full_label.xes'),
