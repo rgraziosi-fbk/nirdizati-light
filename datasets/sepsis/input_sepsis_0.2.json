@@ -116,7 +116,7 @@
             6
           ],
           "hour_min": 8,
-          "hour_max": 15
+          "hour_max": 16
       }
     },
     "Role 4": {
@@ -134,7 +134,7 @@
             6
           ],
           "hour_min": 8,
-          "hour_max": 15
+          "hour_max": 16
       }
     },
     "Role 5": {
@@ -154,7 +154,7 @@
             6
           ],
           "hour_min": 8,
-          "hour_max": 15
+          "hour_max": 16
       }
     },
     "Role 6": {
@@ -190,7 +190,7 @@
             6
           ],
           "hour_min": 8,
-          "hour_max": 15
+          "hour_max": 16
       }
     }
   },
