@@ -28,6 +28,7 @@ class Parameters(object):
                 self.PROBABILITY = data['probability'] if 'probability' in data.keys() else []
                 self.WAITING_TIME = data['waiting_time'] if 'waiting_time' in data.keys() else []
                 self.INTER_TRIGGER = data["interTriggerTimer"]
+                self.PROCESSING_TIME = data['processing_time']
                 self.ROLE_ACTIVITY = dict()
 
                 if 'calendar' in data['interTriggerTimer'] and data['interTriggerTimer']['calendar']:
@@ -51,16 +52,9 @@ class Parameters(object):
         return value
 
     def read_parameters(self, data):
-        self.ACT_2_NUMBER = data['ACT_2_NUMBER']
         self.TRACES_ATTRIBUTES = data["TRACE_ATTRIBUTES"]
         self.EVENT_ATTRIBUTES = data["EVENT_ATTRIBUTES"]
         self.RESOURCE_EMPTY = data["RESOURCE_EMPTY"]
-        self.RESOURCE_2_NUMBER = data["RESOURCE_2_NUMBER"]
-        self.predictive_model_processing_time = data["predictive_model_processing_time"]
-        self.predictive_model_waiting_time = data["predictive_model_waiting_time"]
         self.PREFIX_LEN = data["PREFIX_LEN"]
         self.RES_TO_ROLE = data["resource_to_role"]
         self.ACT_TO_ROLE = data["activity_to_role"]
-        if 'DIAGNOSE_2_NUMBER' in data:
-            self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']
-        #self.DIAGNOSE_2_NUMBER = data['DIAGNOSE_2_NUMBER']

@@ -9,9 +9,11 @@ from new_rims.utility import Prefix
 from simpy.events import AnyOf, AllOf, Event
 import copy
 import numpy as np
+from scipy.stats import expon
 import math
 import csv
 from new_rims.utility import Buffer, ParallelObject
+from scipy.stats import lognorm, truncnorm
 import new_rims.custom_function as custom
 
 import warnings
@@ -168,13 +170,6 @@ class Token(object):
 
                 queue = 0 if len(resource._queue) == 0 else len(resource._queue[-1])
                 self._buffer.set_feature("enabled_time", self._start_time + timedelta(seconds=env.now))
-                #if self.CF:
-                #    waiting = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[4] #### to adjust with the prediction
-                #else:
-                #    waiting = event[4]
-                waiting = 0
-                if self.see_activity:
-                    yield env.timeout(waiting)
 
                 request_resource = resource.request()
                 yield request_resource
@@ -184,11 +179,12 @@ class Token(object):
                 resource_task_request = resource_task.request()
                 yield resource_task_request
 
-                #stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
-                #yield env.timeout(stop)
+                ## calendars
+                stop = resource.to_time_schedule(self._start_time + timedelta(seconds=env.now))
+                yield env.timeout(stop)
                 self._buffer.set_feature("start_time", self._start_time + timedelta(seconds=env.now))
                 if self.CF:
-                    duration = self.predict_processing_time(name_res, event[1], self._start_time + timedelta(seconds=env.now), event) #if self.CF else event[2] #### to adjust with the prediction
+                    duration = self.define_processing_time(event[1])
                 else:
                     duration = event[2]
 
@@ -254,13 +250,39 @@ class Token(object):
 
         return all_enabled_trans[next]
 
-    def define_processing_time(self, activity):
+    def define_processing_time(self, act):
         ### call the RF, put all the encoding
-        return 0
+        if self._params.PROCESSING_TIME[act]["name"] == 'lognorm':
+            mean = self._params.PROCESSING_TIME[act]["parameters"]["mean"]
+            variance = self._params.PROCESSING_TIME[act]["parameters"]["std"]
+            min_val = self._params.PROCESSING_TIME[act]["parameters"]["min"]
+            max_val = self._params.PROCESSING_TIME[act]["parameters"]["max"]
+            sigma = np.sqrt(np.log(1 + (variance / mean ** 2)))
+            mu = np.log(mean) - 0.5 * sigma ** 2
+            def truncated_lognorm(mu, sigma, min_val, max_val, size=1000):
+                a, b = (np.log(min_val + 1e-9) - mu) / sigma, (np.log(max_val) - mu) / sigma
+                samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=size)
+                return np.exp(samples)
+            duration = truncated_lognorm(mu, sigma, min_val, max_val, size=1)[0]
+        elif self._params.PROCESSING_TIME[act]["name"] == "exponential":
+            scale = self._params.PROCESSING_TIME[act]["parameters"]["scale"]
+            min_val = self._params.PROCESSING_TIME[act]["parameters"]["min"]
+            max_val = self._params.PROCESSING_TIME[act]["parameters"]["max"]
+            def truncated_exponential_inverse(scale, min_val, max_val, size=1000):
+                cdf_min = expon.cdf(min_val, scale=scale)
+                cdf_max = expon.cdf(max_val, scale=scale)
+                u = np.random.uniform(cdf_min, cdf_max, size=size)
+                return expon.ppf(u, scale=scale)
+            duration = truncated_exponential_inverse(scale, min_val, max_val, size=1)[0]
+        else:
+            distribution = self._params.PROCESSING_TIME[act]['name']
+            parameters = self._params.PROCESSING_TIME[act]['parameters']
+            duration = getattr(np.random, distribution)(**parameters, size=1)[0]
+            if duration < 0:
+                print("WARNING: Negative processing time", duration)
+                duration = 0
 
-    def define_waiting_time(self, next_act):
-        ### call the RF, put all the encoding
-        return 0
+        return duration
 
     ### modify to consider the parallel and delete the petrinet logic
     def next_transition(self, env):

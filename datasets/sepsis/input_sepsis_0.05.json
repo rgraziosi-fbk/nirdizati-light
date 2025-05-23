@@ -1,0 +1,421 @@
+{
+  "start_timestamp": "2013-11-07 08:00:00",
+  "duration_simulation": 30,
+  "interTriggerTimer": {
+    "type": "histogram_sampling",
+    "parameters": {
+      "histogram_data": [
+      0.3713768115942029,
+        0.5507246376811594,
+        0.7083333333333334,
+        0.8007246376811594,
+        0.8731884057971014,
+        0.9221014492753623,
+        0.9438405797101449,
+        0.9637681159420289,
+        0.9746376811594203,
+        0.9836956521739131,
+        0.9891304347826086,
+        0.9927536231884058,
+        0.9945652173913043,
+        0.9963768115942029,
+        0.9963768115942029,
+        0.9963768115942029,
+        0.9963768115942029,
+        0.9963768115942029,
+        0.9981884057971014,
+        1.0
+    ],
+      "bin_midpoints": [
+        15761.3,
+        46305.899999999994,
+        76850.5,
+        107395.09999999999,
+        137939.7,
+        168484.3,
+        199028.89999999997,
+        229573.5,
+        260118.09999999998,
+        290662.69999999995,
+        321207.3,
+        351751.89999999997,
+        382296.5,
+        412841.1,
+        443385.69999999995,
+        473930.3,
+        504474.89999999997,
+        535019.5,
+        565564.1,
+        596108.7
+    ]
+    },
+    "calendar": {
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hour_min": 8,
+      "hour_max": 18
+    }
+  },
+  "resource": {
+    "Role 1": {
+      "resources": [
+        "I",
+        "G",
+        "F",
+        "M",
+        "R",
+        "V",
+        "U",
+        "O",
+        "H",
+        "S",
+        "Q",
+        "N",
+        "T",
+        "X",
+        "K",
+        "J",
+        "D",
+        "P",
+        "W"
+      ],
+      "calendar": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "hour_min": 8,
+          "hour_max": 14
+      }
+    },
+    "Role 2": {
+      "resources": [
+        "A",
+        "L"
+      ],
+      "calendar": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "hour_min": 8,
+          "hour_max": 16
+      }
+    },
+    "Role 4": {
+      "resources": [
+        "C"
+      ],
+      "calendar": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "hour_min": 8,
+          "hour_max": 16
+      }
+    },
+    "Role 5": {
+      "resources": [
+        "B",
+        "B",
+        "B"
+      ],
+      "calendar": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "hour_min": 8,
+          "hour_max": 16
+      }
+    },
+    "Role 6": {
+      "resources": [
+        "E"
+      ],
+      "calendar": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "hour_min": 8,
+          "hour_max": 14
+      }
+    },
+    "Role 7": {
+      "resources": [
+        "?"
+      ],
+      "calendar": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "hour_min": 8,
+          "hour_max": 16
+      }
+    }
+  },
+  "activity_to_role": {
+    "Admission NC": "Role 1",
+    "Admission IC": "Role 1",
+    "ER Registration": "Role 2",
+    "ER Sepsis Triage": "Role 2",
+    "IV Liquid": "Role 2",
+    "IV Antibiotics": "Role 2",
+    "ER Triage": "Role 4",
+    "LacticAcid": "Role 5",
+    "Leucocytes": "Role 5",
+    "CRP": "Role 5",
+    "Release A": "Role 6",
+    "Release B": "Role 6",
+    "Release C": "Role 6",
+    "Release E": "Role 6",
+    "Release D": "Role 6",
+    "Return ER": "Role 7"
+  },
+  "resource_to_role": {
+    "I": "Role 1",
+    "G": "Role 1",
+    "F": "Role 1",
+    "M": "Role 1",
+    "R": "Role 1",
+    "V": "Role 1",
+    "U": "Role 1",
+    "O": "Role 1",
+    "H": "Role 1",
+    "S": "Role 1",
+    "Q": "Role 1",
+    "N": "Role 1",
+    "T": "Role 1",
+    "X": "Role 1",
+    "K": "Role 1",
+    "J": "Role 1",
+    "D": "Role 1",
+    "A": "Role 2",
+    "L": "Role 2",
+    "P": "Role 1",
+    "W": "Role 1",
+    "C": "Role 4",
+    "B": "Role 5",
+    "E": "Role 6",
+    "?": "Role 7",
+    "TRIGGER_TIMER": "TRIGGER_TIMER"
+  },
+  "processing_time": {
+    "Release C": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 14618,
+        "min": 0,
+        "max": 29674
+      }},
+    "LacticAcid": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 5317,
+        "std": 48755047,
+        "min": 0,
+        "max": 54809
+      }
+    },
+    "Release A": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 11410,
+        "min": 0,
+        "max": 101756
+      }
+    },
+    "Admission NC": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 9638,
+        "std": 395490687,
+        "min": 0,
+        "max": 223199
+      }
+    },
+    "Admission IC": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 16241,
+        "min": 107,
+        "max": 57600
+      }
+    },
+    "IV Antibiotics": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 747,
+        "std": 3651294,
+        "min": 0,
+        "max": 17421
+      }
+    },
+    "CRP": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 5144,
+        "std": 59198641,
+        "min": 0,
+        "max": 64799
+      }
+    },
+    "Return ER": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 49817,
+        "std": 4643906704,
+        "min": 0,
+        "max": 547199
+      }
+    },
+    "ER Triage": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 333,
+        "std": 308231,
+        "min": 0.0,
+        "max": 7200
+      }
+    },
+    "Release D": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 20079,
+        "std": 10267,
+        "min": 1500,
+        "max": 28800
+      }
+    },
+    "IV Liquid": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 1526,
+        "std": 21220580,
+        "min": 0.0,
+        "max": 57151
+      }
+    },
+    "Leucocytes": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 5192,
+        "std": 55343186,
+        "min": 0.0,
+        "max": 50400}
+    },
+    "Release B": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 7588,
+        "min": 0.0,
+        "max": 34102
+      }
+    },
+    "ER Registration": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 19904,
+        "std": 3935827174,
+        "min": 0.0,
+        "max": 895673
+      }
+    },
+    "Release E":  {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 7800,
+        "std": 8611,
+        "min": 0.0,
+        "max": 19800
+      }
+    },
+    "ER Sepsis Triage": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 280,
+        "std": 3725900,
+        "min": 0.0,
+        "max": 35645.0
+      }
+    }
+  },
+  "PREFIX_LEN": 20,
+  "TRACE_ATTRIBUTES": [
+    "InfectionSuspected",
+    "DiagnosticBlood",
+    "DisfuncOrg",
+    "SIRSCritTachypnea",
+    "Hypotensie",
+    "SIRSCritHeartRate",
+    "Infusion",
+    "DiagnosticArtAstrup",
+    "DiagnosticIC",
+    "DiagnosticSputum",
+    "DiagnosticLiquor",
+    "DiagnosticOther",
+    "SIRSCriteria2OrMore",
+    "DiagnosticXthorax",
+    "SIRSCritTemperature",
+    "DiagnosticUrinaryCulture",
+    "SIRSCritLeucos",
+    "Oligurie",
+    "DiagnosticLacticAcid",
+    "Diagnose",
+    "Hypoxie",
+    "DiagnosticUrinarySediment",
+    "DiagnosticECG"
+  ],
+  "ATTRIB_TO_ENCODE": [
+    "Diagnone",
+    "Leucocytes",
+    "CRP",
+    "LacticAcid"
+  ],
+  "EVENT_ATTRIBUTES": [
+    "Leucocytes",
+    "CRP",
+    "LacticAcid"
+  ],
+  "RESOURCE_EMPTY": "?"
+}
