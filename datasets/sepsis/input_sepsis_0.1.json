@@ -347,7 +347,7 @@
     "Release B": {
       "name": "expon",
       "parameters": {
-        "mean": 6419.655172827587,
+        "scale": 6419.655172827587,
         "min": 0.0,
         "max": 30502
       }

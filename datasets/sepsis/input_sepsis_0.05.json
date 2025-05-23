@@ -345,9 +345,9 @@
         "max": 50400}
     },
     "Release B": {
-      "name": "expon",
+      "name": "exponential",
       "parameters": {
-        "mean": 7588,
+        "scale": 7588,
         "min": 0.0,
         "max": 34102
       }
