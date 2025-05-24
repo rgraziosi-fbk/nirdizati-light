@@ -243,108 +243,124 @@
   "processing_time": {
     "Admission IC": {
       "name": "exponential",
+      "parameters": {
       "scale": 19391.12475075,
       "min": 107.0,
-      "max": 68400.00000300002
+      "max": 68400.00000300002}
     },
     "Admission NC": {
       "name": "lognorm",
+      "parameters": {
       "mean": 10206.587033282583,
       "std": 467766857.4717313,
       "min": 0.0,
-      "max": 233999.99900900014
+      "max": 233999.99900900014}
     },
     "ER Registration": {
       "name": "lognorm",
+      "parameters": {
       "mean": 21168.70958308659,
       "std": 4427321295.871604,
       "min": 0.0,
-      "max": 976123.9950340006
+      "max": 976123.9950340006}
     },
     "ER Sepsis Triage": {
       "name": "lognorm",
+      "parameters": {
       "mean": 269.2125833418367,
       "std": 3502837.7619560114,
       "min": 0.0,
-      "max": 35645.0
+      "max": 35645.0}
     },
     "IV Antibiotics": {
       "name": "lognorm",
+      "parameters": {
       "mean": 800.3564489768786,
       "std": 3816534.2063218243,
       "min": 0.0,
-      "max": 17421.0
+      "max": 17421.0}
     },
     "IV Liquid": {
       "name": "lognorm",
+      "parameters": {
       "mean": 1605.471329135881,
       "std": 23954804.170403223,
       "min": 0.0,
-      "max": 60751.00000100001
+      "max": 60751.00000100001}
     },
     "ER Triage": {
       "name": "lognorm",
+      "parameters": {
       "mean": 367.83531410016974,
       "std": 350310.24285825895,
       "min": 0.0,
-      "max": 7200.000001
+      "max": 7200.000001}
     },
     "CRP": {
       "name": "lognorm",
+      "parameters": {
       "mean": 5624.739900244898,
       "std": 66130435.596691296,
       "min": 0.0,
-      "max": 64799.999002
+      "max": 64799.999002}
     },
     "LacticAcid": {
       "name": "lognorm",
+      "parameters": {
       "mean": 5888.143965923428,
       "std": 54940114.60001296,
       "min": 0.0,
-      "max": 54809.999002
+      "max": 54809.999002}
     },
     "Leucocytes": {
       "name": "exponential",
+      "parameters": {
       "scale": 5660.436855598876,
       "min": 0.0,
-      "max": 54000.000002000015
+      "max": 54000.000002000015}
     },
     "Release A": {
       "name": "exponential",
+      "parameters": {
       "scale": 12699.720354540375,
       "min": 0.0,
-      "max": 112555.99900399998
+      "max": 112555.99900399998}
     },
     "Release B": {
       "name": "lognorm",
+      "parameters": {
       "mean": 8299.967710064517,
       "std": 84943386.62630188,
       "min": 0.0,
-      "max": 37702.000002
+      "max": 37702.000002}
     },
     "Release C": {
       "name": "uniform",
+      "parameters": {
       "low": 0.0,
-      "high": 36874.999002
+      "high": 36874.999002}
     },
     "Release D": {
       "name": "uniform",
+      "parameters": {
       "low": 1500.0,
-      "high": 35999.999001000004
+      "high": 35999.999001000004}
     },
     "Release E": {
       "name": "norm",
+      "parameters": {
       "mean": 9000.000000666667,
       "std": 10287.856919980954,
       "min": 0.0,
-      "max": 23400.000001
+      "max": 23400.000001}
     },
     "Return ER": {
       "name": "exponential",
+      "parameters": {
       "scale": 53761.652986763824,
       "min": 0.0,
-      "max": 601199.9970199999
-    },
+      "max": 601199.9970199999}
+    }
   },
   "PREFIX_LEN": 20,
   "TRACE_ATTRIBUTES": [
