@@ -161,7 +161,8 @@ class Token(object):
                     self._buffer.set_feature(t, event[-1][t])
 
                 # event: sequence/parallel, task, processing_time, resource, wait, event_attrib, event_event
-                name_res = self._params.ACT_TO_ROLE[event[1]] if self.CF else self._params.RES_TO_ROLE[event[3]]
+                name_res = self.define_role(self._params.ACT_TO_ROLE[event[1]]) if self.CF else self._params.RES_TO_ROLE[event[3]]
+                #name_res = self._params.ACT_TO_ROLE[event[1]] if self.CF else self._params.RES_TO_ROLE[event[3]]
                 resource = self._process._get_resource(name_res)
                 self._buffer.set_feature("role", resource._get_name())
 
@@ -200,6 +201,19 @@ class Token(object):
 
             if self._type == 'sequential':
                 resource_trace.release(resource_trace_request)
+
+    def define_role(self, list_roles):
+        role = list_roles
+        if isinstance(list_roles, list):
+            free_role = []
+            for res in list_roles:
+                if self._process._get_resource(res)._resource_simpy.count < self._process._get_resource(res)._capacity:
+                    free_role.append(res)
+            if not free_role:
+                role = random.choice(list_roles)
+            else:
+                role = random.choice(free_role)
+        return role
 
     def _get_resource_role(self, activity):
         elements = self._params.ROLE_ACTIVITY[activity.label]

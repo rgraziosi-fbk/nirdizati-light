@@ -1,0 +1,671 @@
+{
+  "start_timestamp": "2011-10-01 00:00:00",
+  "duration_simulation": 30,
+  "interTriggerTimer": {
+    "type": "distribution",
+    "name": "exponential",
+    "parameters": {
+      "histogram_data": [
+        0.43981117230527145,
+        0.6695515342250197,
+        0.7887490165224232,
+        0.8654602675059009,
+        0.9071597167584579,
+        0.9299763965381589,
+        0.9441384736428009,
+        0.9523996852871754,
+        0.9598741148701809,
+        0.9649881982690794,
+        0.970102281667978,
+        0.9736428009441385,
+        0.977183320220299,
+        0.9783634933123525,
+        0.9807238394964595,
+        0.9838709677419355,
+        0.9878048780487805,
+        0.99213217938631,
+        0.995279307631786,
+        1.0
+      ],
+      "bin_midpoints": [
+        855.125,
+        2559.375,
+        4263.625,
+        5967.875,
+        7672.125,
+        9376.375,
+        11080.625,
+        12784.875,
+        14489.125,
+        16193.375,
+        17897.625,
+        19601.875,
+        21306.125,
+        23010.375,
+        24714.625,
+        26418.875,
+        28123.125,
+        29827.375,
+        31531.625,
+        33235.875
+      ]
+    },
+    "calendar": {
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hour_min": 0,
+      "hour_max": 17
+    }
+  },
+  "resource": {
+    "Role 1": {
+      "resources": [
+        "NOT_SET",
+        "10912.0",
+        "11019.0",
+        "11000.0",
+        "11203.0",
+        "11180.0",
+        "11201.0",
+        "10889.0",
+        "10913.0",
+        "10863.0",
+        "11119.0",
+        "10982.0",
+        "11001.0",
+        "11169.0",
+        "11179.0",
+        "11122.0",
+        "11121.0",
+        "11049.0",
+        "10909.0",
+        "11189.0",
+        "10899.0",
+        "11009.0",
+        "10881.0",
+        "11181.0",
+        "10939.0",
+        "10789.0",
+        "11002.0",
+        "10861.0",
+        "10933.0",
+        "10914.0",
+        "11259.0",
+        "10931.0",
+        "10910.0",
+        "10932.0",
+        "10929.0",
+        "11269.0",
+        "11003.0",
+        "10935.0",
+        "11319.0",
+        "11309.0",
+        "11299.0",
+        "11300.0",
+        "11302.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 20
+      }
+    },
+    "Role 2": {
+      "resources": [
+        "10609.0",
+        "11339.0",
+        "10972.0",
+        "10138.0",
+        "10809.0",
+        "10779.0",
+        "10629.0",
+        "10125.0",
+        "10821.0",
+        "11289.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 22
+      }
+    },
+    "Role 3": {
+      "resources": [
+        "10862.0",
+        "11111.0",
+        "11120.0",
+        "11202.0",
+        "10971.0",
+        "10880.0",
+        "11200.0",
+        "10859.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 22
+      }
+    },
+    "Role 4": {
+      "resources": [
+        "10228.0",
+        "10124.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 22
+      }
+    },
+    "Role 5": {
+      "resources": [
+        "112.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 14
+      }
+    },
+    "Role 6": {
+      "resources": [
+        "11029.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 22
+      }
+    },
+    "Role 7": {
+      "resources": [
+        "10188.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 6
+      }
+    },
+    "Role 8": {
+      "resources": [
+        "11079.0"
+      ],
+      "calendar": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "hour_min": 0,
+        "hour_max": 6
+      }
+    }
+  },
+  "activity_to_role": {
+    "W_Completeren aanvraag": [
+      "Role 1",
+      "Role 2",
+      "Role 4"
+    ],
+    "A_ACCEPTED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
+    ],
+    "O_SELECTED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
+    ],
+    "A_FINALIZED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
+    ],
+    "O_CREATED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
+    ],
+    "W_Nabellen offertes": [
+      "Role 1",
+      "Role 2",
+      "Role 4",
+      "Role 8"
+    ],
+    "O_SENT": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
+    ],
+    "A_PREACCEPTED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4",
+      "Role 5"
+    ],
+    "W_Afhandelen leads": [
+      "Role 1",
+      "Role 2",
+      "Role 4"
+    ],
+    "O_CANCELLED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 5",
+      "Role 6"
+    ],
+    "W_Nabellen incomplete dossiers": [
+      "Role 1",
+      "Role 2",
+      "Role 8"
+    ],
+    "O_SENT_BACK": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4",
+      "Role 6"
+    ],
+    "W_Valideren aanvraag": [
+      "Role 1",
+      "Role 2",
+      "Role 4",
+      "Role 8"
+    ],
+    "A_CANCELLED": [
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 5",
+      "Role 6"
+    ],
+    "O_DECLINED": [
+      "Role 1",
+      "Role 2",
+      "Role 3"
+    ],
+    "A_DECLINED": [
+      "Role 1",
+      "Role 2",
+      "Role 3"
+    ],
+    "O_ACCEPTED": [
+      "Role 2"
+    ],
+    "A_REGISTERED": [
+      "Role 2"
+    ],
+    "A_ACTIVATED": [
+      "Role 2"
+    ],
+    "A_APPROVED": [
+      "Role 2"
+    ],
+    "W_Beoordelen fraude": [
+      "Role 2",
+      "Role 7"
+    ],
+    "A_SUBMITTED": [
+      "Role 5"
+    ],
+    "A_PARTLYSUBMITTED": [
+      "Role 5"
+    ]
+  },
+  "processing_time": {
+    "A_ACCEPTED": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 5439.907695347626,
+        "min": 3609.0,
+        "max": 197630.998002
+      }
+    },
+    "A_CANCELLED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 8569.720808267442,
+        "std": 809038095.0163788,
+        "min": 0.0,
+        "max": 317628.996005
+      }
+    },
+    "A_DECLINED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 8697.857095285715,
+        "std": 184854674.9315366,
+        "min": 0.0,
+        "max": 66259.999001
+      }
+    },
+    "A_FINALIZED": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 4406.070943355628,
+        "min": 3599.999001,
+        "max": 7938.0
+      }
+    },
+    "A_PREACCEPTED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 5231.044365937833,
+        "std": 36794271.92485166,
+        "min": 320.0,
+        "max": 58618.999001
+      }
+    },
+    "O_CANCELLED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 9487.56921107422,
+        "std": 1164618577.7588282,
+        "min": 0.0,
+        "max": 430567.995006
+      }
+    },
+    "O_CREATED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 4128.5719745640945,
+        "std": 1776203.2639195963,
+        "min": 0.0,
+        "max": 7251.0
+      }
+    },
+    "O_DECLINED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 10139.095095380952,
+        "std": 275291937.3889969,
+        "min": 0.0,
+        "max": 66259.999001
+      }
+    },
+    "O_SELECTED": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 5430.57143320298,
+        "min": 0.0,
+        "max": 421848.996004
+      }
+    },
+    "O_SENT": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 4113.763760585624,
+        "std": 1790028.7719491376,
+        "min": 0.0,
+        "max": 7201.0
+      }
+    },
+    "O_SENT_BACK": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 11306.193114850601,
+        "std": 1755081225.643629,
+        "min": 0.0,
+        "max": 626473.993008
+      }
+    },
+    "W_Afhandelen leads": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 6934.424236081049,
+        "std": 237354820.14084536,
+        "min": 1006.0,
+        "max": 153048.998002
+      }
+    },
+    "W_Completeren aanvraag": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 6727.111347711818,
+        "std": 203972867.5698551,
+        "min": 0.0,
+        "max": 537320.994007
+      }
+    },
+    "W_Nabellen incomplete dossiers": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 15251.412576120994,
+        "std": 2509982743.724183,
+        "min": 0.0,
+        "max": 534147.994007
+      }
+    },
+    "W_Nabellen offertes": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 40122.371096056704,
+        "std": 16986249702.990639,
+        "min": 0.0,
+        "max": 1790146.980023
+      }
+    },
+    "W_Valideren aanvraag": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 12032.373170186665,
+        "std": 866827351.0728937,
+        "min": 0.0,
+        "max": 264973.997003
+      }
+    },
+    "A_ACTIVATED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 6117.533251289855,
+        "std": 277298645.23227537,
+        "min": 0.0,
+        "max": 367329.995005
+      }
+    },
+    "A_APPROVED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 9374.59467512818,
+        "std": 779768426.7398092,
+        "min": 0.0,
+        "max": 481233.994006
+      }
+    },
+    "A_REGISTERED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 6859.170326553049,
+        "std": 389514645.7788204,
+        "min": 0.0,
+        "max": 367330.995005
+      }
+    },
+    "O_ACCEPTED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 9997.51852840661,
+        "std": 652287059.0017294,
+        "min": 0.0,
+        "max": 459734.994006
+      }
+    },
+    "W_Beoordelen fraude": {
+      "name": "exponential",
+      "parameters": {
+        "scale": 16468.04141691667,
+        "min": 3619.0,
+        "max": 199546.997003
+      }
+    },
+    "A_PARTLYSUBMITTED": {
+      "name": "norm",
+      "parameters": {
+        "mean": 3873.339729904871,
+        "std": 1703.5827390862585,
+        "min": 0.0,
+        "max": 7217.0
+      }
+    },
+    "A_SUBMITTED": {
+      "name": "lognorm",
+      "parameters": {
+        "mean": 4530.456576148403,
+        "std": 3650984.232090165,
+        "min": 0.0,
+        "max": 10984.0
+      }
+    }
+  },
+  "resource_to_role": {
+    "NOT_SET": "Role 1",
+    "10912.0": "Role 1",
+    "11019.0": "Role 1",
+    "11000.0": "Role 1",
+    "11203.0": "Role 1",
+    "11180.0": "Role 1",
+    "11201.0": "Role 1",
+    "10889.0": "Role 1",
+    "10913.0": "Role 1",
+    "10863.0": "Role 1",
+    "11119.0": "Role 1",
+    "10982.0": "Role 1",
+    "11001.0": "Role 1",
+    "11169.0": "Role 1",
+    "11179.0": "Role 1",
+    "11122.0": "Role 1",
+    "11121.0": "Role 1",
+    "11049.0": "Role 1",
+    "10909.0": "Role 1",
+    "11189.0": "Role 1",
+    "10899.0": "Role 1",
+    "11009.0": "Role 1",
+    "10881.0": "Role 1",
+    "11181.0": "Role 1",
+    "10939.0": "Role 1",
+    "10789.0": "Role 1",
+    "11002.0": "Role 1",
+    "10861.0": "Role 1",
+    "10933.0": "Role 1",
+    "10914.0": "Role 1",
+    "11259.0": "Role 1",
+    "10931.0": "Role 1",
+    "10910.0": "Role 1",
+    "10932.0": "Role 1",
+    "10929.0": "Role 1",
+    "11269.0": "Role 1",
+    "11003.0": "Role 1",
+    "10935.0": "Role 1",
+    "11319.0": "Role 1",
+    "11309.0": "Role 1",
+    "11299.0": "Role 1",
+    "11300.0": "Role 1",
+    "11302.0": "Role 1",
+    "10609.0": "Role 2",
+    "11339.0": "Role 2",
+    "10972.0": "Role 2",
+    "10138.0": "Role 2",
+    "10809.0": "Role 2",
+    "10779.0": "Role 2",
+    "10629.0": "Role 2",
+    "10125.0": "Role 2",
+    "10821.0": "Role 2",
+    "11289.0": "Role 2",
+    "10862.0": "Role 3",
+    "11111.0": "Role 3",
+    "11120.0": "Role 3",
+    "11202.0": "Role 3",
+    "10971.0": "Role 3",
+    "10880.0": "Role 3",
+    "11200.0": "Role 3",
+    "10859.0": "Role 3",
+    "10228.0": "Role 4",
+    "10124.0": "Role 4",
+    "112.0": "Role 5",
+    "11029.0": "Role 6",
+    "10188.0": "Role 7"
+    },
+    "PREFIX_LEN": 25,
+    "TRACE_ATTRIBUTES": [
+      "AMOUNT_REQ"
+    ],
+    "ATTRIB_TO_ENCODE": [],
+    "EVENT_ATTRIBUTES": [],
+    "RESOURCE_EMPTY": "other"
+  }
