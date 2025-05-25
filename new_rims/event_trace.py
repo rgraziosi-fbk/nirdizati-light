@@ -274,6 +274,14 @@ class Token(object):
                 u = np.random.uniform(cdf_min, cdf_max, size=size)
                 return expon.ppf(u, scale=scale)
             duration = truncated_exponential_inverse(scale, min_val, max_val, size=1)[0]
+        elif self._params.PROCESSING_TIME[act]["name"] == 'norm':
+            mean = self._params.PROCESSING_TIME[act]["parameters"]["mean"]
+            std = self._params.PROCESSING_TIME[act]["parameters"]["std"]
+            min_val = self._params.PROCESSING_TIME[act]["parameters"]["min"]
+            max_val = self._params.PROCESSING_TIME[act]["parameters"]["max"]
+            a = (min_val - mean) / std
+            b = (max_val - mean) / std
+            duration = truncnorm.rvs(a, b, loc=mean, scale=std)
         else:
             distribution = self._params.PROCESSING_TIME[act]['name']
             parameters = self._params.PROCESSING_TIME[act]['parameters']
