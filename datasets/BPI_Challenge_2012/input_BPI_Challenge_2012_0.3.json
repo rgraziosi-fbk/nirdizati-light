@@ -271,121 +271,121 @@
   },
   "activity_to_role": {
     "W_Completeren aanvraag": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 4"
     ],
     "A_ACCEPTED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
     ],
     "A_PREACCEPTED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile",
-      "Role 5_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4",
+      "Role 5"
     ],
     "O_SELECTED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
     ],
     "W_Afhandelen leads": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 4"
     ],
     "A_FINALIZED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
     ],
     "O_CREATED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
     ],
     "O_SENT": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4"
     ],
     "W_Nabellen offertes": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 4_profile",
-      "Role 8_profile"
+      "Role 1",
+      "Role 2",
+      "Role 4",
+      "Role 8"
     ],
     "O_CANCELLED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 5_profile",
-      "Role 6_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 5",
+      "Role 6"
     ],
     "W_Nabellen incomplete dossiers": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 8_profile"
+      "Role 1",
+      "Role 2",
+      "Role 8"
     ],
     "O_SENT_BACK": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 4_profile",
-      "Role 6_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 4",
+      "Role 6"
     ],
     "W_Valideren aanvraag": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 4_profile",
-      "Role 8_profile"
+      "Role 1",
+      "Role 2",
+      "Role 4",
+      "Role 8"
     ],
     "A_CANCELLED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile",
-      "Role 5_profile",
-      "Role 6_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3",
+      "Role 5",
+      "Role 6"
     ],
     "O_DECLINED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3"
     ],
     "A_DECLINED": [
-      "Role 1_profile",
-      "Role 2_profile",
-      "Role 3_profile"
+      "Role 1",
+      "Role 2",
+      "Role 3"
     ],
     "O_ACCEPTED": [
-      "Role 2_profile"
+      "Role 2"
     ],
     "A_REGISTERED": [
-      "Role 2_profile"
+      "Role 2"
     ],
     "A_ACTIVATED": [
-      "Role 2_profile"
+      "Role 2"
     ],
     "A_APPROVED": [
-      "Role 2_profile"
+      "Role 2"
     ],
     "W_Beoordelen fraude": [
-      "Role 2_profile",
-      "Role 7_profile"
+      "Role 2",
+      "Role 7"
     ],
     "A_SUBMITTED": [
-      "Role 5_profile"
+      "Role 5"
     ],
     "A_PARTLYSUBMITTED": [
-      "Role 5_profile"
+      "Role 5"
     ]
   },
   "processing_time": {
