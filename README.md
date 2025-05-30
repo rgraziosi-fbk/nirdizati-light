@@ -1,4 +1,4 @@
-# Enhanced What-If Scenarios Generation by Bridging Generative Models and Process Simulation
+# WISDOM: Enhanced What-If Scenarios Generation by Bridging Generative Models and Process Simulation
 
 Generative Artificial Intelligence (Gen AI) techniques have recently emerged as promising tools for challenges in Process Mining such as missing data, small datasets, and the generation of complex what-if scenarios. A major limitation of current approaches is their inability to produce sets of process traces in a mutually dependent manner. Traces are generated independently, failing to reflect crucial process-level phenomena such as concurrency, resource contention, and workload distribution. This limitation significantly reduces the realism and utility of the generated logs, yet has received limited attention in the literature.
 
